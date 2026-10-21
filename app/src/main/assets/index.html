@@ -1041,7 +1041,7 @@ function getDownloads() {
   }
   return dlPromise;
 }
-const MIME = { html: 'text/html', csv: 'text/csv', json: 'application/json', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
+const MIME = { pdf: 'application/pdf', html: 'text/html', csv: 'text/csv', json: 'application/json', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
 function plainDownload(filename, data) {
   const ext = String(filename).split('.').pop();
   const blob = data instanceof Blob ? data : new Blob([data], { type: (MIME[ext] || 'application/octet-stream') + ';charset=utf-8' });
@@ -1092,7 +1092,7 @@ async function offerFile(filename, data, fallback) {
 }
 
 /* ===== фото шильдиков: вентилятор, электродвигатель ===== */
-const SLOTS = { fan: 'Вентилятор', motor: 'Электродвигатель' };
+const SLOTS = { fan: 'Вентилятор', motor: 'Электродвигатель', note: 'Заметки по системе' };
 /* Фото: {id} — в облаке блокнота; {local} — в памяти телефона, ждёт отправки; {data} — встроено в запись */
 const Photos = {
   state: 'local', assets: null, busy: 0, urls: new Map(), syncing: false,
@@ -1231,7 +1231,7 @@ function showPhoto(sys, slot, i) {
 /* Все фото системы: вентилятор, двигатель, сечения */
 function allPhotos(sys) {
   const p = sys.photos || {};
-  return [].concat(p.fan || [], p.motor || [], ...(sys.sections || []).map((c) => c.photos || []));
+  return [].concat(p.fan || [], p.motor || [], p.note || [], ...(sys.sections || []).map((c) => c.photos || []));
 }
 function dropLocalPhoto(p) {
   if (!p || !p.local) return;
@@ -1271,8 +1271,9 @@ function equipCards(sys, res) {
       <div class="stack" style="gap:12px"><div class="fields">${inNum(sys, 'pass.motor.fact.I', 'Ток фактически', 'А')}</div>
         ${photoGrid(sys, 'motor')}</div></section>
   </div>
-  <section class="card c-note"><div class="f"><label for="${fid(sys, 'note')}">Заметки по системе</label>
-    <textarea id="${fid(sys, 'note')}" data-doc="${sys.id}" data-path="note" style="font-family:var(--f-body)" placeholder="напр. что сделано, что осталось, замечания заказчику">${esc(sys.note || '')}</textarea></div></section>`;
+  <section class="card c-note"><div class="stack" style="gap:12px"><div class="f"><label for="${fid(sys, 'note')}">Заметки по системе</label>
+    <textarea id="${fid(sys, 'note')}" data-doc="${sys.id}" data-path="note" style="font-family:var(--f-body)" placeholder="напр. что сделано, что осталось, замечания заказчику">${esc(sys.note || '')}</textarea></div>
+    ${photoGrid(sys, 'note', 'к заметке')}</div></section>`;
 }
 
 /* ===== журнал: объекты → системы → мерные сечения ===== */
@@ -1451,8 +1452,8 @@ function viewObject(o) {
         : `<p class="muted">Систем пока нет. Добавьте первую — например, П1 или В1.</p>`}
     </section>
     <section class="card c-send"><div class="card-head"><h2>Отправить заказчику</h2></div>
-      <p class="muted small" style="margin-bottom:10px">Excel — все системы и точки с фильтрами для сортировки. Сводка — те же таблицы и фото шильдиков одним файлом.</p>
-      <div class="head-actions"><button class="btn primary" data-act="export-xlsx">Таблица Excel</button><button class="btn" data-act="export-summary">Сводка с фото</button></div></section>
+      <p class="muted small" style="margin-bottom:10px">PDF — готовый отчёт: таблицы, заметки и фото. Excel — все системы и точки с фильтрами для сортировки. Сводка — то же, что PDF, страницей для браузера.</p>
+      <div class="head-actions"><button class="btn primary" data-act="export-pdf">PDF</button><button class="btn" data-act="export-xlsx">Таблица Excel</button><button class="btn" data-act="export-summary">Сводка с фото</button></div></section>
     <div class="head-actions">${delBtn('obj:' + o.id, 'Удалить объект')}</div>
   </div>`;
 }
@@ -2077,7 +2078,7 @@ function dataURLToBlob(u) {
 }
 function photoArrays(sys) {
   const p = sys.photos || {};
-  return [p.fan || [], p.motor || []].concat((sys.sections || []).map((c) => c.photos || []));
+  return [p.fan || [], p.motor || [], p.note || []].concat((sys.sections || []).map((c) => c.photos || []));
 }
 async function exportSummary(o) {
   toast('Собираю сводку…');
@@ -2093,7 +2094,7 @@ async function exportSummary(o) {
     if (res.count) body += table(rows);
     if (sys.note) body += `<p><b>Заметки:</b> ${esc(sys.note)}</p>`;
     let figs = '';
-    const slots = ['fan', 'motor'].concat((sys.sections || []).map((c) => 'sec:' + c.id));
+    const slots = ['fan', 'motor', 'note'].concat((sys.sections || []).map((c) => 'sec:' + c.id));
     for (const slot of slots) {
       const list = peekPhotos(sys, slot);
       for (let i = 0; i < list.length; i++) {
@@ -2162,6 +2163,206 @@ function importBackup(file) {
     } catch (e) { toast('Не удалось прочитать файл: это не резервная копия блокнота.'); }
   };
   rd.readAsText(file);
+}
+
+/* ===== PDF для заказчика: страницы рисуются на canvas (JPEG) и собираются в PDF — без интернета ===== */
+function pdfHexText(s) { let h = '<FEFF'; for (const ch of String(s)) { const c = ch.codePointAt(0); if (c > 0xFFFF) { const v = c - 0x10000; h += (0xD800 + (v >> 10)).toString(16).padStart(4, '0') + (0xDC00 + (v & 0x3FF)).toString(16).padStart(4, '0'); } else h += c.toString(16).padStart(4, '0'); } return h.toUpperCase() + '>'; }
+function pdfFromJpegs(pages, title) {
+  const enc = new TextEncoder(), parts = [], offs = [];
+  let pos = 0;
+  const push = (x) => { const u = typeof x === 'string' ? enc.encode(x) : x; parts.push(u); pos += u.length; };
+  const obj = (n, body) => { offs[n] = pos; push(n + ' 0 obj\n'); body(); push('\nendobj\n'); };
+  const W = 595.28, H = 841.89, n = pages.length, d = new Date();
+  const ts = 'D:' + d.getFullYear() + [d.getMonth() + 1, d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds()].map((x) => String(x).padStart(2, '0')).join('');
+  push('%PDF-1.4\n%âãÏÓ\n');
+  obj(1, () => push('<< /Type /Catalog /Pages 2 0 R >>'));
+  obj(2, () => push(`<< /Type /Pages /Count ${n} /Kids [${pages.map((_, i) => `${4 + 3 * i} 0 R`).join(' ')}] >>`));
+  obj(3, () => push(`<< /Title ${pdfHexText(title)} /Producer (Bloknot naladchika) /CreationDate (${ts}) >>`));
+  pages.forEach((p, i) => {
+    const po = 4 + 3 * i, co = po + 1, io = po + 2, cs = `q ${W} 0 0 ${H} 0 0 cm /Im${i} Do Q`;
+    obj(po, () => push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im${i} ${io} 0 R >> /ProcSet [/PDF /ImageC] >> /Contents ${co} 0 R >>`));
+    obj(co, () => { push(`<< /Length ${cs.length} >>\nstream\n`); push(cs); push('\nendstream'); });
+    obj(io, () => { push(`<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.bytes.length} >>\nstream\n`); push(p.bytes); push('\nendstream'); });
+  });
+  const total = 4 + 3 * n, xref = pos;
+  push(`xref\n0 ${total}\n0000000000 65535 f \n`);
+  for (let k = 1; k < total; k++) push(String(offs[k]).padStart(10, '0') + ' 00000 n \n');
+  push(`trailer\n<< /Size ${total} /Root 1 0 R /Info 3 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+  return new Blob(parts, { type: 'application/pdf' });
+}
+
+/* Фото — уменьшенная копия под размер на странице (бережём память телефона) */
+async function pdfThumb(p, maxW, maxH) {
+  const b = await photoBlob(p).catch(() => null);
+  if (!b) return null;
+  const url = URL.createObjectURL(b);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const k = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
+    const cv = document.createElement('canvas');
+    cv.width = Math.max(1, Math.round(img.naturalWidth * k)); cv.height = Math.max(1, Math.round(img.naturalHeight * k));
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    return cv;
+  } catch (e) { return null; } finally { URL.revokeObjectURL(url); }
+}
+
+async function exportPDF(o) {
+  if (UI.pdfBusy) return;
+  UI.pdfBusy = true;
+  toast('Готовлю PDF…');
+  try {
+    const DPI = 170, MM = DPI / 25.4, PT = DPI / 72;
+    const PW = Math.round(210 * MM), PH = Math.round(297 * MM);
+    const ML = 14 * MM, MT = 13 * MM, MB = 16 * MM, CW = PW - 2 * ML, BOTTOM = PH - MB;
+    const FAM = 'Roboto, Arial, "Helvetica Neue", Helvetica, sans-serif';
+    const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH;
+    const ctx = cv.getContext('2d');
+    const font = (pt, bold) => `${bold ? 'bold ' : ''}${Math.round(pt * PT)}px ${FAM}`;
+    const pages = [[]];
+    let y = MT;
+    const cur = () => pages[pages.length - 1];
+    const newPage = () => { pages.push([]); y = MT; };
+    const need = (h) => { if (y + h > BOTTOM && y > MT + 1) newPage(); };
+    function wrap(text, maxW, f) {
+      ctx.font = f;
+      const out = [];
+      String(text ?? '').split(/\r?\n/).forEach((par) => {
+        const words = par.split(/\s+/).filter(Boolean);
+        if (!words.length) { out.push(''); return; }
+        let line = '';
+        for (let w of words) {
+          while (ctx.measureText(w).width > maxW && w.length > 1) {
+            let k = w.length - 1; while (k > 1 && ctx.measureText(w.slice(0, k)).width > maxW) k--;
+            if (line) { out.push(line); line = ''; }
+            out.push(w.slice(0, k)); w = w.slice(k);
+          }
+          const t = line ? line + ' ' + w : w;
+          if (ctx.measureText(t).width <= maxW) line = t; else { out.push(line); line = w; }
+        }
+        out.push(line);
+      });
+      return out;
+    }
+    function para(text, pt, opt = {}) {
+      const f = font(pt, opt.bold), lh = pt * PT * 1.35;
+      for (const ln of wrap(text, CW, f)) {
+        need(lh); const yy = y;
+        cur().push(() => { ctx.font = f; ctx.fillStyle = opt.color || '#111'; ctx.fillText(ln, ML, yy); });
+        y += lh;
+      }
+      y += (opt.after || 0) * MM;
+    }
+    function heading(text, sub) {
+      need(14 * PT + 30 * MM); y += 3 * MM;
+      const yy = y, f = font(13, true), fs = font(9.5);
+      cur().push(() => {
+        ctx.fillStyle = '#F2C230'; ctx.fillRect(ML, yy + 0.5 * MM, 1.6 * MM, 13 * PT * 1.1);
+        ctx.font = f; ctx.fillStyle = '#111'; ctx.fillText(text, ML + 3.5 * MM, yy);
+        if (sub) { const w = ctx.measureText(text).width; ctx.font = fs; ctx.fillStyle = '#555'; ctx.fillText(sub, ML + 3.5 * MM + w + 3 * MM, yy + 3.5 * PT * 0.85); }
+      });
+      y += 13 * PT * 1.45;
+    }
+    function table(rows, rel, numCols = [], statusCol = -1) {
+      const pt = 7.6, f = font(pt), fb = font(pt, true), lh = pt * PT * 1.28, pad = 1.3 * MM;
+      const tot = rel.reduce((a, b) => a + b, 0), ws = rel.map((r) => (r / tot) * CW), xs = [];
+      let acc = ML; ws.forEach((w) => { xs.push(acc); acc += w; });
+      const lines = (row, bold) => row.map((c, j) => wrap(c === '' || c === null || c === undefined ? '' : String(c), ws[j] - 2 * pad, bold ? fb : f));
+      const head = lines(rows[0], true), headH = Math.max(...head.map((l) => l.length)) * lh + 2 * pad;
+      const drawRow = (ls, yy, h, isHead, raw) => cur().push(() => {
+        if (isHead) { ctx.fillStyle = '#EEF1F4'; ctx.fillRect(ML, yy, CW, h); }
+        ctx.strokeStyle = '#98A2AB'; ctx.lineWidth = Math.max(1, 0.18 * MM);
+        ls.forEach((cell, j) => {
+          ctx.strokeRect(xs[j], yy, ws[j], h);
+          ctx.font = isHead ? fb : f;
+          const st = !isHead && j === statusCol ? String(raw[j]) : '';
+          ctx.fillStyle = st === 'вне допуска' ? '#C62828' : st === 'в допуске' ? '#1B7F3B' : st ? '#666' : '#111';
+          cell.forEach((ln, k) => {
+            const x = !isHead && numCols.includes(j) ? xs[j] + ws[j] - pad - ctx.measureText(ln).width : xs[j] + pad;
+            ctx.fillText(ln, x, yy + pad + k * lh);
+          });
+        });
+      });
+      need(headH + lh + 2 * pad);
+      drawRow(head, y, headH, true); y += headH;
+      for (const r of rows.slice(1)) {
+        const ls = lines(r, false), h = Math.max(1, ...ls.map((l) => l.length)) * lh + 2 * pad;
+        if (y + h > BOTTOM) { newPage(); drawRow(head, y, headH, true); y += headH; }
+        drawRow(ls, y, h, false, r); y += h;
+      }
+      y += 3 * MM;
+    }
+    async function photos(list) {
+      if (!list.length) return;
+      const gap = 5 * MM, colW = (CW - gap) / 2, maxH = 92 * MM, capF = font(7.5), capLH = 7.5 * PT * 1.3;
+      const items = [];
+      for (const it of list) { const th = await pdfThumb(it.p, colW, maxH); if (th) items.push({ th, cap: it.cap }); }
+      for (let i = 0; i < items.length; i += 2) {
+        const row = items.slice(i, i + 2);
+        const caps = row.map((it) => wrap(it.cap, colW, capF));
+        const h = Math.max(...row.map((it) => it.th.height)) + Math.max(...caps.map((c) => c.length)) * capLH + 1.5 * MM;
+        need(h + 2 * MM);
+        const yy = y;
+        row.forEach((it, j) => {
+          const x = ML + j * (colW + gap);
+          cur().push(() => {
+            ctx.drawImage(it.th, x, yy, it.th.width, it.th.height);
+            ctx.strokeStyle = '#C9CFD4'; ctx.lineWidth = 1; ctx.strokeRect(x, yy, it.th.width, it.th.height);
+            ctx.font = capF; ctx.fillStyle = '#555';
+            caps[j].forEach((ln, k) => ctx.fillText(ln, x, yy + it.th.height + 1 * MM + k * capLH));
+          });
+        });
+        y += h + 2 * MM;
+      }
+    }
+
+    /* содержание — как в сводке */
+    const { sysRows, blocks } = objectData(o);
+    const show = (x, j) => (typeof x !== 'number' ? x : (j === 6 ? M.fmtSigned(x, 1) : (j === 4 || j === 5 ? F(x) : String(x).replace('.', ','))));
+    para(o.name || 'Объект', 17, { bold: true, after: 1 });
+    para([o.address || '', o.date ? 'начало работ ' + fmtDate(o.date) : '', 'отчёт от ' + fmtDate(todayISO())].filter(Boolean).join(' · '), 9.5, { color: '#555', after: 2 });
+    heading('Системы');
+    const sysCols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    table(sysRows.map((r, i) => sysCols.map((j) => (i ? show(r[j], j) : r[j]))), [5, 10, 13, 18, 10, 10, 9, 9, 8, 7, 9], [4, 5, 6, 7, 8, 9, 10]);
+    for (const { sys, res, ff, hz } of blocks) {
+      heading(sys.name || 'Система', [sysTypeName(sys.type), sys.location].filter(Boolean).join(' · '));
+      const amp = N((((sys.pass || {}).motor || {}).fact || {}).I);
+      const info = [];
+      if (OK(ff.fact) || OK(ff.proj)) info.push(`Вентилятор: L факт ${OK(ff.fact) ? F(ff.fact) : '—'} / проект ${OK(ff.proj) ? F(ff.proj) : '—'} м³/ч${OK(ff.dev) ? ` (${M.fmtSigned(ff.dev, 1)} %)` : ''}`);
+      if (OK(hz)) info.push(`частота ПЧ ${String(hz).replace('.', ',')} Гц`);
+      if (OK(amp)) info.push(`ток двигателя ${String(amp).replace('.', ',')} А`);
+      if (info.length) para(info.join(' · '), 9, { after: 1.5 });
+      if (res.count) {
+        const rows = [['№', 'Помещение, место', 'Размер, мм', 'K', 'Pст, Па', 'L проект, м³/ч', 'L факт, м³/ч', 'Откл., %', 'Оценка', 'Заметка']]
+          .concat(res.secs.map(({ s, r }) => [s.no || '', s.place || '', sizeOf(s), String(kOf(s)).replace('.', ','), OK(r.ps) ? F(r.ps) : '', OK(r.Lp) ? F(r.Lp) : '', OK(r.L) ? F(r.L) : '', OK(r.dev) ? M.fmtSigned(r.dev, 1) : '', statusRu(r), s.note || '']));
+        table(rows, [5, 25, 10, 5, 7, 10, 10, 8, 10, 20], [3, 4, 5, 6, 7], 8);
+      }
+      if (sys.note) { para('Заметки', 9, { bold: true }); para(sys.note, 9, { after: 2 }); }
+      const list = [];
+      ['fan', 'motor', 'note'].concat((sys.sections || []).map((c) => 'sec:' + c.id)).forEach((slot) => {
+        peekPhotos(sys, slot).forEach((p, i, arr) => list.push({ p, cap: `${sys.name || ''} · ${slotName(sys, slot)}${arr.length > 1 ? ', фото ' + (i + 1) : ''}` }));
+      });
+      if (list.length) { need(40 * MM); para('Фото', 9, { bold: true, after: 1 }); await photos(list); }
+    }
+
+    /* отрисовка страниц в JPEG */
+    const total = pages.length, out = [], footF = font(7.5), title = o.name || 'Объект';
+    for (let i = 0; i < total; i++) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, PW, PH);
+      ctx.textBaseline = 'top';
+      pages[i].forEach((fn) => fn());
+      ctx.font = footF; ctx.fillStyle = '#888';
+      ctx.fillText(title + ' · наладка вентиляции', ML, PH - MB + 6 * MM);
+      const pg = `стр. ${i + 1} из ${total}`; ctx.fillText(pg, PW - ML - ctx.measureText(pg).width, PH - MB + 6 * MM);
+      const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.86));
+      if (!blob) throw new Error('jpeg');
+      out.push({ w: PW, h: PH, bytes: new Uint8Array(await blob.arrayBuffer()) });
+    }
+    const pdf = pdfFromJpegs(out, title);
+    offerFile(`${fileSafe(o.name)} — наладка ${fmtDate(todayISO())}.pdf`, pdf, () => toast('Не удалось сохранить PDF.'));
+  } catch (e) {
+    toast('Не удалось сделать PDF. Попробуйте ещё раз.');
+  } finally { UI.pdfBusy = false; }
 }
 
 /* ===== маршрутизация и события ===== */
@@ -2315,6 +2516,7 @@ document.addEventListener('click', (e) => {
     }
     case 'export-xlsx': if (d.o) exportTable(d.o); break;
     case 'export-summary': if (d.o) exportSummary(d.o); break;
+    case 'export-pdf': if (d.o) exportPDF(d.o); break;
     case 'photo-add': { const inp = document.getElementById('pf-' + a.dataset.slot); if (inp) inp.click(); break; }
     case 'photo-view': { if (!d.s) break; UI.armedPhoto = null; showPhoto(d.s, a.dataset.slot, Number(a.dataset.i)); break; }
     case 'photo-del': {
