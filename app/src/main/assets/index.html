@@ -1,0 +1,2388 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style><title>Блокнот наладчика вентиляции</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: штамп чертежа сверху, журнал строк ниже; одна колонка до 1080px, сетка миллиметровки на фоне */
+:root{
+  --paper:#EDF0F1;      /* оцинковка, светлая */
+  --sheet:#FFFFFF;
+  --sheet-2:#F6F8F9;
+  --ink:#192026;
+  --ink-2:#56616B;
+  --rule:#C9D1D7;
+  --grid:#E0E6E9;
+  --band:#1B2228;       /* шапка — графит */
+  --band-ink:#E8ECEE;
+  --band-2:#2A333B;
+  --signal:#F2C230;     /* сигнальный жёлтый */
+  --signal-ink:#1B2228;
+  --link:#1D5E8C;
+  --ok:#1C7343; --ok-bg:#DDF0E3;
+  --warn:#8E5B00; --warn-bg:#FAEDCC;
+  --bad:#B0281F; --bad-bg:#F7DDDA;
+  --f-display:"Fira Sans Extra Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --f-body:"Golos Text","Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --r:6px;
+}
+
+
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:20px 20px;
+  color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--band)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em;text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:30px}
+@media (max-width:640px){h1{font-size:24px}}
+h2{font-size:21px}
+h3{font-size:17px}
+p{margin:0}
+a{color:var(--link)}
+
+/* ===== шапка ===== */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--band);color:var(--band-ink);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:18px;min-height:56px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-mark{width:28px;height:28px;flex:none}
+.brand-name{font-family:var(--f-display);font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.brand-sub{font-family:var(--f-mono);font-size:11px;color:var(--ink-2);opacity:.9;white-space:nowrap}
+.bar .brand-sub{color:#9AA6AF}
+.tabs{display:flex;gap:2px;margin-left:auto;background:var(--band-2);padding:3px;border-radius:8px}
+.tab{border:0;background:transparent;color:var(--band-ink);font-family:var(--f-display);font-size:17px;font-weight:600;letter-spacing:.03em;
+  padding:6px 14px;border-radius:6px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--signal);color:var(--signal-ink)}
+.save-state{font-family:var(--f-mono);font-size:12px;color:#9AA6AF;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.save-state i{width:8px;height:8px;border-radius:50%;background:#62CC8F;display:inline-block}
+.save-state[data-s="busy"] i{background:var(--signal)}
+.save-state[data-s="local"] i{background:#9AA6AF}
+.save-state[data-s="err"] i{background:#F38980}
+.save-state[data-s="wait"] i{background:#F0A000}
+.save-state[data-s="wait"]{color:#9A5B00;font-weight:600}
+.save-state[data-s="err"]{color:#C21B1B;font-weight:600}
+@media (max-width:720px){
+  .bar-in{gap:8px 12px;padding-block:8px}
+  .tabs{order:3;width:100%;margin-left:0}
+  .tab{flex:1}
+  .save-state{margin-left:auto}
+}
+
+/* ===== основная колонка ===== */
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.stack{display:flex;flex-direction:column;gap:16px}
+.crumbs{display:flex;flex-wrap:wrap;gap:4px 8px;font-size:13px;color:var(--ink-2);align-items:center}
+.crumbs button{border:0;background:none;padding:0;color:var(--link);cursor:pointer;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.crumbs span.sep{opacity:.5}
+.head{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.head-actions{display:flex;gap:8px;flex-wrap:wrap}
+.lead{color:var(--ink-2);max-width:65ch}
+.banner{border:1px solid var(--rule);background:var(--sheet-2);border-radius:var(--r);padding:10px 12px;font-size:14px;color:var(--ink-2)}
+.banner.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r);padding:16px;min-width:0}
+.card-head{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.card > h2{margin-bottom:12px}
+.ref{font-family:var(--f-mono);font-size:11px;color:var(--ink-2);border:1px solid var(--rule);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.muted{color:var(--ink-2)}
+.small{font-size:13px}
+
+/* ===== поля ===== */
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 12px}
+.fields.wide{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f.span2{grid-column:span 2}
+@media (max-width:340px){.f.span2{grid-column:auto}}
+.f label,.lbl{font-family:var(--f-display);font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2)}
+.f .u{text-transform:none;letter-spacing:0;font-family:var(--f-mono);font-weight:400;font-size:11px}
+input[type=text],input[type=date],select,textarea{width:100%;min-width:0;background:var(--sheet-2);border:1px solid var(--rule);border-radius:5px;padding:8px 10px;min-height:40px}
+input.num-in{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+textarea{min-height:64px;resize:vertical;font-family:var(--f-mono);font-size:14px}
+::placeholder{color:var(--ink-2);opacity:.6;font-style:italic;font-weight:400}
+input.num-in{font-weight:600}
+input:focus,select:focus,textarea:focus{border-color:var(--link);background:var(--sheet)}
+.hint{font-size:12px;color:var(--ink-2)}
+.pre{display:flex;align-items:stretch}
+.pre span{display:flex;align-items:center;padding:0 10px;border:1px solid var(--rule);border-right:0;border-radius:5px 0 0 5px;background:var(--sheet);font-family:var(--f-mono);font-weight:600}
+.pre input{border-radius:0 5px 5px 0}
+.pre .sgn{min-width:44px;border:1px solid var(--rule);border-right:0;border-radius:5px 0 0 5px;background:var(--sheet);font-family:var(--f-mono);font-weight:700;font-size:18px;cursor:pointer;color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:var(--sheet-2)}
+.seg button{border:0;background:transparent;padding:7px 12px;cursor:pointer;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer}
+
+/* ===== кнопки ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:7px 14px;border-radius:6px;
+  border:1px solid var(--rule);background:var(--sheet);cursor:pointer;font-size:14px;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--ink-2)}
+.btn.primary{background:var(--signal);border-color:var(--signal);color:var(--signal-ink);font-weight:600}
+.btn.primary:hover{filter:brightness(.96)}
+.btn.danger{color:var(--bad)}
+.btn.danger.armed{background:var(--bad);color:var(--sheet);border-color:var(--bad)}
+.btn.sm{min-height:32px;padding:4px 10px;font-size:13px}
+.linkbtn{border:0;background:none;color:var(--link);cursor:pointer;padding:0;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+
+/* ===== статусы ===== */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;background:var(--sheet-2);color:var(--ink-2);border:1px solid var(--rule)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.pill.bad{background:var(--bad-bg);color:var(--bad);border-color:transparent}
+.pill.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.notes{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.notes li{font-size:13.5px;padding:6px 10px;border-radius:5px;background:var(--sheet-2);border-left:3px solid var(--rule)}
+.notes li.w{background:var(--warn-bg);border-left-color:var(--warn);color:var(--ink)}
+.notes li.b{background:var(--bad-bg);border-left-color:var(--bad);color:var(--ink)}
+
+/* ===== штамп (title block) ===== */
+.stamp{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border:2px solid var(--ink);background:var(--sheet);border-radius:2px;overflow:hidden}
+.stamp .c{border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);margin:0 -1px -1px 0;padding:6px 8px 8px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stamp .c.s2{grid-column:span 2}.stamp .c.s3{grid-column:span 3}.stamp .c.s4{grid-column:span 4}.stamp .c.s6{grid-column:span 6}
+.stamp .c label{font-family:var(--f-display);font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+.stamp input,.stamp select{border:0;background:transparent;padding:2px 0;min-height:30px;border-radius:0;font-size:16px}
+.stamp input:focus,.stamp select:focus{background:var(--sheet-2);outline:none;box-shadow:inset 0 -2px 0 var(--signal)}
+.stamp .c.title input{font-family:var(--f-display);font-size:26px;font-weight:700;letter-spacing:.02em}
+@media (max-width:720px){
+  .stamp{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stamp .c,.stamp .c.s2,.stamp .c.s3,.stamp .c.s4,.stamp .c.s6{grid-column:span 2}
+  .stamp .c.half{grid-column:span 1}
+}
+
+/* ===== карточки объектов ===== */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.ocard{text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:10px;background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px;min-width:0}
+.ocard:hover{border-color:var(--ink-2)}
+.ocard h3{font-size:20px}
+.ocard .meta{font-size:13px;color:var(--ink-2)}
+.ocard .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.empty{border:1.5px dashed var(--rule);border-radius:var(--r);padding:28px 20px;display:flex;flex-direction:column;gap:14px;background:var(--sheet);align-items:flex-start}
+.empty h2{font-size:24px}
+
+/* ===== таблицы ===== */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:var(--r);background:var(--sheet)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);text-align:left;padding:8px 10px;border-bottom:1px solid var(--rule);background:var(--sheet-2);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid var(--grid);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+tr.click{cursor:pointer}
+th.cc{text-align:center}
+.systbl th{white-space:normal;vertical-align:bottom}
+.dv{font-weight:600}.dv.ok{color:var(--ok)}.dv.bad{color:var(--bad)}
+.systbl th[rowspan]{vertical-align:middle}
+@media (max-width:480px){.systbl th,.systbl td{padding:6px 4px}.systbl th{font-size:11px;letter-spacing:.02em}.systbl td{font-size:13px}}
+@media (max-width:640px){th.hm,td.hm{display:none}th.sz,td.sz{font-size:12px}.sectbl th{white-space:normal;font-size:11px;padding:6px 4px;vertical-align:bottom}.sectbl td{padding:6px 4px;font-size:13px}.sectbl td.sz{white-space:nowrap}td.sz .kt{display:block;width:max-content;margin-top:2px}}
+tr.click:hover td{background:var(--sheet-2)}
+.rd td{padding:4px 6px}
+.rd input{min-height:36px;padding:6px 8px;width:76px;text-align:right}
+.rd td.pt{font-family:var(--f-mono);font-weight:600;white-space:nowrap}
+.rd tr.on td.pt{color:var(--ink)}
+.rd .spr.bad{color:var(--bad);font-weight:600}
+.rd .co{display:block;font-family:var(--f-mono);font-size:11px;font-weight:400;color:var(--ink-2);white-space:nowrap}
+.rd td.vcell{white-space:nowrap}
+@media (max-width:480px){.rd input{width:58px;padding:6px 6px}.rd td{padding:4px 3px}.rd th{padding:6px 4px;font-size:11.5px;white-space:normal}}
+
+/* ===== результат сечения ===== */
+.result{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:2px solid var(--ink);background:var(--sheet);border-radius:2px}
+.result .c{padding:10px 12px;border-right:1px solid var(--rule);min-width:0;display:flex;flex-direction:column;gap:2px}
+.result .c:last-child{border-right:0}
+.result .k{font-family:var(--f-display);font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+.result .v{font-family:var(--f-mono);font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.result .v small{font-size:13px;font-weight:400;color:var(--ink-2)}
+.result .c.st{justify-content:center;align-items:flex-start;gap:6px}
+.subline{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2);padding:8px 2px 0}
+.subline b{font-family:var(--f-mono);color:var(--ink);font-weight:500}
+@media (max-width:640px){
+  .result{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .result .c:nth-child(2){border-right:0}
+  .result .c:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+  .result .v{font-size:22px}
+}
+
+/* ===== схема сечения ===== */
+.diagram{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.diagram .dsvg{flex:none;width:220px;max-width:100%}
+.diagram .dsvg svg{width:100%;height:auto;display:block}
+.diagram .dtable{flex:1 1 360px;min-width:0}
+@media (max-width:640px){.diagram .dsvg{width:180px;margin:0 auto}}
+.sv-wall{fill:var(--sheet-2);stroke:var(--ink);stroke-width:2}
+.sv-axis{stroke:var(--ink-2);stroke-width:1;stroke-dasharray:4 3}
+.sv-pt{fill:var(--sheet);stroke:var(--ink);stroke-width:1.6}
+.sv-pt.on{fill:var(--signal);stroke:var(--ink)}
+.sv-txt{fill:var(--ink-2);font-family:var(--f-mono);font-size:10px}
+.sv-hole{fill:var(--signal);stroke:var(--ink);stroke-width:1}
+.sv-hole.dim,.sv-pt.dim{opacity:.35}
+.drilltbl th{white-space:normal;text-align:center}
+.drilltbl th.gh,.drilltbl td.hl1{background:var(--t-point)}
+.drilltbl th.gh{color:var(--h-point)}
+.drilltbl th.gd,.drilltbl td.dp{background:var(--t-meas)}
+.drilltbl th.gd{color:var(--h-meas)}
+.drilltbl .first{border-left:3px solid var(--ink)}
+.drilltbl td.dp{font-weight:700;font-size:16px}
+.drilltbl td,.drilltbl th{padding-left:6px;padding-right:6px}
+.sv-path{stroke:var(--ink);stroke-width:1.4;stroke-dasharray:5 3}
+.geo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;font-size:14px;align-content:start}
+.geo dt{color:var(--ink-2)}
+.geo dd{margin:0;font-family:var(--f-mono);text-align:right;white-space:nowrap}
+
+/* ===== расчёты ===== */
+.jump{display:flex;flex-wrap:wrap;gap:6px}
+.jump button{border:1px solid var(--rule);background:var(--sheet);border-radius:999px;padding:4px 11px;font-size:13px;cursor:pointer}
+.jump button:hover{border-color:var(--ink-2)}
+.calc{scroll-margin-top:120px}
+.calc .formula{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-2);background:var(--sheet-2);border-radius:4px;padding:6px 8px;margin-top:10px;overflow-x:auto;white-space:nowrap}
+.out{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.kv .i{border:1px solid var(--rule);border-radius:5px;padding:7px 10px;background:var(--sheet-2);min-width:0}
+.kv .i .k{font-size:12.5px;color:var(--ink-2)}
+.kv .i .v{font-family:var(--f-mono);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.kv .i .v small{font-size:12px;font-weight:400;color:var(--ink-2)}
+.kv .i.hl{background:var(--sheet);border-color:var(--ink)}
+
+/* ===== нормы ===== */
+.norms h2{margin-bottom:10px}
+.norms ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:80ch}
+.norms li{padding-left:2px}
+.norms .cl{font-family:var(--f-mono);font-size:12px;color:var(--ink-2);white-space:nowrap}
+.norms table td:first-child{min-width:220px}
+
+/* ===== оверлей и тост ===== */
+.overlay{position:fixed;inset:0;z-index:30;background:rgba(10,13,16,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;
+  padding:max(24px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 24px max(12px,env(safe-area-inset-left,0px))}
+.sheet{background:var(--sheet);border-radius:8px;max-width:900px;width:100%;padding:16px;display:flex;flex-direction:column;gap:12px}
+.sheet .doc{background:#fff;color:#111;border:1px solid var(--rule);padding:16px;overflow-x:auto;font-family:Arial,sans-serif;font-size:13px}
+.sheet .doc h1{font-family:Arial,sans-serif;font-size:17px;text-align:center;margin:0 0 10px;color:#111}
+.sheet .doc h2{font-family:Arial,sans-serif;font-size:14px;margin:12px 0 4px;color:#111}
+.sheet .doc p{margin:3px 0}
+.sheet .doc table{font-size:12px;border-collapse:collapse;width:100%;margin:4px 0}
+.sheet .doc .hd td{border:0;border-bottom:1px solid #888}
+.sheet .doc td.r{text-align:right}
+.sheet .doc .sg .ln{border-bottom:1px solid #111;min-height:18px;margin-top:6px}
+.sheet .doc .sg .cap{font-size:10px;text-align:center;color:#444}
+.sheet .doc th,.sheet .doc td{border:1px solid #888;color:#111;background:#fff;padding:4px 6px;text-transform:none;letter-spacing:0;font-family:Arial,sans-serif}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--band);color:var(--band-ink);
+  padding:10px 16px;border-radius:8px;font-size:14px;max-width:min(92vw,520px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+@media (prefers-reduced-motion:no-preference){
+  .toast{animation:tin .18s ease-out}
+  @keyframes tin{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
+}
+.phs{display:flex;flex-wrap:wrap;gap:10px}
+.ph{width:96px;height:96px;border:1px solid var(--rule);border-radius:6px;padding:0;overflow:hidden;background:var(--sheet-2);cursor:pointer;flex:none}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph.add{border:1.5px dashed var(--ink-2);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:600;font-size:14px;line-height:1.3;color:var(--ink)}
+.ph.add small{font-weight:400;color:var(--ink-2)}
+.ph-full{max-width:100%;max-height:75vh;object-fit:contain;display:block;margin:0 auto;border-radius:4px;background:var(--sheet-2)}
+.sheet .doc .figs{display:flex;flex-wrap:wrap;gap:8px}.sheet .doc figure{margin:0;width:calc(50% - 4px)}.sheet .doc figure img{width:100%}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ===== Светлая схема на белом фоне (одна тема для всех): цвет по смыслу карточки, крупный шрифт ===== */
+:root{
+  --paper:#F2F5F8; --grid:#E5EAEF; --sheet:#FFFFFF; --sheet-2:#F6F8FA; --field:#FFFFFF; --ink:#101820; --ink-2:#465361; --rule:#BCC7D2;
+  --c-point:#1F6FEB; --t-point:#EEF4FF; --h-point:#1550B8;
+  --c-meas:#F0B000; --t-meas:#FFF7D9; --h-meas:#7A5000;
+  --c-geom:#0E9F86; --t-geom:#E5F7F2; --h-geom:#07705D;
+  --c-fan:#7A4FE0; --t-fan:#F3EEFF; --h-fan:#5530BF;
+  --c-motor:#E0662C; --t-motor:#FFF0E7; --h-motor:#A3420F;
+  --c-list:#334155; --t-list:#FFFFFF; --h-list:#101820;
+  --c-send:#0E9F86; --t-send:#E5F7F2; --h-send:#07705D;
+  --c-note:#7B8794; --t-note:#FFFFFF; --h-note:#334155;
+  --ok:#137A3A; --ok-bg:#D9F7E3; --bad:#C21B1B; --bad-bg:#FDE1E1; --warn:#9A5B00; --warn-bg:#FFF0C2;
+  --seg-on:#1F6FEB; --seg-on-ink:#FFFFFF; --ring:rgba(31,111,235,.28);
+}
+
+
+body{font-size:16px}
+.crumbs,.crumbs button{font-size:15px}
+.c-point{--cc:var(--c-point);--ct:var(--t-point);--ch:var(--h-point)}
+.c-meas{--cc:var(--c-meas);--ct:var(--t-meas);--ch:var(--h-meas)}
+.c-geom{--cc:var(--c-geom);--ct:var(--t-geom);--ch:var(--h-geom)}
+.c-fan{--cc:var(--c-fan);--ct:var(--t-fan);--ch:var(--h-fan)}
+.c-motor{--cc:var(--c-motor);--ct:var(--t-motor);--ch:var(--h-motor)}
+.c-list{--cc:var(--c-list);--ct:var(--t-list);--ch:var(--h-list)}
+.c-send{--cc:var(--c-send);--ct:var(--t-send);--ch:var(--h-send)}
+.c-note{--cc:var(--c-note);--ct:var(--t-note);--ch:var(--h-note)}
+.card.c-point,.card.c-meas,.card.c-geom,.card.c-fan,.card.c-motor,.card.c-list,.card.c-send,.card.c-note{
+  background:var(--ct);border:1.5px solid var(--rule);border-top:6px solid var(--cc);border-radius:8px}
+.card.c-meas{border:2px solid var(--cc);border-top-width:6px}
+.card[class*="c-"] > h2,.card[class*="c-"] .card-head h2{color:var(--ch);font-size:23px}
+.card[class*="c-"] > h2{margin-bottom:14px}
+.f label,.lbl{font-family:var(--f-body);font-size:14.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--ink)}
+.f .u{font-size:12.5px;color:var(--ink-2)}
+.hint{font-size:13px}
+input[type=text],input[type=date],select,textarea{min-height:48px;font-size:17px;background:var(--field);border:1.5px solid var(--rule);border-radius:7px;color:var(--ink)}
+input.num-in{font-weight:700}
+input:focus,select:focus,textarea:focus{border-color:var(--c-point);background:var(--field);box-shadow:0 0 0 3px var(--ring);outline:none}
+.stamp input,.stamp select{min-height:34px;border:0;background:transparent;box-shadow:none}
+.stamp input:focus,.stamp select:focus{box-shadow:inset 0 -3px 0 var(--c-meas)}
+.stamp .c label{font-size:12.5px}
+.seg{border:1.5px solid var(--rule);border-radius:8px;background:var(--field)}
+.seg button{padding:10px 14px;font-size:15.5px;font-weight:600;color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--seg-on);color:var(--seg-on-ink)}
+.btn{min-height:46px;padding:9px 16px;font-size:15.5px;border-width:1.5px;border-radius:8px}
+.btn.danger{border-color:var(--bad)}
+.btn.primary{box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.pill{font-size:14px;padding:4px 11px}
+.result{border:2.5px solid var(--rule);border-radius:8px;overflow:hidden}
+.result .c{border-color:color-mix(in srgb, var(--ink) 14%, transparent)}
+.result .k{font-size:13px;color:var(--ink-2)}
+.result .v{font-size:30px}
+.result.st-ok{border-color:var(--ok);background:var(--ok-bg)}
+.result.st-bad{border-color:var(--bad);background:var(--bad-bg)}
+.result.st-ok .c:nth-child(3) .v{color:var(--ok)}
+.result.st-bad .c:nth-child(3) .v{color:var(--bad)}
+.subline{font-size:15px;color:var(--ink-2)}
+.subline b{font-size:15px}
+tr.st-ok td:first-child{box-shadow:inset 5px 0 0 var(--ok)}
+tr.st-bad td:first-child{box-shadow:inset 5px 0 0 var(--bad)}
+tr.st-none td:first-child{box-shadow:inset 5px 0 0 var(--rule)}
+tr[class*="st-"] td:first-child{padding-left:12px}
+tr.st-bad td{background:color-mix(in srgb, var(--bad-bg) 55%, transparent)}
+td{font-size:15px;padding-top:9px;padding-bottom:9px}
+th{font-size:12.5px;color:var(--ink-2)}
+.ocard{border:1.5px solid var(--rule);border-left:7px solid var(--rule);border-radius:8px}
+.ocard.st-ok{border-left-color:var(--ok)}
+.ocard.st-bad{border-left-color:var(--bad)}
+.kv .i{background:var(--sheet);border:1.5px solid var(--rule);border-radius:8px}
+.kv .i .k{font-size:13.5px;color:var(--ink-2)}
+.kv .i .v{font-size:21px}
+.ph{width:104px;height:104px;border-radius:8px}
+.ph.add{border:2px dashed var(--cc, var(--ink-2));background:var(--field);color:var(--ch, var(--ink))}
+.pre span,.pre .sgn{background:var(--sheet-2);border:1.5px solid var(--rule);border-right:0;border-radius:7px 0 0 7px;font-size:20px;min-width:46px;justify-content:center}
+.pre input{border-radius:0 7px 7px 0}
+.ref{font-size:12px}
+.tab{font-size:18px;padding:8px 16px}
+
+:root{color-scheme:light;--paper:#FFFFFF;--grid:#FFFFFF;--band:#FFFFFF;--band-ink:#101820;--band-2:#EEF2F6}
+body{background-color:#FFFFFF;background-image:none}
+.bar{border-bottom:1.5px solid var(--rule);box-shadow:0 2px 8px rgba(16,24,32,.06)}
+.bar .brand-sub{color:var(--ink-2)}
+.save-state{color:var(--ink-2)}
+.tab{color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--signal);color:var(--signal-ink);box-shadow:0 1px 0 rgba(0,0,0,.15)}
+.brand-mark circle:first-child{stroke:#E0A100}
+
+/* Выпадающие списки: явные цвета, чтобы пункты не пропадали при наведении */
+select{background-color:#FFFFFF;color:#101820;color-scheme:light}
+.stamp select{background-color:#FFFFFF}
+select option,select optgroup{background-color:#FFFFFF;color:#101820}
+select option:checked{background-color:#DCE8FF;color:#101820}
+select option:hover,select option:focus{background-color:#1F6FEB;color:#FFFFFF}
+
+/* ===== Страница точки: шаги по порядку заполнения, итог внизу экрана ===== */
+.sec-page{max-width:760px;margin:0 auto}
+.step{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--cc,var(--ink));color:#fff;font-family:var(--f-mono);font-size:16px;font-weight:700;margin-right:10px;vertical-align:2px}
+.c-meas .step{color:#3A2A00}
+.fields > .row-no{grid-column:1 / -1}
+.row-no{display:grid;grid-template-columns:84px minmax(0,1fr);gap:10px}
+.f.big input{font-size:22px;min-height:56px}
+.next-row{display:flex;flex-wrap:wrap;gap:10px}
+.btn.wide{flex:1 1 240px;min-height:52px;font-size:17px}
+#sec-result{position:static}
+.resbar{display:grid;grid-template-columns:1.25fr 1fr 1.25fr;gap:4px 10px;align-items:end;padding:10px 14px;border-radius:12px;border:2.5px solid var(--rule);background:#FFFFFF}
+.resbar.st-ok{border-color:var(--ok);background:var(--ok-bg)}
+.resbar.st-bad{border-color:var(--bad);background:var(--bad-bg)}
+.resbar .rb{display:flex;flex-direction:column;min-width:0}
+.resbar .k{font-size:12.5px;color:var(--ink-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.resbar .v{font-family:var(--f-mono);font-size:26px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.resbar .v.sm{font-size:20px}
+.resbar .u{font-size:12px;color:var(--ink-2)}
+.resbar .dv{text-align:right;align-items:flex-end}
+.resbar.st-ok .dv .v{color:var(--ok)}
+.resbar.st-bad .dv .v{color:var(--bad)}
+.resbar .rb-sub{grid-column:1 / -1;font-size:13.5px;color:var(--ink);border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent);padding-top:6px}
+@media (max-width:420px){.resbar .v{font-size:22px}.resbar .v.sm{font-size:17px}}
+</style>
+</head><body><header class="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true">
+        <circle cx="14" cy="14" r="12" fill="none" stroke="#F2C230" stroke-width="2.2"/>
+        <line x1="2" y1="14" x2="26" y2="14" stroke="#9AA6AF" stroke-width="1" stroke-dasharray="2 2"/>
+        <line x1="14" y1="2" x2="14" y2="26" stroke="#9AA6AF" stroke-width="1" stroke-dasharray="2 2"/>
+        <circle cx="6" cy="14" r="2" fill="#F2C230"/><circle cx="22" cy="14" r="2" fill="#F2C230"/>
+        <circle cx="14" cy="6" r="2" fill="#F2C230"/><circle cx="14" cy="22" r="2" fill="#F2C230"/>
+      </svg>
+      <div>
+        <div class="brand-name">Блокнот наладчика</div>
+        <div class="brand-sub">ГОСТ 12.3.018-79 · ГОСТ 34060-2017</div>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Разделы">
+      <button class="tab" role="tab" id="tab-journal" data-tab="journal" aria-selected="true">Журнал</button>
+      <button class="tab" role="tab" id="tab-calc" data-tab="calc" aria-selected="false">Расчёты</button>
+      <button class="tab" role="tab" id="tab-norms" data-tab="norms" aria-selected="false">Нормы</button>
+    </nav>
+    <div class="save-state" id="save-state" data-s="busy" title="Состояние сохранения"><i></i><span>Открываю журнал…</span></div>
+  </div>
+</header>
+<main class="wrap" id="view" aria-live="polite"></main>
+<input type="file" id="import-file" accept=".json,application/json" hidden>
+<div id="overlay-root"></div>
+<div id="toast-root"></div>
+
+<script>
+(function(){
+"use strict";
+/* ===== Расчётное ядро: ГОСТ 12.3.018-79 и ГОСТ 34060-2017 ===== */
+const M = (() => {
+  const num = (v) => {
+    if (typeof v === 'number') return v;
+    if (v === null || v === undefined) return NaN;
+    const s = String(v).trim().replace(/\s/g, '').replace(',', '.');
+    if (s === '' || s === '-' || s === '.') return NaN;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  };
+  const ok = (x) => Number.isFinite(x);
+  const mean = (a) => { const f = a.filter(ok); return f.length ? f.reduce((s, x) => s + x, 0) / f.length : NaN; };
+
+  function interp(xs, ys, x) {
+    if (x <= xs[0]) return ys[0];
+    if (x >= xs[xs.length - 1]) return ys[ys.length - 1];
+    for (let i = 1; i < xs.length; i++) {
+      if (x <= xs[i]) { const t = (x - xs[i - 1]) / (xs[i] - xs[i - 1]); return ys[i - 1] + t * (ys[i] - ys[i - 1]); }
+    }
+    return NaN;
+  }
+
+  /* ГОСТ 12.3.018, табл. 1 — коэффициент Kφ */
+  const KPHI_T = [10, 20, 30, 40, 50];
+  const KPHI_50 = [0.998, 1.000, 1.004, 1.010, 1.020];
+  const KPHI_100 = [1.003, 1.005, 1.012, 1.025, 1.040];
+  function kPhi(t, phi) {
+    if (!ok(t)) return NaN;
+    const p = ok(phi) ? Math.min(100, Math.max(50, phi)) : 50;
+    const k50 = interp(KPHI_T, KPHI_50, t), k100 = interp(KPHI_T, KPHI_100, t);
+    return k50 + (k100 - k50) * (p - 50) / 50;
+  }
+  /* п. 5.3: ρ = (Ba + p′) / (R·Kφ·(t + 273)); Ba в кПа, p′ в Па */
+  function density(BakPa, pPa, t, phi) {
+    const K = kPhi(t, phi);
+    const B = num(BakPa) * 1000 + (ok(num(pPa)) ? num(pPa) : 0);
+    if (!ok(B) || !ok(t) || !ok(K)) return NaN;
+    return B / (287 * K * (t + 273));
+  }
+
+  /* Геометрия мерного сечения, мм → м² */
+  function geom(shape, D, a, b) {
+    if (shape === 'round') {
+      if (!(D > 0)) return { F: NaN, Dh: NaN };
+      return { F: Math.PI * D * D / 4 / 1e6, Dh: D, P: Math.PI * D };
+    }
+    if (!(a > 0 && b > 0)) return { F: NaN, Dh: NaN };
+    return { F: a * b / 1e6, Dh: 2 * a * b / (a + b), P: 2 * (a + b) };
+  }
+
+  /* Черт. 1 и 2 — координаты точек измерения */
+  function points(shape, D, a, b) {
+    const res = { z: 0, pts: [], note: '', rule: '' };
+    if (shape === 'round') {
+      if (!(D > 0)) return res;
+      let rel;
+      if (D < 100) { rel = [0.5]; res.note = 'D < 100 мм: черт. 1 точки не задаёт, принята одна точка в центре.'; res.rule = 'центр'; }
+      else if (D <= 300) { rel = [0.12, 0.88]; res.rule = '100 ≤ D ≤ 300 мм: 4 точки, 0,12D от стенки'; }
+      else { rel = [0.054, 0.28, 0.72, 0.946]; res.rule = 'D > 300 мм: 8 точек, 0,054D и 0,28D от стенки'; }
+      const axes = rel.length === 1 ? ['Ц'] : ['Г', 'В'];
+      axes.forEach((ax) => rel.forEach((r, i) => {
+        const pos = r; // доля диаметра от стенки
+        const x = ax === 'В' ? 0.5 : pos, y = ax === 'В' ? pos : 0.5;
+        res.pts.push({ label: ax === 'Ц' ? 'Ц' : ax + (i + 1), axis: ax, depth: r * D, rel: r, x, y });
+      }));
+    } else {
+      if (!(a > 0 && b > 0)) return res;
+      let xs, ys;
+      if (b < 100) { xs = [0.5]; ys = [0.5]; res.note = 'b < 100 мм: черт. 2 точки не задаёт, принята одна точка в центре.'; res.rule = 'центр'; }
+      else if (b <= 200) { xs = [0.2, 0.8]; ys = [0.2, 0.8]; res.rule = '100 ≤ b ≤ 200 мм: 4 точки, 0,2a и 0,2b от стенок'; }
+      else { xs = [0.1, 0.4, 0.6, 0.9]; ys = [0.1, 0.4, 0.6, 0.9]; res.rule = 'b > 200 мм: 16 точек, 0,1 и 0,4 от стенок'; }
+      xs.forEach((x, i) => ys.forEach((y, j) => {
+        res.pts.push({ label: (i + 1) + '.' + (j + 1), hole: i + 1, x, y, xmm: x * a, depth: y * b });
+      }));
+    }
+    res.z = res.pts.length;
+    return res;
+  }
+
+  /* Одно значение в точке (прибор усредняет сам). Старые записи-массивы — берём первое. */
+  const first = (x) => (Array.isArray(x) ? x[0] : x);
+  function pointStats(raw, kind, rho) {
+    const x = num(first(raw));
+    const out = { n: ok(x) ? 1 : 0, v: NaN, pd: NaN, neg: false };
+    if (!ok(x)) return out;
+    if (kind === 'pitot') { out.neg = x < 0; out.pd = x; out.v = Math.sqrt(2 * Math.max(0, x) / rho); }
+    else out.v = x;
+    return out;
+  }
+
+  /* Допуски ГОСТ 34060 */
+  const ROLES = {
+    terminal: { name: 'Воздухораспределитель / воздухоприёмник', short: 'Решётка', tol: [-8, 8], ref: 'ГОСТ 34060, п. 8.2.5' },
+    local: { name: 'Местный отсос', short: 'Отсос', tol: [0, 10], ref: 'ГОСТ 34060, п. 8.2.5' },
+    shower: { name: 'Душирующее устройство', short: 'Душ', tol: [0, 10], ref: 'ГОСТ 34060, п. 8.2.5' },
+    branch: { name: 'Ответвление', short: 'Ответвл.', tol: [-8, 8], ref: 'ГОСТ 34060, прил. А, табл. А.2' },
+    main: { name: 'Магистраль (общая контрольная точка)', short: 'Магистр.', tol: [-8, 8], ref: 'ГОСТ 34060, п. 11.3.5' },
+    fan_in: { name: 'Вентилятор — всасывание', short: 'Вент. вс.', tol: [-5, 5], ref: 'ГОСТ 34060, п. 11.2.6' },
+    fan_out: { name: 'Вентилятор — нагнетание', short: 'Вент. нагн.', tol: [-5, 5], ref: 'ГОСТ 34060, п. 11.2.6' },
+  };
+  const METHODS = {
+    pitot: 'Воздуховод: трубка Пито',
+    anemo: 'Воздуховод: анемометр / термоанемометр',
+    grille: 'Решётка, проём: анемометр',
+    hood: 'Воронка Testo',
+  };
+
+  function devStatus(dev, tol) {
+    if (!ok(dev)) return 'none';
+    return dev >= tol[0] - 1e-9 && dev <= tol[1] + 1e-9 ? 'ok' : 'bad';
+  }
+
+  /* Полный расчёт мерного сечения */
+  /* Старый расчёт по точкам — только для переноса ранних записей */
+  function sectionPoints(sec, BakPa) {
+    const r = { warn: [], info: [] };
+    const D = num(sec.D), a = num(sec.a), b = num(sec.b);
+    const method = sec.method || 'pitot';
+    const g = geom(sec.shape, D, a, b);
+    r.F = g.F; r.Dh = g.Dh;
+    const t = ok(num(sec.t)) ? num(sec.t) : 20;
+    const phi = ok(num(sec.phi)) ? num(sec.phi) : 50;
+    r.rho = density(BakPa, sec.ps, t, phi);
+    if (!ok(r.rho)) r.rho = 1.2;
+    r.Lp = num(sec.Lp);
+    const role = ROLES[sec.role] || ROLES.terminal;
+    r.tol = role.tol;
+
+    if (method === 'hood') {
+      r.L = num(first(sec.hood));
+    } else if (sec.entry === 'total') {
+      /* Общий расход по прибору (Testo считает сам) */
+      r.total = true;
+      r.L = num(first(sec.total));
+      let Fc = g.F;
+      if (method === 'grille') { const kf = num(sec.kFree); if (ok(kf) && kf > 0 && ok(Fc)) Fc *= kf; r.Fcalc = Fc; }
+      if (ok(r.L) && ok(Fc) && Fc > 0) r.v = r.L / 3600 / Fc;
+      if (ok(r.v)) r.pd = r.rho * r.v * r.v / 2;
+    } else if (method === 'grille') {
+      const kf = num(sec.kFree), fFree = num(sec.fFree);
+      let Fc = g.F;
+      if (ok(fFree) && fFree > 0) Fc = fFree; else if (ok(kf) && kf > 0 && ok(Fc)) Fc = Fc * kf;
+      r.Fcalc = Fc;
+      r.v = num(first(sec.grille));
+      r.L = ok(r.v) && ok(Fc) ? 3600 * r.v * Fc : NaN;
+      if (ok(r.v)) r.pd = r.rho * r.v * r.v / 2;
+    } else {
+      const P = points(sec.shape, D, a, b);
+      r.pts = P; r.z = P.z;
+      if (P.note) r.info.push(P.note);
+      const stats = P.pts.map((_, i) => pointStats((sec.readings || [])[i], method, r.rho));
+      r.stats = stats;
+      const filled = stats.filter((s) => s.n > 0);
+      r.filled = filled.length;
+      if (filled.length) {
+        if (method === 'pitot') {
+          const sq = filled.map((s) => Math.sqrt(Math.max(0, s.pd)));
+          r.pd = Math.pow(sq.reduce((x, y) => x + y, 0) / filled.length, 2);
+          r.v = Math.sqrt(2 * r.pd / r.rho);
+        } else {
+          r.v = mean(filled.map((s) => s.v));
+          r.pd = r.rho * r.v * r.v / 2;
+        }
+        r.L = ok(g.F) ? 3600 * g.F * r.v : NaN;
+        if (filled.length < P.z) r.warn.push(`Заполнено ${filled.length} из ${P.z} точек — расход предварительный.`);
+        if (stats.some((s) => s.neg)) r.warn.push('Есть отрицательные Pд: проверьте ориентацию трубки.');
+      }
+    }
+    r.ptot = ok(num(sec.ps)) && ok(r.pd) ? num(sec.ps) + r.pd : NaN;
+    r.dev = ok(r.L) && ok(r.Lp) && r.Lp > 0 ? (r.L - r.Lp) / r.Lp * 100 : NaN;
+    r.status = !ok(r.L) ? 'none' : (ok(r.dev) ? devStatus(r.dev, role.tol) : 'none');
+    return r;
+  }
+
+  /* K нужен воздухораспределителям, местным отсосам, душам и решёткам; у воронки его нет */
+  function usesK(sec) { return sec.method !== 'hood' && (sec.method === 'grille' || ['terminal', 'local', 'shower'].includes(sec.role || 'terminal')); }
+
+  /* Мерное сечение: вписывается среднее с прибора — V факт (м/с) или L факт (м³/ч) */
+  function section(sec, BakPa) {
+    const r = { warn: [], info: [] };
+    const method = sec.method || '';
+    const g = geom(sec.shape, num(sec.D), num(sec.a), num(sec.b));
+    r.F = g.F; r.Dh = g.Dh;
+    let Fc = g.F;
+    if (method === 'hood') Fc = NaN;
+    r.Fcalc = Fc;
+    /* Поправочный K решётки (по умолчанию 1): учитывается при вводе V факт, при вводе L факт — нет */
+    const kf = num(sec.kFree);
+    r.kOn = usesK(sec);
+    r.k = r.kOn && ok(kf) && kf > 0 ? kf : 1;
+    const t = ok(num(sec.t)) ? num(sec.t) : 20;
+    /* На всасывании Pст — разрежение: знак минус ставится сам */
+    const ps0 = num(sec.ps);
+    r.ps = ok(ps0) ? (sec.role === 'fan_in' || sec.psSign === '-' ? -Math.abs(ps0) : ps0) : NaN;
+    r.rho = density(BakPa, ok(r.ps) ? r.ps : 0, t, 50);
+    if (!ok(r.rho)) r.rho = 1.2;
+    r.Lp = num(sec.Lp);
+    const role = ROLES[sec.role] || ROLES.terminal;
+    r.tol = role.tol;
+    r.byL = method === 'hood' || sec.entry === 'L';
+    if (r.byL) {
+      const Lraw = num(first(sec.total));
+      r.L = Lraw;
+      if (ok(Lraw) && ok(Fc) && Fc > 0) r.v = Lraw / 3600 / Fc;
+    } else {
+      r.v = num(first(sec.vAvg));
+      r.L = ok(r.v) && ok(Fc) ? 3600 * r.v * Fc * r.k : NaN;
+      if (ok(r.v) && !ok(Fc)) r.warn.push('Задайте размеры сечения — по ним скорость пересчитается в расход.');
+    }
+    if (ok(r.v)) r.pd = r.rho * r.v * r.v / 2;
+    r.ptot = ok(r.ps) && ok(r.pd) ? r.ps + r.pd : NaN;
+    r.dev = ok(r.L) && ok(r.Lp) && r.Lp > 0 ? (r.L - r.Lp) / r.Lp * 100 : NaN;
+    r.status = !ok(r.L) ? 'none' : (ok(r.dev) ? devStatus(r.dev, role.tol) : 'none');
+    return r;
+  }
+
+  /* Перенос записей ранних версий (замеры по точкам, воронка) в V факт / L факт */
+  function migrate(sec, BakPa) {
+    if (sec.v2) return false;
+    if (sec.entry === 'total') sec.entry = 'L';
+    else if (sec.method === 'hood') { sec.entry = 'L'; if (!String(first(sec.total) ?? '').trim() && sec.hood) sec.total = first(sec.hood); }
+    else if (sec.entry !== 'L') {
+      if (!String(first(sec.vAvg) ?? '').trim()) {
+        if (sec.method === 'grille' && String(first(sec.grille) ?? '').trim()) sec.vAvg = first(sec.grille);
+        else if ((sec.readings || []).some((x) => ok(num(first(x))))) {
+          const old = sectionPoints(sec, BakPa);
+          if (ok(old.v)) sec.vAvg = String(Math.round(old.v * 100) / 100).replace('.', ',');
+        }
+      }
+      sec.entry = 'V';
+    }
+    sec.v2 = 1;
+    return true;
+  }
+
+  /* Итоги по системе: подсосы (п. 11.3.5), вентилятор (п. 11.2) */
+  function system(sys) {
+    const B = num(sys.Ba);
+    const secs = (sys.sections || []).map((s) => ({ s, r: section(s, ok(B) ? B : 101.3) }));
+    const out = { secs, count: secs.length, okN: 0, badN: 0, noneN: 0 };
+    secs.forEach(({ r }) => { if (r.status === 'ok') out.okN++; else if (r.status === 'bad') out.badN++; else out.noneN++; });
+    const term = secs.filter(({ s }) => ['terminal', 'local', 'shower'].includes(s.role));
+    const main = secs.filter(({ s, r }) => s.role === 'main' && ok(r.L));
+    out.sumTermL = term.reduce((x, { r }) => x + (ok(r.L) ? r.L : 0), 0);
+    out.sumTermLp = term.reduce((x, { r }) => x + (ok(r.Lp) ? r.Lp : 0), 0);
+    out.termN = term.length;
+    out.termFilled = term.filter(({ r }) => ok(r.L)).length;
+    if (main.length && out.termFilled) {
+      out.mainL = main[0].r.L;
+      out.leak = out.mainL - out.sumTermL;
+      out.leakPct = out.leak / out.mainL * 100;
+      out.leakOk = Math.abs(out.leakPct) <= 8;
+    }
+    const fin = secs.find(({ s, r }) => s.role === 'fan_in' && ok(r.L));
+    const fout = secs.find(({ s, r }) => s.role === 'fan_out' && ok(r.L));
+    if (fin || fout) {
+      const Ls = [fin, fout].filter(Boolean).map(({ r }) => r.L);
+      out.fanL = mean(Ls);
+      if (fin && fout && ok(fin.r.ptot) && ok(fout.r.ptot)) out.fanP = fout.r.ptot - fin.r.ptot;
+      const fp = (sys.pass && sys.pass.fan && sys.pass.fan.proj) || {};
+      const Lpr = num(fp.L), Ppr = num(fp.P);
+      if (ok(Lpr) && Lpr > 0) { out.fanLdev = (out.fanL - Lpr) / Lpr * 100; }
+      if (ok(Ppr) && Ppr > 0 && ok(out.fanP)) { out.fanPdev = (out.fanP - Ppr) / Ppr * 100; }
+    }
+    return out;
+  }
+
+  /* Приложение к ГОСТ 12.3.018 — погрешность расхода */
+  const DPHI = {
+    round: { 4: [20, 16, 12, 6, 3], 8: [16, 12, 10, 5, 2], 12: [12, 8, 6, 3, 2] },
+    rect: { 4: [24, 20, 15, 8, 4], 16: [12, 8, 6, 3, 2] },
+  };
+  const DPHI_COLS = ['1', '2', '3', '5', '>5'];
+  function dphiIndex(dist) {
+    if (!ok(dist)) return 4;
+    if (dist > 5) return 4;
+    if (dist >= 5) return 3;
+    if (dist >= 3) return 2;
+    if (dist >= 2) return 1;
+    return 0;
+  }
+  const SIG_FR = [1, 0.75, 0.5, 0.25, 0.1, 0.05];
+  const SIG_10 = [0.5, 0.7, 1.0, 2.0, 5.0, 10.0];
+  const SIG_05 = [0.25, 0.24, 0.5, 1.0, 2.5, 5.0];
+  function sigmaInstr(cls, frac) {
+    const i = SIG_FR.indexOf(Number(frac));
+    if (i < 0) return NaN;
+    return (String(cls) === '0.5' ? SIG_05 : SIG_10)[i];
+  }
+  function flowError({ shape, z, dist, Dh, clsP, frP, clsB, frB, clsT, frT }) {
+    const tbl = (DPHI[shape] || {})[z];
+    const idx = dphiIndex(dist);
+    const dphi = tbl ? tbl[idx] : NaN;
+    const sD = ok(Dh) && Dh > 300 ? 2 : 3;
+    const sP = sigmaInstr(clsP, frP), sB = sigmaInstr(clsB, frB), sT = sigmaInstr(clsT, frT);
+    const sL = Math.sqrt(4 * sD * sD + 0.25 * sB * sB + 0.25 * sT * sT + 0.25 * sP * sP);
+    return { dphi, col: DPHI_COLS[idx], sD, sP, sB, sT, sL, plus: 2 * sL + dphi, minus: 2 * sL - dphi };
+  }
+
+  /* п. 7.3 — допустимые утечки */
+  const LEAK_K = { A: 0.097, B: 0.032, C: 0.011, D: 0.004 };
+  function leakAllowed(cls, area, p) { const f = LEAK_K[cls] * Math.pow(p, 0.65); return { f, L: f * area }; }
+
+  /* ГОСТ 34060, табл. 2 — температура пара */
+  const STEAM_P = [20, 40, 70, 100, 150, 200, 250, 300, 350, 400, 500, 600];
+  const STEAM_T = [104.3, 108.9, 114.8, 119.9, 127.1, 133.1, 138.6, 143.4, 147.7, 151.7, 158.7, 164.8];
+  function steamT(p) { if (!ok(p)) return NaN; return interp(STEAM_P, STEAM_T, p); }
+
+  /* Психрометрия: энтальпия и влагосодержание влажного воздуха */
+  function psat(t) { return 610.94 * Math.exp(17.625 * t / (t + 243.04)); }
+  function moist(t, phi, BkPa) {
+    const B = (ok(BkPa) ? BkPa : 101.3) * 1000;
+    const pv = Math.max(0, Math.min(100, phi)) / 100 * psat(t);
+    const d = 622 * pv / (B - pv);
+    const J = 1.006 * t + d / 1000 * (2501 + 1.86 * t);
+    return { d, J, pv };
+  }
+
+  /* Табл. 1 ГОСТ 34060 — поправка на фоновый шум */
+  function noiseCorr(diff) {
+    if (!ok(diff)) return NaN;
+    if (diff < 3) return null;
+    if (diff < 4) return 3;
+    if (diff < 6) return 2;
+    if (diff < 10) return 1;
+    return 0;
+  }
+
+  function fmt(x, d = 0) {
+    if (!ok(x)) return '—';
+    return x.toLocaleString('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function fmtSigned(x, d = 1) { if (!ok(x)) return '—'; const s = fmt(Math.abs(x), d); return (x > 0 ? '+' : x < 0 ? '−' : '±') + s; }
+
+  return {
+    num, ok, mean, interp, kPhi, density, geom, points, pointStats, section, migrate, usesK, system, ROLES, METHODS,
+    devStatus, flowError, DPHI, DPHI_COLS, dphiIndex, SIG_FR, sigmaInstr, LEAK_K, leakAllowed,
+    STEAM_P, STEAM_T, steamT, psat, moist, noiseCorr, fmt, fmtSigned,
+  };
+})();
+if (typeof module !== 'undefined') module.exports = M;
+
+/* ===== утилиты ===== */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const newId = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const N = M.num, F = M.fmt, OK = M.ok;
+const LS_DOCS = 'vnb.docs.v1';
+const LS_CALC = 'vnb.calc.v1';
+const LS_UI = 'vnb.ui.v1';
+const LS_METHOD = 'vnb.method.v1';
+function lsGet(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+function todayISO() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function fmtDate(iso) { if (!iso) return '—'; const [y, m, d] = String(iso).split('-'); return d && m && y ? `${d}.${m}.${y}` : iso; }
+const natCmp = (a, b) => String(a).localeCompare(String(b), 'ru', { numeric: true, sensitivity: 'base' });
+
+let toastTimer = null;
+function toast(msg) {
+  const root = $('#toast-root');
+  root.innerHTML = `<div class="toast" role="status">${esc(msg)}</div>`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { root.innerHTML = ''; }, 3200);
+}
+
+/* ===== память телефона: IndexedDB (записи, очередь отправки, фото) ===== */
+const Local = {
+  db: null, ok: false,
+  open() {
+    return new Promise((res) => {
+      let done = false; const fin = (v) => { if (!done) { done = true; res(v); } };
+      try {
+        if (!window.indexedDB) { fin(false); return; }
+        const rq = indexedDB.open('vnb-notebook', 1);
+        rq.onupgradeneeded = () => {
+          const d = rq.result;
+          if (!d.objectStoreNames.contains('docs')) d.createObjectStore('docs', { keyPath: 'id' });
+          if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta');
+          if (!d.objectStoreNames.contains('blobs')) d.createObjectStore('blobs');
+        };
+        rq.onsuccess = () => { this.db = rq.result; this.ok = true; fin(true); };
+        rq.onerror = () => fin(false);
+        rq.onblocked = () => fin(false);
+        setTimeout(() => fin(false), 5000);
+      } catch (e) { fin(false); }
+    });
+  },
+  req(store, mode, fn) {
+    return new Promise((res, rej) => {
+      try {
+        const t = this.db.transaction(store, mode);
+        const r = fn(t.objectStore(store));
+        t.oncomplete = () => res(r ? r.result : undefined);
+        t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+      } catch (e) { rej(e); }
+    });
+  },
+  allDocs() { return this.req('docs', 'readonly', (s) => s.getAll()); },
+  putDoc(d) { return this.req('docs', 'readwrite', (s) => s.put(d)); },
+  delDoc(id) { return this.req('docs', 'readwrite', (s) => s.delete(id)); },
+  getMeta(k) { return this.req('meta', 'readonly', (s) => s.get(k)); },
+  setMeta(k, v) { return this.req('meta', 'readwrite', (s) => s.put(v, k)); },
+  putBlob(k, b) { return this.req('blobs', 'readwrite', (s) => s.put(b, k)); },
+  getBlob(k) { return this.req('blobs', 'readonly', (s) => s.get(k)); },
+  delBlob(k) { return this.req('blobs', 'readwrite', (s) => s.delete(k)); },
+  blobKeys() { return this.req('blobs', 'readonly', (s) => s.getAllKeys()); },
+};
+
+/* ===== журнал: сначала в память телефона, потом — в облако, когда есть сеть =====
+   mode 'local' — только телефон (нет облака: офлайн-файл или нет входа);
+   mode 'db'    — телефон + облако (личный раздел блокнота). */
+const Store = {
+  mode: 'init', ready: false, docs: new Map(), listeners: [],
+  pending: new Set(), pendingDel: new Set(), inflight: new Set(), again: new Set(), timers: {},
+  col: null, cloud: 'none', offline: false, lsOnly: false, broken: false,
+
+  async init() {
+    const ok = await Local.open();
+    let docs = [];
+    if (ok) {
+      try { docs = (await Local.allDocs()) || []; } catch (e) { docs = []; }
+      try { ((await Local.getMeta('pending')) || []).forEach((id) => this.pending.add(id)); } catch (e) { /* пусто */ }
+      try { ((await Local.getMeta('pendingDel')) || []).forEach((id) => this.pendingDel.add(id)); } catch (e) { /* пусто */ }
+    } else {
+      this.lsOnly = true;
+    }
+    /* перенос записей прежних версий из localStorage */
+    const legacy = lsGet(LS_DOCS);
+    if (legacy && Array.isArray(legacy.docs)) {
+      legacy.docs.forEach((d) => {
+        if (!d || !d.id || docs.some((x) => x.id === d.id)) return;
+        docs.push(d); this.pending.add(d.id);
+        if (ok) Local.putDoc(d).catch(() => {});
+      });
+      if (ok) { try { localStorage.removeItem(LS_DOCS); } catch (e) { /* нет */ } this.savePending(); }
+    }
+    if (!ok && !lsSet(LS_DOCS + '.probe', 1)) this.broken = true;
+    docs.forEach((d) => d && d.id && this.docs.set(d.id, d));
+    this.mode = 'local'; this.ready = true;
+    await Photos.loadLocal();
+    this.status(); this.emit(true);
+    window.addEventListener('online', () => { this.offline = false; this.kick(); });
+    window.addEventListener('offline', () => { this.offline = true; this.status(); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) this.kick(); });
+    setInterval(() => { if (this.pending.size || this.pendingDel.size || Photos.waiting()) this.kick(); }, 20000);
+    this.connectCloud();
+  },
+
+  async connectCloud() {
+    const c = window.claude;
+    if (!c || typeof c.use !== 'function') { this.noCloud = true; this.status(); this.emit(false); return; }
+    let db = null, user = null, id = null;
+    try { [db, user] = await Promise.all([c.use('db'), c.use('user')]); } catch (e) { /* нет */ }
+    try { id = user ? await user.id() : null; } catch (e) { id = null; }
+    if (!db || !id) { this.noCloud = true; this.status(); this.emit(false); return; }
+    try { this.col = db.collection('data/users/' + id); } catch (e) { this.noCloud = true; this.status(); return; }
+    this.mode = 'db';
+    await Photos.init();
+    this.subscribe();
+    this.status();
+    this.emit(false);
+  },
+
+  subscribe() {
+    if (this.unsub) { try { this.unsub(); } catch (e) { /* нет */ } }
+    this.cloud = 'connecting'; this.synced = false;
+    this.unsub = this.col.onSnapshot((snap) => this.onSnap(snap), (err) => this.onErr(err));
+  },
+
+  onSnap(snap) {
+    let changed = false;
+    snap.docChanges().forEach((ch) => {
+      const id = ch.doc.id;
+      if (this.pending.has(id) || this.inflight.has(id) || this.pendingDel.has(id)) return;
+      if (ch.type === 'removed') {
+        if (this.docs.has(id)) { this.docs.delete(id); this.dropLocal(id); changed = true; }
+      } else {
+        const js = JSON.stringify(ch.doc.data());
+        const cur = this.docs.get(id);
+        if (!cur || JSON.stringify(cur) !== js) { const d = JSON.parse(js); this.docs.set(id, d); this.keepLocal(d); changed = true; }
+      }
+    });
+    if (!snap.metadata.fromCache && !this.synced) {
+      /* первая полная сверка: записи, удалённые на другом устройстве, убираем и с телефона */
+      this.synced = true;
+      const server = new Set(snap.docs.map((d) => d.id));
+      Array.from(this.docs.keys()).forEach((id) => {
+        if (!server.has(id) && !this.pending.has(id)) { this.docs.delete(id); this.dropLocal(id); changed = true; }
+      });
+      this.cloud = 'online';
+      this.kick();
+    }
+    if (changed) this.emit(false);
+    this.status();
+  },
+
+  onErr() { this.cloud = 'lost'; this.status(); },
+
+  on(fn) { this.listeners.push(fn); },
+  emit(first) { this.listeners.forEach((fn) => fn(first)); },
+  get(id) { return this.docs.get(id); },
+  all(kind) { return Array.from(this.docs.values()).filter((d) => !kind || d.kind === kind); },
+
+  keepLocal(doc) {
+    if (Local.ok) Local.putDoc(clone(doc)).catch(() => this.localFail());
+    else if (!lsSet(LS_DOCS, { v: 1, docs: Array.from(this.docs.values()) })) this.localFail();
+  },
+  dropLocal(id) {
+    if (Local.ok) Local.delDoc(id).catch(() => {});
+    else lsSet(LS_DOCS, { v: 1, docs: Array.from(this.docs.values()) });
+  },
+  localFail() {
+    if (this.warnedLocal) return;
+    this.warnedLocal = true; this.broken = true; this.status();
+    toast('Телефон не даёт сохранять записи: место закончилось или браузер запрещает хранение.');
+  },
+  savePending() {
+    if (!Local.ok) return;
+    Local.setMeta('pending', Array.from(this.pending)).catch(() => {});
+    Local.setMeta('pendingDel', Array.from(this.pendingDel)).catch(() => {});
+  },
+
+  save(doc) {
+    doc.updatedAt = Date.now();
+    this.docs.set(doc.id, doc);
+    this.keepLocal(doc);
+    if (this.mode === 'db') {
+      this.pending.add(doc.id); this.savePending();
+      clearTimeout(this.timers[doc.id]);
+      this.timers[doc.id] = setTimeout(() => this.flushOne(doc.id), 700);
+    }
+    this.status();
+  },
+
+  remove(id) {
+    this.docs.delete(id);
+    this.pending.delete(id);
+    this.dropLocal(id);
+    if (this.mode === 'db') { this.pendingDel.add(id); this.savePending(); this.delOne(id); }
+    this.status();
+  },
+
+  async flushOne(id) {
+    if (this.mode !== 'db' || !this.col) return;
+    if (this.inflight.has(id)) { this.again.add(id); return; }
+    const doc = this.docs.get(id);
+    if (!doc) { this.pending.delete(id); this.savePending(); return; }
+    const stamp = doc.updatedAt;
+    this.inflight.add(id); this.status();
+    try {
+      await this.col.doc(id).set(clone(doc));
+      const cur = this.docs.get(id);
+      if (!cur || cur.updatedAt === stamp) { this.pending.delete(id); this.savePending(); }
+      this.offline = false;
+    } catch (e) { this.cloudFail(e); }
+    finally {
+      this.inflight.delete(id);
+      if (this.again.delete(id)) { clearTimeout(this.timers[id]); this.timers[id] = setTimeout(() => this.flushOne(id), 300); }
+      this.status();
+    }
+  },
+
+  async delOne(id) {
+    if (this.mode !== 'db' || !this.col) return;
+    try { await this.col.doc(id).delete(); this.pendingDel.delete(id); this.savePending(); this.offline = false; }
+    catch (e) { this.cloudFail(e); }
+    this.status();
+  },
+
+  cloudFail(e) {
+    const code = e && e.code;
+    if (code === 'quota_exceeded' && !this.warnedQuota) { this.warnedQuota = true; toast('Облако заполнено: удалите старые объекты. На телефоне записи сохранены.'); }
+    else if (code === 'invalid_argument' && !this.warnedArg) { this.warnedArg = true; toast('Облако не приняло запись. На телефоне она сохранена.'); }
+    else this.offline = true;
+  },
+
+  kick() {
+    if (this.mode !== 'db' || !this.col) return;
+    if (this.cloud === 'lost') this.subscribe();
+    this.pending.forEach((id) => { if (!this.inflight.has(id)) this.flushOne(id); });
+    this.pendingDel.forEach((id) => this.delOne(id));
+    Photos.syncUploads();
+  },
+
+  waitingCount() { return this.pending.size + this.pendingDel.size + Photos.waiting(); },
+
+  status() {
+    const el = $('#save-state');
+    if (!el) return;
+    let s = 'ok', t = 'Сохранено';
+    const n = this.waitingCount();
+    if (this.mode === 'init') { s = 'busy'; t = 'Открываю журнал…'; }
+    else if (this.broken) { s = 'err'; t = 'Не сохраняется'; }
+    else if (this.mode === 'local') { s = 'local'; t = 'На телефоне'; }
+    else if (n && (this.offline || this.cloud === 'lost' || navigator.onLine === false)) { s = 'wait'; t = `Без сети · ждут: ${n}`; }
+    else if (n || this.inflight.size) { s = 'busy'; t = 'Отправляю…'; }
+    el.dataset.s = s;
+    el.querySelector('span').textContent = t;
+  },
+};
+
+/* ===== скачивание файлов ===== */
+let dlPromise = null;
+function getDownloads() {
+  if (!dlPromise) {
+    const c = window.claude;
+    dlPromise = c && typeof c.use === 'function' ? c.use('downloads').catch(() => null) : Promise.resolve(null);
+  }
+  return dlPromise;
+}
+const MIME = { html: 'text/html', csv: 'text/csv', json: 'application/json', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
+function plainDownload(filename, data) {
+  const ext = String(filename).split('.').pop();
+  const blob = data instanceof Blob ? data : new Blob([data], { type: (MIME[ext] || 'application/octet-stream') + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 5000);
+  toast('Файл сохранён: ' + filename);
+}
+/* В приложении Android файл отдаётся через мост: сохраняется в «Загрузки» и открывается «Отправить» */
+async function toBase64(data) {
+  const buf = data instanceof Blob ? new Uint8Array(await data.arrayBuffer()) : new TextEncoder().encode(String(data));
+  let s = '';
+  for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+async function offerFile(filename, data, fallback) {
+  if (window.AndroidBridge && typeof window.AndroidBridge.saveFile === 'function') {
+    try { const ext = String(filename).split('.').pop(); window.AndroidBridge.saveFile(filename, await toBase64(data), MIME[ext] || 'application/octet-stream'); return; }
+    catch (e) { fallback(); return; }
+  }
+  const c = window.claude;
+  if (!c || typeof c.use !== 'function') {
+    /* офлайн-файл: на телефоне — «Поделиться» (сохранить в Файлы, отправить), на компьютере — обычное скачивание */
+    try {
+      const ext = String(filename).split('.').pop();
+      const file = new File([data], filename, { type: MIME[ext] || 'application/octet-stream' });
+      const touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+      if (touch && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: filename }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+      plainDownload(filename, data); return;
+    } catch (e) { fallback(); return; }
+  }
+  const dl = await getDownloads();
+  if (dl) {
+    try {
+      const r = await dl.save({ filename, data });
+      if (r && r.status === 'saved') toast('Файл сохранён: ' + filename);
+      return;
+    } catch (e) {
+      const code = e && e.code;
+      if (code === 'declined') return;
+      if (code === 'rate_limited') { toast('Окно сохранения уже открыто.'); return; }
+    }
+  }
+  fallback();
+}
+
+/* ===== фото шильдиков: вентилятор, электродвигатель ===== */
+const SLOTS = { fan: 'Вентилятор', motor: 'Электродвигатель' };
+/* Фото: {id} — в облаке блокнота; {local} — в памяти телефона, ждёт отправки; {data} — встроено в запись */
+const Photos = {
+  state: 'local', assets: null, busy: 0, urls: new Map(), syncing: false,
+  async init() {
+    if (Store.mode !== 'db') { this.state = 'local'; return; }
+    const c = window.claude;
+    try { this.assets = c && typeof c.use === 'function' ? await c.use('assets') : null; } catch (e) { this.assets = null; }
+    this.state = this.assets ? 'assets' : 'none';
+  },
+  async loadLocal() {
+    if (!Local.ok) return;
+    try {
+      const keys = (await Local.blobKeys()) || [];
+      for (const k of keys) { const b = await Local.getBlob(k); if (b) this.urls.set(k, URL.createObjectURL(b)); }
+    } catch (e) { /* нет */ }
+  },
+  canAdd() { return this.state !== 'none'; },
+  waiting() { return this.state === 'assets' ? this.urls.size : 0; },
+  /* Отправка фото из памяти телефона в облако, когда есть сеть */
+  async syncUploads() {
+    if (this.state !== 'assets' || this.syncing || !this.urls.size || navigator.onLine === false) return;
+    this.syncing = true;
+    try {
+      for (const sys of Store.all('system')) {
+        for (const p of allPhotos(sys)) {
+          if (!p || !p.local) continue;
+          const blob = await Local.getBlob(p.local);
+          if (!blob) { delete p.local; continue; }
+          const r = await this.assets.upload(blob, { type: 'image/jpeg' });
+          const key = p.local; p.id = r.id; delete p.local;
+          Store.save(sys);
+          await Local.delBlob(key).catch(() => {});
+          const u = this.urls.get(key); if (u) setTimeout(() => URL.revokeObjectURL(u), 60000); this.urls.delete(key);
+        }
+      }
+    } catch (e) { Store.offline = true; }
+    finally { this.syncing = false; Store.status(); }
+  },
+};
+function photoSrc(p) {
+  if (!p) return '';
+  if (p.local && Photos.urls.has(p.local)) return Photos.urls.get(p.local);
+  if (p.id) return '/_blob/' + p.id;
+  return p.data || '';
+}
+async function photoBlob(p) {
+  if (p.local && Local.ok) { const b = await Local.getBlob(p.local).catch(() => null); if (b) return b; }
+  if (p.data) { const r = await fetch(p.data); return r.blob(); }
+  if (p.id) { const r = await fetch('/_blob/' + p.id); if (r.ok) return r.blob(); }
+  return null;
+}
+/* Слот фото: 'fan', 'motor' — в системе; 'sec:<id>' — в мерном сечении */
+function photoList(sys, slot) {
+  if (slot.startsWith('sec:')) { const sec = secOf(sys, slot.slice(4)); if (!sec) return []; sec.photos = sec.photos || []; return sec.photos; }
+  sys.photos = sys.photos || {}; sys.photos[slot] = sys.photos[slot] || []; return sys.photos[slot];
+}
+function peekPhotos(sys, slot) {
+  if (slot.startsWith('sec:')) { const sec = secOf(sys, slot.slice(4)); return (sec && sec.photos) || []; }
+  return ((sys.photos || {})[slot]) || [];
+}
+function slotName(sys, slot) {
+  if (slot.startsWith('sec:')) { const sec = secOf(sys, slot.slice(4)); return 'Точка № ' + ((sec && sec.no) || '') + (sec && sec.place ? ' · ' + sec.place : ''); }
+  return SLOTS[slot] || '';
+}
+
+async function shrinkImage(file, max, q) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    cv.getContext('2d').drawImage(img, 0, 0, w, h);
+    return await new Promise((res) => cv.toBlob(res, 'image/jpeg', q));
+  } finally { URL.revokeObjectURL(url); }
+}
+function blobToDataURL(b) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(b); }); }
+
+async function addPhotos(sys, slot, files) {
+  if (Photos.state === 'pending') await Photos.init();
+  if (!Photos.canAdd()) { toast('Фото может добавлять только владелец блокнота.'); return; }
+  const list = photoList(sys, slot);
+  Photos.busy++; toast('Сохраняю фото…');
+  let added = 0;
+  for (const f of files) {
+    try {
+      const blob = await shrinkImage(f, 1600, 0.82);
+      let entry = null;
+      if (Photos.state === 'assets' && navigator.onLine !== false) {
+        try { const r = await Photos.assets.upload(blob, { type: 'image/jpeg' }); entry = { id: r.id, t: Date.now() }; }
+        catch (e) { if (e && (e.code === 'quota_or_state' || e.code === 'too_large' || e.code === 'unsupported_type')) throw e; }
+      }
+      if (!entry && Local.ok) {
+        /* нет сети — фото ждёт в памяти телефона и уйдёт в облако позже */
+        const key = newId('b');
+        await Local.putBlob(key, blob);
+        Photos.urls.set(key, URL.createObjectURL(blob));
+        entry = { local: key, t: Date.now() };
+      }
+      if (!entry) entry = { data: await blobToDataURL(await shrinkImage(f, 1280, 0.7)), t: Date.now() };
+      list.push(entry);
+      added++;
+      Store.save(sys);
+    } catch (e) {
+      const code = e && e.code;
+      toast(code === 'quota_or_state' ? 'Место под фото закончилось — удалите лишние.' : code === 'too_large' ? 'Фото слишком большое.' : 'Не удалось сохранить фото. Попробуйте ещё раз.');
+    }
+  }
+  Photos.busy--;
+  if (added) toast(added === 1 ? 'Фото добавлено.' : `Добавлено фото: ${added}.`);
+  if ((UI.route.name === 'system' || UI.route.name === 'section') && UI.route.sid === sys.id) { const y = window.scrollY; render(); window.scrollTo(0, y); }
+}
+
+function photoGrid(sys, slot, what = 'шильдик') {
+  const list = peekPhotos(sys, slot);
+  const thumbs = list.map((p, i) => `<button class="ph" data-act="photo-view" data-slot="${esc(slot)}" data-i="${i}" aria-label="${esc(slotName(sys, slot))}: фото ${i + 1}"><img src="${esc(photoSrc(p))}" alt="" loading="lazy"></button>`).join('');
+  const add = Photos.canAdd()
+    ? `<button class="ph add" data-act="photo-add" data-slot="${esc(slot)}"><span>+ Фото<br><small>${esc(what)}</small></span></button><input type="file" accept="image/*" multiple hidden id="pf-${esc(slot)}" data-photo="${esc(slot)}" data-doc="${sys.id}">`
+    : '';
+  return `<div class="phs">${thumbs}${add}</div>${Photos.canAdd() ? '' : '<p class="hint">Фото может добавлять только владелец блокнота.</p>'}`;
+}
+
+function showPhoto(sys, slot, i) {
+  const p = peekPhotos(sys, slot)[i];
+  if (!p) return;
+  const armed = UI.armedPhoto === `${slot}:${i}`;
+  const root = $('#overlay-root');
+  root._copy = null;
+  root.innerHTML = `<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(slotName(sys, slot))}, фото ${i + 1}"><div class="sheet">
+    <div class="card-head" style="margin:0"><h2>${esc(sys.name || '')} · ${esc(slotName(sys, slot))}</h2><div class="head-actions">
+      <button class="btn danger${armed ? ' armed' : ''}" data-act="photo-del" data-slot="${esc(slot)}" data-i="${i}">${armed ? 'Нажмите ещё раз — удалить' : 'Удалить фото'}</button>
+      <button class="btn primary" data-act="ov-close">Закрыть</button></div></div>
+    <img class="ph-full" src="${esc(photoSrc(p))}" alt="${esc(slotName(sys, slot))}"></div></div>`;
+}
+
+/* Все фото системы: вентилятор, двигатель, сечения */
+function allPhotos(sys) {
+  const p = sys.photos || {};
+  return [].concat(p.fan || [], p.motor || [], ...(sys.sections || []).map((c) => c.photos || []));
+}
+function dropLocalPhoto(p) {
+  if (!p || !p.local) return;
+  if (Local.ok) Local.delBlob(p.local).catch(() => {});
+  const u = Photos.urls.get(p.local); if (u) URL.revokeObjectURL(u);
+  Photos.urls.delete(p.local);
+}
+function purgePhotos(list) {
+  list.forEach((p) => {
+    dropLocalPhoto(p);
+    if (p && p.id && Photos.assets) Photos.assets.delete(p.id).catch(() => {});
+  });
+}
+async function deletePhoto(sys, slot, i) {
+  const list = photoList(sys, slot);
+  const p = list[i]; if (!p) return;
+  list.splice(i, 1);
+  Store.save(sys);
+  dropLocalPhoto(p);
+  if (p.id && Photos.assets) { try { await Photos.assets.delete(p.id); } catch (e) { /* запись уже убрана */ } }
+  $('#overlay-root').innerHTML = '';
+  toast('Фото удалено.');
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+}
+
+function equipCards(sys, res) {
+  const ff = fanFlow(sys, res);
+  const flow = OK(ff.fact) || OK(ff.proj)
+    ? `<p class="small">Расход: факт <b class="num">${F(ff.fact)}</b> / проект <b class="num">${F(ff.proj)}</b> м³/ч${OK(ff.dev) ? ` · ${pill(Math.abs(ff.dev) <= 5 ? 'ok' : 'bad', M.fmtSigned(ff.dev, 1) + ' %')}` : ''}${ff.auto ? ` <span class="muted">(${esc(ff.src)})</span>` : ''}</p>`
+    : '<p class="small muted">Расход появится после замера в точках «Вентилятор — всасывание / нагнетание».</p>';
+  return `<div class="grid2">
+    <section class="card c-fan"><div class="card-head"><h2>Вентилятор</h2></div>
+      <div class="stack" style="gap:12px">${flow}
+        <div class="fields">${inNum(sys, 'pass.fan.fact.vfd', 'Частота ПЧ', 'Гц', { ph: '50' })}</div>
+        ${photoGrid(sys, 'fan')}</div></section>
+    <section class="card c-motor"><div class="card-head"><h2>Электродвигатель</h2></div>
+      <div class="stack" style="gap:12px"><div class="fields">${inNum(sys, 'pass.motor.fact.I', 'Ток фактически', 'А')}</div>
+        ${photoGrid(sys, 'motor')}</div></section>
+  </div>
+  <section class="card c-note"><div class="f"><label for="${fid(sys, 'note')}">Заметки по системе</label>
+    <textarea id="${fid(sys, 'note')}" data-doc="${sys.id}" data-path="note" style="font-family:var(--f-body)" placeholder="напр. что сделано, что осталось, замечания заказчику">${esc(sys.note || '')}</textarea></div></section>`;
+}
+
+/* ===== журнал: объекты → системы → мерные сечения ===== */
+const SYS_TYPES = [
+  ['supply', 'Приточная'], ['exhaust', 'Вытяжная'], ['supex', 'Приточно-вытяжная'], ['ac', 'Кондиционирования'],
+  ['local', 'Местные отсосы'], ['heat', 'Воздушное отопление'], ['smoke_in', 'Противодымная: подпор'],
+  ['smoke_out', 'Противодымная: дымоудаление'], ['smoke_comp', 'Противодымная: компенсация дымоудаления'], ['natural', 'Естественная'],
+];
+const sysTypeName = (k) => (SYS_TYPES.find((x) => x[0] === k) || [0, ''])[1];
+
+
+const UI = { tab: 'journal', route: { name: 'objects' }, armed: null, pendingRender: false };
+
+function baOf(sys) { const b = N(sys && sys.Ba); return OK(b) && b > 50 ? b : 101.3; }
+function objOf(id) { const d = Store.get(id); return d && d.kind === 'object' ? d : null; }
+function sysOf(id) { const d = Store.get(id); return d && d.kind === 'system' ? d : null; }
+function systemsOf(oid) { return Store.all('system').filter((s) => s.objectId === oid).sort((a, b) => natCmp(a.name, b.name)); }
+function secOf(sys, cid) { return (sys.sections || []).find((s) => s.id === cid); }
+/* Расход вентилятора (ГОСТ 34060, п. 11.2.2): по сечениям «Вентилятор — всасывание» и «— нагнетание».
+   Замерены оба — среднее арифметическое; один — его значение. Нет таких сечений — из табл. А.1.1. */
+function fanFlow(sys, res) {
+  res = res || M.system(sys);
+  const fan = (sys.pass && sys.pass.fan) || {};
+  const fs = res.secs.filter(({ s }) => s.role === 'fan_in' || s.role === 'fan_out');
+  const passP = N((fan.proj || {}).L), passF = N((fan.fact || {}).L);
+  let proj, fact, src = '';
+  const auto = fs.length > 0;
+  if (auto) {
+    const meas = fs.filter(({ r }) => OK(r.L));
+    fact = meas.length ? M.mean(meas.map(({ r }) => r.L)) : NaN;
+    const lps = fs.map(({ r }) => r.Lp).filter(OK);
+    proj = lps.length ? M.mean(lps) : passP;
+    const name = (x) => (x.s.role === 'fan_in' ? 'всас.' : 'нагн.') + ' № ' + (x.s.no || '');
+    src = meas.length > 1 ? 'среднее ' + meas.map(name).join(' и ') : (meas.length ? name(meas[0]) : fs.map(name).join(', '));
+  } else { proj = passP; fact = passF; }
+  const dev = OK(proj) && proj > 0 && OK(fact) ? (fact - proj) / proj * 100 : NaN;
+  return { proj, fact, dev, auto, src };
+}
+
+/* --- поля ввода --- */
+function fid(doc, path) { return 'f_' + doc.id + '_' + path.replace(/[^\w]/g, '_'); }
+function getPath(doc, path) {
+  let o = doc, parts;
+  if (path.startsWith('sec:')) { const [sid, ...rest] = path.slice(4).split('.'); o = secOf(doc, sid); parts = rest; } else parts = path.split('.');
+  for (const k of parts) { if (o == null) return ''; o = o[k]; }
+  return o ?? '';
+}
+function setPath(doc, path, value) {
+  let o = doc, parts;
+  if (path.startsWith('sec:')) { const [sid, ...rest] = path.slice(4).split('.'); o = secOf(doc, sid); parts = rest; if (!o) return; } else parts = path.split('.');
+  for (let i = 0; i < parts.length - 1; i++) {
+    const k = parts[i], nextIdx = /^\d+$/.test(parts[i + 1]);
+    if (o[k] == null || typeof o[k] !== 'object') o[k] = nextIdx ? [] : {};
+    o = o[k];
+  }
+  o[parts[parts.length - 1]] = value;
+}
+function lab(label, unit) { return `${label}${unit ? ` <span class="u">${unit}</span>` : ''}`; }
+function inNum(doc, path, label, unit, o = {}) {
+  const id = fid(doc, path);
+  return `<div class="f ${o.cls || ''}"><label for="${id}">${lab(label, unit)}</label>` +
+    `<input type="text" inputmode="decimal" class="num-in" id="${id}" data-doc="${doc.id}" data-path="${path}"${o.struct ? ' data-struct' : ''} value="${esc(getPath(doc, path))}" autocomplete="off">` +
+    `${o.hint ? `<span class="hint">${o.hint}</span>` : ''}</div>`;
+}
+function inText(doc, path, label, o = {}) {
+  const id = fid(doc, path);
+  return `<div class="f ${o.cls || ''}"><label for="${id}">${label}</label>` +
+    `<input type="${o.type || 'text'}" id="${id}" data-doc="${doc.id}" data-path="${path}"${o.struct ? ' data-struct' : ''} value="${esc(getPath(doc, path))}" placeholder="${o.ph ? 'напр. ' + esc(o.ph) : ''}" autocomplete="off"></div>`;
+}
+function inSel(doc, path, label, opts, o = {}) {
+  const id = fid(doc, path), cur = String(getPath(doc, path));
+  return `<div class="f ${o.cls || ''}"><label for="${id}">${label}</label><select id="${id}" data-doc="${doc.id}" data-path="${path}" data-struct>` +
+    opts.map(([v, t]) => `<option value="${esc(v)}"${String(v) === cur ? ' selected' : ''}>${esc(t)}</option>`).join('') + `</select></div>`;
+}
+function stampCell(doc, path, label, cls = '', o = {}) {
+  const id = fid(doc, path);
+  return `<div class="c ${cls}"><label for="${id}">${label}</label><input type="${o.type || 'text'}" id="${id}" data-doc="${doc.id}" data-path="${path}" value="${esc(getPath(doc, path))}" placeholder="${o.ph && !o.num ? 'напр. ' + esc(o.ph) : ''}" autocomplete="off"${o.num ? ' inputmode="decimal"' : ''}></div>`;
+}
+function delBtn(key, text = 'Удалить') {
+  const armed = UI.armed === key;
+  return `<button class="btn danger${armed ? ' armed' : ''}" data-act="del" data-key="${esc(key)}">${armed ? 'Нажмите ещё раз — удалить' : text}</button>`;
+}
+function pill(status, text) { return `<span class="pill ${status === 'none' ? '' : status}">${esc(text)}</span>`; }
+function tolText(tol) { return tol[0] === -tol[1] ? `±${tol[1]} %` : `${tol[0] === 0 ? '0' : tol[0]}…+${tol[1]} %`; }
+function statusText(r) {
+  if (r.status === 'ok') return 'В допуске ' + tolText(r.tol);
+  if (r.status === 'bad') return 'Вне допуска ' + tolText(r.tol);
+  if (OK(r.L)) return 'Нет проектного расхода';
+  return 'Нет замеров';
+}
+function crumbs(items) {
+  return `<nav class="crumbs" aria-label="Путь">` + items.map((it, i) => (i ? '<span class="sep">/</span>' : '') +
+    (it.go ? `<button data-act="go" data-go='${esc(JSON.stringify(it.go))}'>${esc(it.t)}</button>` : `<span>${esc(it.t)}</span>`)).join('') + `</nav>`;
+}
+
+/* ===== список объектов ===== */
+function viewObjects() {
+  const objs = Store.all('object').sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  const localNote = Store.mode === 'local' && Store.noCloud
+    ? (window.AndroidBridge
+      ? `<div class="banner">Записи и фото хранятся в телефоне, интернет не нужен. Время от времени делайте «Сохранить копию» внизу — при удалении приложения записи пропадут.</div>`
+      : `<div class="banner warn">Офлайн-режим: записи хранятся только на этом устройстве. Чтобы перенести их в облачный блокнот или на другой телефон — «Сохранить копию» внизу, затем «Загрузить из файла» там.</div>`) : '';
+  if (!Store.ready) {
+    return `<div class="stack"><div class="empty"><h2>Открываю журнал…</h2><p class="lead">Здесь появятся ваши объекты: системы, мерные сечения и замеры по ГОСТ 12.3.018 с проверкой допусков ГОСТ 34060.</p></div></div>`;
+  }
+  if (!objs.length) {
+    return `<div class="stack">${localNote}
+      <div class="empty">
+        <span class="ref">Журнал пуст</span>
+        <h2>Заведите первый объект</h2>
+        <p class="lead">Объект → системы (П1, В1…) → точки замера. Блокнот расставит точки замера, посчитает расход, сравнит с проектом по допускам ГОСТ 34060 и соберёт паспорт системы.</p>
+        <div class="head-actions">
+          <button class="btn primary" data-act="add-object">+ Новый объект</button>
+          <button class="btn" data-act="add-example">Открыть пример с замерами</button>
+        </div>
+      </div>
+      ${backupBlock()}
+    </div>`;
+  }
+  const cards = objs.map((o) => {
+    const syss = systemsOf(o.id);
+    let okN = 0, badN = 0, secN = 0;
+    syss.forEach((s) => { const r = M.system(s); okN += r.okN; badN += r.badN; secN += r.count; });
+    return `<button class="ocard st-${badN ? 'bad' : (okN ? 'ok' : 'none')}" data-act="go" data-go='${esc(JSON.stringify({ name: 'object', oid: o.id }))}'>
+      <div class="row">${o.example ? '<span class="ref">Пример</span>' : ''}<span class="meta">${esc(fmtDate(o.date || ''))}</span></div>
+      <h3>${esc(o.name || 'Без названия')}</h3>
+      <div class="meta">${esc(o.address || 'Адрес не указан')}</div>
+      <div class="row">
+        <span class="pill">${syss.length} ${plural(syss.length, 'система', 'системы', 'систем')}</span>
+        <span class="pill">${secN} ${plural(secN, 'точка', 'точки', 'точек')}</span>
+        ${badN ? pill('bad', badN + ' вне допуска') : (okN ? pill('ok', 'все в допуске') : '')}
+      </div>
+    </button>`;
+  }).join('');
+  return `<div class="stack">
+    <div class="head"><div><h1>Объекты</h1></div>
+      <div class="head-actions"><button class="btn primary" data-act="add-object">+ Новый объект</button></div></div>
+    ${localNote}
+    <div class="cards">${cards}</div>
+    ${backupBlock()}
+  </div>`;
+}
+function plural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few; return many; }
+function backupBlock() {
+  return `<section class="card c-note"><div class="card-head"><h2>Резервная копия</h2><span class="ref">.json</span></div>
+    <div class="head-actions"><button class="btn" data-act="backup">Сохранить копию</button><button class="btn" data-act="import">Загрузить из файла</button></div></section>`;
+}
+
+/* ===== объект ===== */
+function viewObject(o) {
+  const syss = systemsOf(o.id);
+  /* Расход вентилятора: проект — из табл. А.1.1; факт — из А.1.1 или по замерам у вентилятора */
+  const rows = syss.map((s, i) => {
+    const fan = (s.pass && s.pass.fan) || {};
+    const ff = fanFlow(s);
+    const Lp = ff.proj, Lf = ff.fact, dev = ff.dev;
+    const hz = (fan.fact || {}).vfd || '';
+    const devCell = OK(dev) ? `<span class="dv ${Math.abs(dev) <= 5 ? 'ok' : 'bad'}">${M.fmtSigned(dev, 1)}</span>` : '—';
+    return `<tr class="click st-${OK(dev) ? (Math.abs(dev) <= 5 ? 'ok' : 'bad') : 'none'}" data-act="go" data-go='${esc(JSON.stringify({ name: 'system', sid: s.id }))}'>
+      <td class="num">${i + 1}</td><td><b>${esc(s.name || '—')}</b></td>
+      <td class="r num">${F(Lp)}</td><td class="r num">${F(Lf)}</td><td class="r num">${devCell}</td><td class="r num">${esc(hz) || '—'}</td></tr>`;
+  }).join('');
+  return `<div class="stack">
+    ${crumbs([{ t: 'Объекты', go: { name: 'objects' } }, { t: o.name || 'Объект' }])}
+    <div class="stamp">
+      ${stampCell(o, 'name', 'Объект', 'title s4')}
+      ${stampCell(o, 'date', 'Дата начала работ', 's2', { type: 'date' })}
+      ${stampCell(o, 'address', 'Адрес', 's6')}
+    </div>
+    <section class="card c-list">
+      <div class="card-head"><h2>Системы</h2><button class="btn primary" data-act="add-system">+ Система</button></div>
+      ${syss.length ? `<div class="tbl-wrap"><table class="systbl"><thead>
+          <tr><th rowspan="2">№ п/п</th><th rowspan="2">Система</th><th colspan="2" class="cc">Расход вентилятора, м³/ч</th><th rowspan="2" class="r">Невязка, %</th><th rowspan="2" class="r">Частота, Гц</th></tr>
+          <tr><th class="r">проект</th><th class="r">факт</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <p class="hint" style="margin-top:8px">Расход — по точкам «Вентилятор — всасывание / нагнетание»: оба — среднее, один — его значение. Нет таких сечений — из таблицы А.1.1. Частота — из А.1.1. Допуск ±5 % (ГОСТ 34060, п. 11.2.6).</p>`
+        : `<p class="muted">Систем пока нет. Добавьте первую — например, П1 или В1.</p>`}
+    </section>
+    <section class="card c-send"><div class="card-head"><h2>Отправить заказчику</h2></div>
+      <p class="muted small" style="margin-bottom:10px">Excel — все системы и точки с фильтрами для сортировки. Сводка — те же таблицы и фото шильдиков одним файлом.</p>
+      <div class="head-actions"><button class="btn primary" data-act="export-xlsx">Таблица Excel</button><button class="btn" data-act="export-summary">Сводка с фото</button></div></section>
+    <div class="head-actions">${delBtn('obj:' + o.id, 'Удалить объект')}</div>
+  </div>`;
+}
+
+/* ===== система ===== */
+function sysSummary(sys) {
+  const r = M.system(sys);
+  const tiles = [];
+  if (r.termN) tiles.push(`<div class="i"><div class="k">Σ по устройствам, факт / проект</div><div class="v">${F(r.sumTermL)} <small>/ ${F(r.sumTermLp)} м³/ч</small></div></div>`);
+  if (OK(r.leakPct)) tiles.push(`<div class="i ${r.leakOk ? '' : 'hl'}"><div class="k">Подсосы / утечки (п. 7.5, 11.3.5)</div><div class="v">${M.fmtSigned(r.leakPct, 1)} % <small>${F(r.leak)} м³/ч</small></div><div>${pill(r.leakOk ? 'ok' : 'bad', r.leakOk ? 'не более 8 %' : 'больше 8 %')}</div></div>`);
+  const ff = fanFlow(sys, r);
+  if (OK(ff.fact)) {
+    const d = OK(ff.dev) ? ` ${pill(Math.abs(ff.dev) <= 5 ? 'ok' : 'bad', M.fmtSigned(ff.dev, 1) + ' %')}` : '';
+    tiles.push(`<div class="i"><div class="k">Вентилятор: расход${ff.auto ? ` (${esc(ff.src)})` : ''}</div><div class="v">${F(ff.fact)} <small>м³/ч</small></div><div>${d}</div></div>`);
+  }
+  if (OK(r.fanP)) {
+    const d = OK(r.fanPdev) ? ` ${pill(Math.abs(r.fanPdev) <= 5 ? 'ok' : 'bad', M.fmtSigned(r.fanPdev, 1) + ' %')}` : '';
+    tiles.push(`<div class="i"><div class="k">Вентилятор: полное давление (п. 5.17)</div><div class="v">${F(r.fanP)} <small>Па</small></div><div>${d}</div></div>`);
+  }
+  let hint = '';
+  if (!OK(r.leakPct) && r.termN) hint = '<p class="hint">Для оценки подсосов добавьте точку с типом «Магистраль (общая контрольная точка)».</p>';
+  return `<div class="kv">${tiles.join('')}</div>${hint}`;
+}
+
+function viewSystem(sys) {
+  const o = objOf(sys.objectId);
+  const res = M.system(sys);
+  const rows = res.secs.map(({ s, r }) => {
+    const size = s.method === 'hood' ? 'воронка' : (s.shape === 'round' ? (s.D ? `Ø${s.D}` : '—') : (s.a && s.b ? `${s.a}×${s.b}` : '—'));
+    return `<tr class="click st-${r.status}" data-act="go" data-go='${esc(JSON.stringify({ name: 'section', sid: sys.id, cid: s.id }))}'>
+      <td class="num"><b>${esc(s.no || '—')}</b></td><td>${esc(s.place || '')}</td><td class="hm">${esc((M.ROLES[s.role] || M.ROLES.terminal).short)}</td>
+      <td class="num sz">${esc(size)}${M.usesK(s) && OK(N(s.kFree)) && N(s.kFree) !== 1 ? ` <span class="ref kt">K ${esc(s.kFree)}</span>` : ''}</td><td class="r num hm">${F(r.Lp)}</td><td class="r num">${F(r.L)}</td>
+      <td class="r num"><span class="dv ${r.status}">${OK(r.dev) ? M.fmtSigned(r.dev, 1) : '—'}</span></td><td class="hm">${pill(r.status, r.status === 'ok' ? 'в допуске' : r.status === 'bad' ? 'вне допуска' : (OK(r.L) ? 'нет проекта' : 'нет замеров'))}</td></tr>`;
+  }).join('');
+  return `<div class="stack">
+    ${crumbs([{ t: 'Объекты', go: { name: 'objects' } }, { t: (o && o.name) || 'Объект', go: { name: 'object', oid: sys.objectId } }, { t: sys.name || 'Система' }])}
+    <div class="stamp">
+      ${stampCell(sys, 'name', 'Система, установка', 'title s2')}
+      ${stampCell(sys, 'location', 'Местонахождение оборудования', 's4')}
+      <div class="c s2 half"><label for="${fid(sys, 'type')}">Тип</label><select id="${fid(sys, 'type')}" data-doc="${sys.id}" data-path="type">${SYS_TYPES.map(([v, t]) => `<option value="${v}"${sys.type === v ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
+      ${stampCell(sys, 'date', 'Дата испытаний', 's2 half', { type: 'date' })}
+      ${stampCell(sys, 'Ba', 'Ba, кПа', 's2', { num: true, ph: '101,3' })}
+    </div>
+    <div id="sys-summary">${sysSummary(sys)}</div>
+    <section class="card c-list">
+      <div class="card-head"><h2>Точки замера</h2><div class="head-actions"><button class="btn primary" data-act="add-section">+ Точка</button></div></div>
+      ${res.count ? `<div class="tbl-wrap"><table class="sectbl"><thead><tr><th>№</th><th>Помещение, место</th><th class="hm">Тип</th><th class="sz">Размер, мм</th><th class="r hm">L проект</th><th class="r">L факт</th><th class="r">Δ, %</th><th class="hm">Статус</th></tr></thead><tbody>${rows}</tbody></table></div>
+`
+        : `<p class="muted">Добавьте первую точку замера: у вентилятора, на магистрали или у воздухораспределителя.</p>`}
+    </section>
+    ${equipCards(sys, res)}
+    <div class="head-actions">${delBtn('sys:' + sys.id, 'Удалить систему')}</div>
+  </div>`;
+}
+
+/* ===== мерное сечение ===== */
+function diagramSVG(r, sec) {
+  if (!r.pts || !r.pts.z) return `<svg viewBox="0 0 220 220" role="img" aria-label="Размеры сечения не заданы"><rect class="sv-wall" x="20" y="20" width="180" height="180" rx="4"/><text class="sv-txt" x="110" y="114" text-anchor="middle">задайте размеры</text></svg>`;
+  const st = r.stats || [];
+  if (sec.shape === 'round') {
+    const c = 110, R = 92;
+    let s = `<svg viewBox="0 0 220 220" role="img" aria-label="Круглое сечение, ${r.pts.z} точек"><circle class="sv-wall" cx="${c}" cy="${c}" r="${R}"/>` +
+      `<line class="sv-axis" x1="${c - R}" y1="${c}" x2="${c + R}" y2="${c}"/><line class="sv-axis" x1="${c}" y1="${c - R}" x2="${c}" y2="${c + R}"/>`;
+    r.pts.pts.forEach((p, i) => {
+      const x = c - R + p.x * 2 * R, y = c - R + p.y * 2 * R;
+      const on = st[i] && st[i].n > 0;
+      s += `<circle class="sv-pt${on ? ' on' : ''}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.5"/>`;
+      const dx = p.axis === 'В' ? 9 : 0, dy = p.axis === 'В' ? 3 : -9;
+      s += `<text class="sv-txt" x="${(x + dx).toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="${p.axis === 'В' ? 'start' : 'middle'}">${esc(p.label)}</text>`;
+    });
+    return s + `</svg>`;
+  }
+  const a = N(sec.a), b = N(sec.b);
+  const k = 180 / Math.max(a, b), w = a * k, h = b * k, x0 = (220 - w) / 2, y0 = (220 - h) / 2;
+  let s = `<svg viewBox="0 0 220 220" role="img" aria-label="Прямоугольное сечение, ${r.pts.z} точек"><rect class="sv-wall" x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}"/>`;
+  const xs = [...new Set(r.pts.pts.map((p) => p.x))], ys = [...new Set(r.pts.pts.map((p) => p.y))];
+  xs.forEach((x) => { s += `<line class="sv-axis" x1="${(x0 + x * w).toFixed(1)}" y1="${y0.toFixed(1)}" x2="${(x0 + x * w).toFixed(1)}" y2="${(y0 + h).toFixed(1)}"/>`; });
+  ys.forEach((y) => { s += `<line class="sv-axis" x1="${x0.toFixed(1)}" y1="${(y0 + y * h).toFixed(1)}" x2="${(x0 + w).toFixed(1)}" y2="${(y0 + y * h).toFixed(1)}"/>`; });
+  r.pts.pts.forEach((p, i) => {
+    const on = st[i] && st[i].n > 0;
+    s += `<circle class="sv-pt${on ? ' on' : ''}" cx="${(x0 + p.x * w).toFixed(1)}" cy="${(y0 + p.y * h).toFixed(1)}" r="5"/>`;
+  });
+  xs.forEach((x, i) => { s += `<text class="sv-txt" x="${(x0 + x * w).toFixed(1)}" y="${(y0 - 5).toFixed(1)}" text-anchor="middle">${i + 1}</text>`; });
+  return s + `</svg>`;
+}
+
+function geoHTML(r, sec) {
+  if (sec.method === 'hood' || !sec.method) return '';
+  const rows = [['Площадь F', OK(r.F) ? F(r.F, 4) + ' м²' : '—']];
+  return `<dl class="geo">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
+}
+
+/* Итог точки — сразу под карточкой «Замер» */
+function resultHTML(r, sec) {
+  const sub = [];
+  if (sec.method !== 'hood' && OK(r.v)) sub.push(`V ${F(r.v, 2)} м/с`);
+  if (r.kOn && !r.byL && r.k !== 1) sub.push(`K ${F(r.k, 2)}`);
+  if (OK(r.ptot)) sub.push(`Pп ${F(r.ptot, 0)} Па`);
+  const msg = r.warn[0] || r.info[0] || (r.status === 'bad' ? 'Вне допуска — отрегулируйте и повторите замер' : '');
+  const stTxt = r.status === 'ok' ? 'в допуске' : r.status === 'bad' ? 'вне допуска' : (OK(r.L) ? 'нет L проект' : 'нет замера');
+  return `<div class="resbar st-${r.status}" role="status">
+      <div class="rb"><span class="k">L факт</span><span class="v">${F(r.L)}</span><span class="u">м³/ч</span></div>
+      <div class="rb"><span class="k">проект</span><span class="v sm">${F(r.Lp)}</span><span class="u">м³/ч</span></div>
+      <div class="rb dv"><span class="k">${stTxt} · ${tolText(r.tol)}</span><span class="v">${OK(r.dev) ? M.fmtSigned(r.dev, 1) + ' %' : '—'}</span></div>
+      ${sub.length || msg ? `<div class="rb-sub">${esc([sub.join(' · '), msg].filter(Boolean).join(' — '))}</div>` : ''}
+    </div>`;
+}
+
+function oneVal(x) { return Array.isArray(x) ? (x[0] ?? '') : (x ?? ''); }
+function valInput(sys, path, aria, cur) {
+  return `<input type="text" inputmode="decimal" class="num-in" data-r aria-label="${esc(aria)}" id="${fid(sys, path)}" data-doc="${sys.id}" data-path="${path}" value="${esc(cur)}" autocomplete="off">`;
+}
+function singleInput(sys, sec, key, label, unit) {
+  const path = `sec:${sec.id}.${key}`;
+  return `<div class="f big"><label for="${fid(sys, path)}">${lab(label, unit)}</label>${valInput(sys, path, label, oneVal(sec[key]))}</div>`;
+}
+function stepH(n, title) { return `<h2><span class="step" aria-hidden="true">${n}</span>${title}</h2>`; }
+
+function viewSection(sys, sec) {
+  const o = objOf(sys.objectId);
+  const r = M.section(sec, baOf(sys));
+  const m = sec.method || '';
+  const fan = sec.role === 'fan_in' || sec.role === 'fan_out';
+  const duct = m === 'pitot' || m === 'anemo';
+  const byL = m === 'hood' || sec.entry === 'L';
+  const roleOpts = Object.entries(M.ROLES).map(([k, v]) => [k, v.name]);
+  const methOpts = (m ? [] : [['', '— выберите метод —']]).concat(Object.entries(M.METHODS));
+  let n = 0;
+
+  /* 1. Точка: номер, место, тип, метод, проект */
+  const card1 = `<section class="card c-point">${stepH(++n, 'Точка')}
+      <div class="fields">
+        <div class="row-no span2">${inText(sys, `sec:${sec.id}.no`, '№')}${inText(sys, `sec:${sec.id}.place`, 'Место (помещение, решётка)', { ph: 'Офис 201, Р-1' })}</div>
+        ${inSel(sys, `sec:${sec.id}.role`, 'Тип', roleOpts, { cls: 'span2' })}
+        ${inSel(sys, `sec:${sec.id}.method`, 'Метод (прибор)', methOpts, { cls: 'span2' })}
+        ${inNum(sys, `sec:${sec.id}.Lp`, 'L по проекту', 'м³/ч')}
+      </div></section>`;
+
+  /* 2. Размеры (не нужны для воронки) */
+  const shapeSeg = `<div class="f span2"><span class="lbl">Форма</span><div class="seg" role="group" aria-label="Форма сечения">
+      <button data-act="shape" data-v="round" aria-pressed="${sec.shape === 'round'}">Круглое</button>
+      <button data-act="shape" data-v="rect" aria-pressed="${sec.shape !== 'round'}">Прямоугольное</button></div></div>`;
+  const dims = sec.shape === 'round'
+    ? inNum(sys, `sec:${sec.id}.D`, 'Диаметр D', 'мм')
+    : inNum(sys, `sec:${sec.id}.a`, 'Ширина a', 'мм') + inNum(sys, `sec:${sec.id}.b`, 'Высота b', 'мм');
+  const kField = M.usesK(sec) ? inNum(sys, `sec:${sec.id}.kFree`, 'Поправочный K', '', { hint: byL ? 'при вводе L факт не учитывается' : 'L = 3600 · V · F · K' }) : '';
+  const card2 = !m || m === 'hood' ? '' : `<section class="card c-geom">${stepH(++n, m === 'grille' ? 'Размеры решётки' : 'Размеры воздуховода')}
+      <div class="fields">${shapeSeg}${dims}${kField}</div>
+      <div id="sec-geo" style="margin-top:12px">${geoHTML(r, sec)}</div>${byL ? '<p class="hint">При вводе L факт размеры нужны только для записи.</p>' : ''}</section>`;
+
+  /* 3. Замер: V или L с прибора; Pст в воздуховоде; у вентилятора — Pст и t */
+  const psPath = `sec:${sec.id}.ps`;
+  const psVal = esc(String(getPath(sys, psPath)).replace(/^\s*[-−]/, ''));
+  const psField = sec.role === 'fan_in'
+    ? `<div class="f"><label for="${fid(sys, psPath)}">${lab('Pст, разрежение', 'Па')}</label><div class="pre"><span aria-hidden="true">−</span><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psPath)}" data-doc="${sys.id}" data-path="${psPath}" value="${psVal}" autocomplete="off"></div><span class="hint">минус ставится сам</span></div>`
+    : `<div class="f"><label for="${fid(sys, psPath)}">${lab('Pст', 'Па')}</label><div class="pre"><button class="sgn" data-act="ps-sign" aria-label="Сменить знак, сейчас ${sec.psSign === '-' ? 'минус' : 'плюс'}">${sec.psSign === '-' ? '−' : '+'}</button><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psPath)}" data-doc="${sys.id}" data-path="${psPath}" value="${psVal}" autocomplete="off"></div><span class="hint">± — сменить знак</span></div>`;
+  let meas;
+  if (!m) meas = '<p class="muted">Сначала выберите метод в шаге 1.</p>';
+  else {
+    const toggle = m === 'hood' ? '' : `<div class="seg" role="group" aria-label="Что вписать" style="margin-bottom:14px">
+        <button data-act="entry" data-v="V" aria-pressed="${!byL}">V факт, м/с</button>
+        <button data-act="entry" data-v="L" aria-pressed="${byL}">L факт, м³/ч</button></div>`;
+    const main = byL ? singleInput(sys, sec, 'total', 'L факт', 'м³/ч') : singleInput(sys, sec, 'vAvg', 'V факт', 'м/с');
+    const extra = fan ? psField + inNum(sys, `sec:${sec.id}.t`, 'Температура t', '°C') : (duct ? psField : '');
+    meas = toggle + `<div class="fields">${main}${extra}</div><p class="hint" style="margin-top:8px">Среднее значение с прибора.${fan ? ' Pст и t — для давления вентилятора.' : ''}</p>`;
+  }
+  const card3 = `<section class="card c-meas">${stepH(++n, 'Замер')}${meas}</section>`;
+
+  /* 4. Фото и заметка */
+  const card4 = `<section class="card c-note">${stepH(++n, 'Фото и заметка')}<div class="stack" style="gap:12px">
+      ${photoGrid(sys, 'sec:' + sec.id, 'решётка, место')}
+      <div class="fields wide">${inText(sys, `sec:${sec.id}.note`, 'Заметка', { cls: 'span2', ph: 'положение шибера, замечания' })}</div></div></section>`;
+
+  return `<div class="stack sec-page">
+    ${crumbs([{ t: 'Объекты', go: { name: 'objects' } }, { t: (o && o.name) || 'Объект', go: { name: 'object', oid: sys.objectId } }, { t: sys.name || 'Система', go: { name: 'system', sid: sys.id } }, { t: 'Точка ' + (sec.no || '') }])}
+    <div class="head"><h1>Точка № ${esc(sec.no || '—')}${sec.place ? ' · ' + esc(sec.place) : ''}</h1>
+      <div class="head-actions"><button class="btn primary" data-act="add-section">+ Добавить</button><button class="btn" data-act="dup-section">Копия</button>${delBtn('sec:' + sys.id + ':' + sec.id)}</div></div>
+    ${card1}${card2}${card3}
+    <div id="sec-result">${resultHTML(r, sec)}</div>
+    ${card4}
+    <div class="next-row">
+      <button class="btn primary wide" data-act="add-section">+ Следующая точка</button>
+      <button class="btn" data-act="go" data-go='${esc(JSON.stringify({ name: 'system', sid: sys.id }))}'>← К списку точек</button>
+    </div>
+  </div>`;
+}
+
+function refreshSection(sys, sec) {
+  const r = M.section(sec, baOf(sys));
+  const res = $('#sec-result'); if (res) res.innerHTML = resultHTML(r, sec);
+  const geo = $('#sec-geo'); if (geo) geo.innerHTML = geoHTML(r, sec);
+}
+
+/* ===== создание записей ===== */
+function newObject() {
+  const o = { id: newId('o'), kind: 'object', name: '', address: '', date: todayISO(), createdAt: Date.now() };
+  Store.save(o);
+  return o;
+}
+function newSystem(oid, n) {
+  const s = { id: newId('s'), kind: 'system', objectId: oid, name: 'П' + n, location: '', type: 'supply', date: todayISO(), Ba: '101,3', sections: [], pass: {}, createdAt: Date.now() };
+  Store.save(s);
+  return s;
+}
+/* Метод для нового сечения: как у текущего / последнего сечения, иначе последний выбранный в этом браузере */
+function lastMethod(sys) { const s = (sys.sections || []).slice().reverse().find((x) => x.method); return s ? s.method : (lsGet(LS_METHOD) || ''); }
+function lastEntry(sys) { const s = (sys.sections || []).slice().reverse().find((x) => x.method); const e = s && s.entry; return e === 'L' || e === 'total' ? 'L' : 'V'; }
+function newSection(sys, from, methodHint, entryHint) {
+  const secs = sys.sections || (sys.sections = []);
+  const nos = secs.map((s) => parseInt(s.no, 10)).filter(Number.isFinite);
+  const no = String(nos.length ? Math.max(...nos) + 1 : 1);
+  /* «+ Сечение» — чистый лист; «Копия» — те же тип, метод и размеры */
+  const keep = ['role', 'method', 'entry', 'shape', 'D', 'a', 'b', 't', 'kFree'];
+  const base = from ? Object.fromEntries(keep.map((k) => [k, k === 'entry' ? (from.entry === 'L' ? 'L' : 'V') : (from[k] ?? '')])) : { role: 'terminal', method: methodHint || lastMethod(sys), entry: entryHint || lastEntry(sys), shape: 'rect', D: '', a: '', b: '', t: '', kFree: '1' };
+  const sec = { id: newId('c'), no, place: '', Lp: '', ps: '', note: '', vAvg: '', total: '', v2: 1, ...base };
+  secs.push(sec);
+  Store.save(sys);
+  return sec;
+}
+
+function makeExample() {
+  const o = { id: newId('o'), kind: 'object', example: true, name: 'Пример: офисный блок', address: 'Учебный пример, адрес условный', date: todayISO(), createdAt: Date.now() };
+  const s = {
+    id: newId('s'), kind: 'system', objectId: o.id, name: 'П1', location: 'Венткамера, 2 этаж', type: 'supply', date: todayISO(), Ba: '100,9', createdAt: Date.now(),
+    pass: { fan: { fact: { vfd: '48' } } },
+    note: 'Пример. Р-3: прикрыт шибер на ответвлении.',
+    sections: [
+      { id: newId('c'), no: '1', place: 'Вентилятор, всасывание', role: 'fan_in', method: 'pitot', entry: 'V', vAvg: '6,79', shape: 'rect', a: '500', b: '300', D: '', t: '16', ps: '-180', Lp: '3600', v2: 1 },
+      { id: newId('c'), no: '2', place: 'Вентилятор, нагнетание', role: 'fan_out', method: 'pitot', entry: 'V', vAvg: '8,00', shape: 'round', D: '400', a: '', b: '', t: '17', ps: '320', Lp: '3600', v2: 1 },
+      { id: newId('c'), no: '3', place: 'Магистраль, коридор 2 эт.', role: 'main', method: 'anemo', entry: 'L', total: '3513', shape: 'round', D: '400', a: '', b: '', Lp: '3600', v2: 1 },
+      { id: newId('c'), no: '4', place: 'Офис 201, решётка Р-1', role: 'terminal', method: 'hood', entry: 'L', total: '857', shape: 'rect', Lp: '900', v2: 1 },
+      { id: newId('c'), no: '5', place: 'Офис 202, решётка Р-2', role: 'terminal', method: 'hood', entry: 'L', total: '897', shape: 'rect', Lp: '900', v2: 1 },
+      { id: newId('c'), no: '6', place: 'Офис 203, решётка Р-3', role: 'terminal', method: 'hood', entry: 'L', total: '762', shape: 'rect', Lp: '900', v2: 1, note: 'Шибер на ответвлении прикрыт — открыть и повторить' },
+      { id: newId('c'), no: '7', place: 'Офис 204, решётка Р-4', role: 'terminal', method: 'grille', entry: 'V', vAvg: '1,77', shape: 'rect', a: '600', b: '300', D: '', kFree: '0,8', Lp: '900', v2: 1 },
+    ],
+  };
+  Store.save(o); Store.save(s);
+  return o;
+}
+
+/* ===== расчёты ===== */
+const CLS = [['1.0', '1,0'], ['0.5', '0,5']];
+const FRAC = [['1', '1,00'], ['0.75', '0,75'], ['0.5', '0,50'], ['0.25', '0,25'], ['0.1', '0,10'], ['0.05', '0,05']];
+const SHAPES = [['round', 'Круглое'], ['rect', 'Прямоугольное']];
+const listVals = (s) => String(s || '').split(/[;\s]+/).map((x) => N(x.replace(/,$/, ''))).filter(OK);
+function kvI(k, v, u, hl) { return `<div class="i${hl ? ' hl' : ''}"><div class="k">${k}</div><div class="v">${v}${u ? ` <small>${u}</small>` : ''}</div></div>`; }
+function kvBox(items) { return `<div class="kv">${items.join('')}</div>`; }
+function noteList(items) { const f = items.filter(Boolean); return f.length ? `<ul class="notes">${f.join('')}</ul>` : ''; }
+const nOk = (t) => `<li>${t}</li>`, nW = (t) => `<li class="w">${t}</li>`, nB = (t) => `<li class="b">${t}</li>`;
+const isRound = (v) => v.shape === 'round';
+
+/* Схема сверления: отверстия на выбранной стенке, пути зонда и точки */
+function drillSVG(shape, a, b, P, drill) {
+  const vert = drill !== 'h';
+  const tri = (x, y, dir) => {
+    const t = dir === 'down' ? `${x - 6},${y - 10} ${x + 6},${y - 10} ${x},${y}` : `${x - 10},${y - 6} ${x - 10},${y + 6} ${x},${y}`;
+    return `<polygon class="sv-hole" points="${t}"/>`;
+  };
+  if (shape === 'round') {
+    const c = 120, R = 88;
+    let s = `<svg viewBox="0 0 240 240" role="img" aria-label="Круглое сечение, сверление ${vert ? 'сверху' : 'сбоку'}"><circle class="sv-wall" cx="${c}" cy="${c}" r="${R}"/>`;
+    s += vert ? `<line class="sv-path" x1="${c}" y1="${c - R}" x2="${c}" y2="${c + R}"/><line class="sv-axis" x1="${c - R}" y1="${c}" x2="${c + R}" y2="${c}"/>`
+      : `<line class="sv-path" x1="${c - R}" y1="${c}" x2="${c + R}" y2="${c}"/><line class="sv-axis" x1="${c}" y1="${c - R}" x2="${c}" y2="${c + R}"/>`;
+    P.pts.forEach((p) => {
+      const main = vert ? p.axis === 'В' || p.axis === 'Ц' : p.axis === 'Г' || p.axis === 'Ц';
+      const x = c - R + p.x * 2 * R, y = c - R + p.y * 2 * R;
+      s += `<circle class="sv-pt${main ? ' on' : ' dim'}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5"/>`;
+    });
+    s += vert ? tri(c, c - R, 'down') + tri(c - R, c, 'right').replace('sv-hole', 'sv-hole dim') : tri(c - R, c, 'right') + tri(c, c - R, 'down').replace('sv-hole', 'sv-hole dim');
+    return s + `</svg>`;
+  }
+  const k = 176 / Math.max(a, b), w = a * k, h = b * k, x0 = (240 - w) / 2 + 6, y0 = (240 - h) / 2 + 6;
+  let s = `<svg viewBox="0 0 240 240" role="img" aria-label="Прямоугольное сечение, сверление ${vert ? 'сверху' : 'сбоку'}"><rect class="sv-wall" x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}"/>`;
+  const xs = [...new Set(P.pts.map((p) => p.x))], ys = [...new Set(P.pts.map((p) => p.y))];
+  if (vert) xs.forEach((x, i) => { const X = x0 + x * w; s += `<line class="sv-path" x1="${X.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${X.toFixed(1)}" y2="${(y0 + h).toFixed(1)}"/>` + tri(X, y0, 'down') + `<text class="sv-txt" x="${X.toFixed(1)}" y="${(y0 - 14).toFixed(1)}" text-anchor="middle">${i + 1}</text>`; });
+  else ys.forEach((y, i) => { const Y = y0 + y * h; s += `<line class="sv-path" x1="${x0.toFixed(1)}" y1="${Y.toFixed(1)}" x2="${(x0 + w).toFixed(1)}" y2="${Y.toFixed(1)}"/>` + tri(x0, Y, 'right') + `<text class="sv-txt" x="${(x0 - 14).toFixed(1)}" y="${(Y + 3.5).toFixed(1)}" text-anchor="end">${i + 1}</text>`; });
+  P.pts.forEach((p) => { s += `<circle class="sv-pt on" cx="${(x0 + p.x * w).toFixed(1)}" cy="${(y0 + p.y * h).toFixed(1)}" r="4.5"/>`; });
+  return s + `</svg>`;
+}
+
+const CALCS = [
+  {
+    id: 'sect', title: 'Мерное сечение и точки замера', ref: 'ГОСТ 12.3.018, р. 1, черт. 1–2',
+    fields: [
+      { k: 'shape', l: 'Форма', t: 'sel', o: SHAPES, d: 'round' },
+      { k: 'drill', l: 'Отверстия', t: 'sel', o: [['v', 'Сверху'], ['h', 'Сбоку']], d: 'v' },
+      { k: 'D', l: 'Диаметр D', u: 'мм', d: '400', show: isRound },
+      { k: 'a', l: 'Ширина a', u: 'мм', d: '500', show: (v) => !isRound(v) },
+      { k: 'b', l: 'Высота b', u: 'мм', d: '300', show: (v) => !isRound(v) },
+    ],
+    formula: 'Dh = 4F / П;  сечение ≥ 6Dh после возмущения и ≥ 2Dh до него;  отклонение координат ≤ ±10 %',
+    calc(v) {
+      const D = N(v.D), a = N(v.a), b = N(v.b);
+      const g = M.geom(v.shape, D, a, b), P = M.points(v.shape, D, a, b);
+      if (!OK(g.F)) return '<p class="muted">Введите размеры.</p>';
+      const vert = v.drill !== 'h';
+      const round = v.shape === 'round';
+      const w = round ? D : a;
+      const items = [kvI('Площадь F', F(g.F, 4), 'м²'), kvI('Прямой участок до / после', `${F(6 * g.Dh / 1000, 2)} / ${F(2 * g.Dh / 1000, 2)}`, 'м'),
+        kvI('Зонд, Ø не более', F(0.08 * w, 0), 'мм'), kvI('Точек замера', P.z, '', true)];
+      /* Таблица: блок «отверстие» (номер, где сверлить) отдельно от блока «глубины ввода» */
+      const dcells = (arr) => arr.map((x, i) => `<td class="r num dp${i === 0 ? ' first' : ''}">${F(x, 0)}</td>`).join('');
+      let rows, head, nd;
+      if (round) {
+        const depths = [...new Set(P.pts.filter((p) => p.axis !== 'Г' || P.pts.length === 1).map((p) => p.depth))].sort((x, y) => x - y);
+        nd = depths.length;
+        head = `<tr><th class="gh" colspan="2">Отверстие</th><th class="gd first" colspan="${nd}">Глубина ввода зонда, мм</th></tr>
+          <tr><th class="gh">№</th><th class="gh">Где</th>${depths.map((_, i) => `<th class="gd r${i === 0 ? ' first' : ''}">${i + 1}</th>`).join('')}</tr>`;
+        rows = `<tr><td class="hl1"><b>1</b></td><td class="hl1">${vert ? 'сверху' : 'сбоку'}</td>${dcells(depths)}</tr>` +
+          (P.pts.length > 1 ? `<tr><td class="hl1"><b>2</b></td><td class="hl1">${vert ? 'сбоку' : 'сверху'}, 90°</td>${dcells(depths)}</tr>` : '');
+      } else {
+        const xs = [...new Set(P.pts.map((p) => p.x))], ys = [...new Set(P.pts.map((p) => p.y))];
+        const holes = vert ? xs.map((x) => x * a) : ys.map((y) => y * b);
+        const depths = vert ? ys.map((y) => y * b) : xs.map((x) => x * a);
+        nd = depths.length;
+        head = `<tr><th class="gh" colspan="2">Отверстие</th><th class="gd first" colspan="${nd}">Глубина ввода зонда, мм</th></tr>
+          <tr><th class="gh">№</th><th class="gh r">${vert ? 'От левого края' : 'От верха'}, мм</th>${depths.map((_, i) => `<th class="gd r${i === 0 ? ' first' : ''}">${i + 1}</th>`).join('')}</tr>`;
+        rows = holes.map((hx, i) => `<tr><td class="hl1"><b>${i + 1}</b></td><td class="r num hl1">${F(hx, 0)}</td>${dcells(depths)}</tr>`).join('');
+      }
+      const where = round ? (vert ? 'Отверстие 1 — в верхней стенке, зонд вертикально.' : 'Отверстие 1 — в боковой стенке, зонд горизонтально.') + ' По ГОСТ нужны два взаимно перпендикулярных диаметра.'
+        : (vert ? `Отверстия в верхней (или нижней) стенке, ${P.z / Math.max(1, [...new Set(P.pts.map((p) => p.x))].length)} глубины в каждом.` : `Отверстия в боковой стенке, ${P.z / Math.max(1, [...new Set(P.pts.map((p) => p.y))].length)} глубины в каждом.`);
+      return kvBox(items) + `<p class="small muted">${esc(P.rule)}${P.note ? ' ' + esc(P.note) : ''}</p>` +
+        `<div class="diagram"><div class="dsvg">${drillSVG(v.shape, a, b, P, v.drill)}</div><div class="dtable"><div class="tbl-wrap"><table class="drilltbl"><thead>${head}</thead><tbody>${rows}</tbody></table></div>
+        <p class="hint" style="margin-top:8px">${esc(where)} Глубина — от внутренней поверхности стенки; прибавьте толщину стенки и изоляции.</p></div></div>`;
+    },
+  },
+];
+
+const calcState = lsGet(LS_CALC) || {};
+function calcVals(c) {
+  const st = calcState[c.id] || {};
+  const v = {};
+  c.fields.forEach((f) => { v[f.k] = st[f.k] !== undefined ? st[f.k] : f.d; });
+  c.fields.forEach((f) => { if (f.t === 'sel') { const opts = typeof f.o === 'function' ? f.o(v) : f.o; if (!opts.some(([x]) => x === v[f.k])) v[f.k] = opts[0][0]; } });
+  return v;
+}
+function calcFieldsHTML(c, v) {
+  return c.fields.filter((f) => !f.show || f.show(v)).map((f) => {
+    const id = `c_${c.id}_${f.k}`;
+    const label = `<label for="${id}">${lab(f.l, f.u)}</label>`;
+    const hint = f.h ? `<span class="hint">${f.h}</span>` : '';
+    let inp;
+    if (f.t === 'sel') { const opts = typeof f.o === 'function' ? f.o(v) : f.o; inp = `<select id="${id}" data-calc="${c.id}" data-k="${f.k}" data-struct>${opts.map(([x, t]) => `<option value="${esc(x)}"${x === v[f.k] ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`; }
+    else if (f.t === 'list') inp = `<textarea id="${id}" data-calc="${c.id}" data-k="${f.k}" rows="2">${esc(v[f.k])}</textarea>`;
+    else if (f.t === 'date') inp = `<input type="date" id="${id}" data-calc="${c.id}" data-k="${f.k}" value="${esc(v[f.k])}">`;
+    else inp = `<input type="text" inputmode="decimal" class="num-in" id="${id}" data-calc="${c.id}" data-k="${f.k}" value="${esc(v[f.k])}" autocomplete="off">`;
+    return `<div class="f ${f.w || ''}">${label}${inp}${hint}</div>`;
+  }).join('');
+}
+function calcOut(c, v) { try { return c.calc(v); } catch (e) { return '<p class="muted">Проверьте введённые значения.</p>'; } }
+function viewCalcs() {
+  const jump = CALCS.map((c) => `<button data-act="jump" data-id="calc-${c.id}">${esc(c.title)}</button>`).join('');
+  const cards = CALCS.map((c) => {
+    const v = calcVals(c);
+    return `<section class="card calc" id="calc-${c.id}"><div class="card-head"><h2>${esc(c.title)}</h2><button class="btn danger" data-act="calc-clear" data-id="${c.id}">Очистить</button></div><span class="ref" style="display:inline-block;margin-bottom:12px">${esc(c.ref)}</span>
+      <div class="fields" id="cf-${c.id}">${calcFieldsHTML(c, v)}</div>
+      <div class="formula">${esc(c.formula)}</div>
+      <div class="out" id="co-${c.id}">${calcOut(c, v)}</div></section>`;
+  }).join('');
+  return `<div class="stack"><div class="head"><div><h1>Расчёты</h1><p class="lead">Введите размеры — блокнот покажет точки замера и глубину установки зонда.</p></div></div>
+    ${CALCS.length > 1 ? `<nav class="jump" aria-label="Перейти к расчёту">${jump}</nav>` : ''}${cards}</div>`;
+}
+function clearCalc(id) {
+  const c = CALCS.find((x) => x.id === id); if (!c) return;
+  const st = calcState[c.id] || (calcState[c.id] = {});
+  c.fields.forEach((f) => { if (f.t !== 'sel') st[f.k] = ''; });
+  lsSet(LS_CALC, calcState);
+  const v = calcVals(c);
+  $('#cf-' + c.id).innerHTML = calcFieldsHTML(c, v);
+  $('#co-' + c.id).innerHTML = calcOut(c, v);
+  const first = $('#cf-' + c.id + ' input'); if (first) first.focus();
+}
+function onCalcInput(el, structural) {
+  const c = CALCS.find((x) => x.id === el.dataset.calc);
+  if (!c) return;
+  const st = calcState[c.id] || (calcState[c.id] = {});
+  st[el.dataset.k] = el.value;
+  lsSet(LS_CALC, calcState);
+  const v = calcVals(c);
+  if (structural) {
+    const box = $('#cf-' + c.id);
+    const focusId = el.id;
+    box.innerHTML = calcFieldsHTML(c, v);
+    const f = document.getElementById(focusId); if (f) f.focus();
+  }
+  $('#co-' + c.id).innerHTML = calcOut(c, v);
+}
+
+/* ===== нормы: выжимка требований обоих стандартов ===== */
+const NORMS = [
+  { id: 'n-tol', t: 'Допуски и критерии приёмки', table: [
+    ['Расход через воздухораспределители и воздухоприёмники общеобменных систем', '±8 % при обеспечении требуемого подпора или разрежения', '34060, 8.2.5'],
+    ['Расход через местные отсосы и душирующие устройства', 'до +10 %', '34060, 8.2.5'],
+    ['Расходы по помещениям в паспорте (табл. А.2)', 'вывод: ±8 %; примечание формы допускает ±10 % от ПД', '34060, прил. А'],
+    ['Вентилятор: расход и полное давление', 'не более 5 % от данных изготовителя', '34060, 11.2.6'],
+    ['Подсосы и утечки в системе', 'не более 8 % расхода; по классу герметичности — ф. (1)–(5)', '34060, 7.3, 7.5'],
+    ['Камера орошения: холодоотдача по воздуху и по воде', 'расхождение не более 20 %', '34060, 11.7.11'],
+    ['Микроклимат после наладки СКВ', 't ±2 °C; φ ±7 %; v ±0,1 м/с', '34060, 8.4.6'],
+    ['Повторные измерения скорости в точке', 'расхождение не более 5 %', '34060, 10.4.3'],
+    ['Балансы по теплоте, влаге, газам', 'расхождение больше 15 % — дополнительные измерения', '34060, 12.3'],
+    ['Избыточное давление в защищаемых объёмах', '20–150 Па; тамбур-шлюз — скорость в двери не менее 1,3 м/с', '34060, 13.1'],
+    ['Воздухораспределение', 't в рабочей зоне — отклонение 1–2 °C; t и φ при постоянных расходах — 5 %; «застойная зона» — v < 0,02 м/с', '34060, 11.10.4–11.10.5'],
+  ] },
+  { id: 'n-order', t: 'Порядок пусконаладки', items: [
+    ['К пусконаладке приступают после окончания монтажа и при наличии актов о его завершении.', '34060, 8.1.2'],
+    ['До устранения выявленных недостатков пусконаладку не выполняют; дефекты — в ведомость с указанием способа устранения.', '34060, 7.10–7.11'],
+    ['Оборудование с электродвигателем проверяют кратковременным включением с проверкой направления вращения.', '34060, 7.7'],
+    ['Два этапа: индивидуальная наладка (расходы до значений РД, испытание оборудования) и комплексная наладка всех систем здания с сопутствующими сетями и автоматикой.', '34060, 8.1.3'],
+    ['Системы для технологического оборудования испытывают после его монтажа.', '34060, 8.2.4'],
+    ['Перед испытаниями составляют программу: цель, режимы оборудования, условия.', '12.3.018, 3.1'],
+    ['Испытания — не ранее чем через 15 мин после пуска вентагрегата.', '12.3.018, 4.1'],
+    ['Регулировка сети: сначала по ответвлениям, затем по отверстиям каждого ответвления, повторять до проектных расходов; в конце — контрольные замеры.', '34060, 11.3.4'],
+    ['Расход измеряют в основаниях ветвей с двумя и более устройствами, во всех воздухораспределителях и воздухоприёмниках, до и после фильтров, увлажнителей, нагревателей, охладителей, утилизаторов.', '34060, 11.3.2'],
+    ['Подсосы и утечки — разность расхода в общей контрольной точке и суммы по ответвлениям и концевым устройствам.', '34060, 11.3.5'],
+  ] },
+  { id: 'n-sect', t: 'Мерные сечения и точки', items: [
+    ['Сечение — не менее 6Dh после места возмущения (отвод, шибер, диафрагма) и не менее 2Dh перед ним.', '12.3.018, 1.1'],
+    ['Нет прямого участка нужной длины — сечение в месте, делящем участок 3:1 по ходу воздуха.', '12.3.018, 1.1'],
+    ['Можно мерить прямо в месте внезапного расширения или сужения; размер сечения — по наименьшему сечению канала.', '12.3.018, 1.2'],
+    ['Гидравлический диаметр Dh = 4F/П.', '12.3.018, 1.1'],
+    ['Круглое: 100–300 мм — 4 точки на 0,12D от стенки; больше 300 мм — 8 точек на 0,054D и 0,28D от стенки, по двум перпендикулярным диаметрам.', '12.3.018, черт. 1'],
+    ['Прямоугольное: b 100–200 мм — 4 точки на 0,2a и 0,2b от стенок; b больше 200 мм — 16 точек на 0,1 и 0,4 от стенок.', '12.3.018, черт. 2'],
+    ['Отклонение координат точек — не более ±10 %; в каждой точке не менее трёх измерений.', '12.3.018, 1.3'],
+    ['Анемометром — не менее 10 с в каждой точке.', '12.3.018, 1.4'],
+    ['При прямом участке не менее 8Dh статическое давление можно мерить в отдельных точках сечения.', '12.3.018, 4.3'],
+    ['Зазоры вокруг приборов уплотняют, отверстия после испытаний закрывают.', '12.3.018, 4.4'],
+    ['Проверка достоверности: Pп = Pст + Pд.', '34060, 10.3.3'],
+  ] },
+  { id: 'n-dev', t: 'Приборы', table: [
+    ['Комбинированный приёмник давления (Pд, Pст)', 'скорости больше 5 м/с; Ø не более 8 % диаметра или ширины воздуховода', '12.3.018, 2.1'],
+    ['Дифференциальные манометры, тягомеры', 'класс 0,5–1,0', '12.3.018, 2.1'],
+    ['Анемометры, термоанемометры', 'скорости меньше 5 м/с; 0–0,5 м/с — ±0,05; больше 0,5 м/с — ±0,1 м/с; в каналах — зонд «обогреваемая струна», на решётках — крыльчатка', '12.3.018, 2.1; 34060, 10.4.1'],
+    ['Барометр', 'класс не ниже 1,0', '12.3.018, 2.1'],
+    ['Термометры', 'цена деления не более 0,5 °C; для балансов и воздухораспределителей — 0,2 °C; выше 60 °C — 1 °C; в воздуховодах — класс не ниже 0,5 при v до 20 м/с', '34060, 10.1'],
+    ['Гигрометры, психрометры', '0–100 %, погрешность ±2 %', '34060, 10.2'],
+    ['Тахометры', 'класс 0,5 или 1,0', '34060, 10.5'],
+    ['Пирометры (поверхности)', 'класс не ниже 1,0', '34060, 10.1.5'],
+    ['Манометры на трубопроводах воды', 'класс не ниже 0,5', '34060, 10.3.6'],
+    ['Шумомеры', '1-го или 2-го класса', '34060, 10.8.1'],
+    ['Все средства измерений', 'утверждённый тип и действующая поверка (калибровка); пневмотрассы — герметичные шланги', '34060, р. 10, 10.3.4'],
+  ] },
+  { id: 'n-cyc', t: 'Режимы испытаний оборудования', items: [
+    ['Воздухонагреватель (вода): не менее двух циклов по 15 мин; обратная вода — не выше графика теплосети.', '34060, 11.4'],
+    ['Воздухонагреватель (пар): не менее двух циклов по 20 мин; температура пара — по давлению, табл. 2.', '34060, 11.5'],
+    ['Воздухоохладитель: не менее двух циклов по 30 мин, при максимальной нагрузке; процесс — на J–d-диаграмме.', '34060, 11.6'],
+    ['Камера орошения: установившийся режим, не менее двух циклов по 20 мин; сначала сепараторы, затем аэродинамика, затем тепловые характеристики.', '34060, 11.7'],
+    ['Автономный кондиционер: не менее 1 ч, запись каждые 10–15 мин, не ранее 40 мин после включения холодильной машины.', '34060, 11.12'],
+    ['Воздушно-тепловая завеса: после наладки вентиляции, при отрицательной tн; t и v на рабочих местах на 0,5 и 1,5 м; ветер — в 4–5 м от ворот.', '34060, 11.15'],
+    ['Естественная вентиляция: шахты — tн не выше 5 °C и перепад не менее 15 °C; дефлекторы — перепад не менее 15 °C и ветер не менее 1 м/с.', '34060, 11.16'],
+    ['VAV: перепад на открытых клапанах 3–6 % (непараллельные створки) или 10–30 % (параллельные); скорость в клапане не менее 5 м/с при давлении до 250 Па и не менее 10 м/с до 1000 Па.', '34060, 15.5'],
+    ['VAV: датчик статического давления — где потери 50–70 % общих; обратная вода первого подогрева не ниже 20 °C и не менее 0,2 м/с; равномерность при снижении расхода на 30–60 %.', '34060, 15.9–15.13'],
+  ] },
+  { id: 'n-smoke', t: 'Противодымная вентиляция', items: [
+    ['Скорость в проёмах — анемометром; за решёткой или сеткой — в плоскости в 50 мм от неё; жалюзи и створки, меняющие направление потока, на время испытаний снимают.', '34060, 13.3'],
+    ['Давление — относительно примыкающего помещения; приёмники на одной высоте, не ближе 0,5 м от ограждений.', '34060, 13.4'],
+    ['Лестничная клетка: два режима — все двери закрыты (замер у нижнего и верхнего этажей); открыта дверь наружу (замер у двери этажа выше выходного).', '34060, 13.5'],
+    ['Лифтовые шахты: у двери этажа над основным посадочным (подземные — под ним); лифт на основном посадочном этаже, двери открыты.', '34060, 13.6'],
+    ['При работе дымоудаления и подпора проверяют, что двери из коридоров на лестницу и в холлы открываются.', '34060, 13.8'],
+  ] },
+  { id: 'n-noise', t: 'Шум, вибрация, вредные вещества', items: [
+    ['Шум — после регулировки всех систем, при максимальном режиме; поправка на фон по табл. 1; без мебели — ещё −2 дБ(А).', '34060, 10.8.3–10.8.5'],
+    ['Снаружи — не менее трёх мест в 2 м от зданий, на высоте 1,2–1,5 м; вентиляционные проёмы открыты.', '34060, 10.8.6'],
+    ['Вибрация — после наладки, в вертикальном и горизонтальном направлениях, не менее 10 с; калибровка до и после; при регулируемой частоте — на максимальной.', '34060, 10.7'],
+    ['Время по октавам: 2–4 Гц — не менее 20 с; 8–16 Гц — 2 с; 31,5–63 Гц — 1 с. Переходная пластина — 4–5 мм, Ø 200 ± 50 мм.', '34060, 10.7.9–10.7.10'],
+    ['Отбор проб: вещества остронаправленного действия — не менее 5 мин; пыль — не более 30 мин; прочие — не более 15 мин; выбросы — 20–30 мин.', '34060, 10.6.3'],
+    ['Изокинетический отбор обязателен для аэрозолей крупнее 5 мкм; в потоке — 6Dh после и 3Dh до возмущения.', '34060, 10.6.5–10.6.6'],
+  ] },
+  { id: 'n-per', t: 'Периодичность испытаний', table: [
+    ['Общеобменная вентиляция и кондиционирование', 'не реже 1 раза в 2 года', '34060, 8.5.2'],
+    ['Местная вытяжная и местная приточная', '1 раз в год', '34060, 8.5.2'],
+    ['Помещения категорий А и Б', 'не реже 1 раза в год', '34060, 8.5.3'],
+    ['Помещения категорий В, Г, Д', 'не реже 1 раза в 2 года', '34060, 8.5.3'],
+    ['Возможно выделение веществ 1–2 класса опасности', '1 раз в месяц', '34060, 8.5.3'],
+    ['Общеобменная механическая и естественная', '1 раз в 3 года', '34060, 8.5.3'],
+    ['После реконструкции, смены технологии, оборудования, перепланировки', 'вне графика', '34060, 8.5.2'],
+  ] },
+  { id: 'n-doc', t: 'Отчётные документы', items: [
+    ['Паспорт системы — по приложению А, не менее двух экземпляров, по итогам индивидуальных испытаний.', '34060, 17.3'],
+    ['Акт о приёмке после комплексной наладки — по приложению Б.', '34060, 17.4'],
+    ['Технический отчёт — по приложению В (наладка на санитарно-гигиенический эффект) или Г (исходные данные для реконструкции).', '34060, 17.5, 9.3'],
+    ['Графика — по ГОСТ 21.602; на схеме системы — места измерений и согласованные отступления от РД.', '34060, 17.2, прил. А.3'],
+    ['Срок хранения технической документации — шесть лет.', '34060, 18.1'],
+  ] },
+  { id: 'n-safe', t: 'Безопасность', items: [
+    ['Не снимать защитные кожухи; не проверять электрические цепи и автоматику под напряжением.', '34060, 19.1'],
+    ['Не открывать люки, не чистить и не трогать движущиеся части до полной остановки.', '34060, 19.1, 19.4'],
+    ['В закрытых пространствах — звено не менее двух человек: один внутри, один снаружи.', '34060, 19.2'],
+    ['Удары, подозрительный шум, сильная вибрация — немедленно прекратить испытания.', '34060, 19.3'],
+    ['При отключённом питании — табличка «Не включать, работают люди».', '34060, 19.5'],
+    ['Испытания не должны ухудшать проветривание и приводить к скоплению взрывоопасных концентраций.', '12.3.018, 6.2'],
+  ] },
+];
+function viewNorms() {
+  const nav = NORMS.map((s) => `<button data-act="jump" data-id="${s.id}">${esc(s.t)}</button>`).join('');
+  const body = NORMS.map((s) => {
+    let inner;
+    if (s.table) inner = `<div class="tbl-wrap"><table><thead><tr><th>Что</th><th>Требование</th><th>Пункт</th></tr></thead><tbody>${s.table.map(([a, b, c]) => `<tr><td>${esc(a)}</td><td>${esc(b)}</td><td class="norms cl">${esc(c)}</td></tr>`).join('')}</tbody></table></div>`;
+    else inner = `<ul>${s.items.map(([a, c]) => `<li>${esc(a)}${c ? ` <span class="cl">${esc(c)}</span>` : ''}</li>`).join('')}</ul>`;
+    return `<section class="card calc" id="${s.id}"><h2>${esc(s.t)}</h2>${inner}</section>`;
+  }).join('');
+  return `<div class="stack norms"><div class="head"><div><h1>Нормы</h1><p class="lead">Выжимка требований ГОСТ 12.3.018-79 и ГОСТ 34060-2017 с номерами пунктов.</p></div></div>
+    <nav class="jump" aria-label="Разделы норм">${nav}</nav>${body}</div>`;
+}
+
+/* ===== выгрузка: таблица Excel, сводка с фото, резервная копия ===== */
+function fileSafe(s) { return String(s || '').replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim().slice(0, 60) || 'объект'; }
+function csvCell(x) { const s = String(x ?? ''); return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+const rnd = (x, d = 0) => (OK(x) ? Math.round(x * Math.pow(10, d)) / Math.pow(10, d) : '');
+const statusRu = (r) => (r.status === 'ok' ? 'в допуске' : r.status === 'bad' ? 'вне допуска' : (OK(r.L) ? 'нет проекта' : 'нет замера'));
+const kOf = (s) => { if (!M.usesK(s)) return ''; const k = N(s.kFree); return OK(k) && k > 0 ? k : 1; };
+const sizeOf = (s) => (s.method === 'hood' ? 'воронка' : (s.shape === 'round' ? (s.D ? 'Ø' + s.D : '') : (s.a && s.b ? `${s.a}×${s.b}` : '')));
+
+/* Данные объекта в виде строк: системы и сечения */
+function objectData(o) {
+  const syss = systemsOf(o.id);
+  const sysRows = [['№ п/п', 'Система', 'Тип', 'Местонахождение', 'L вент. проект, м³/ч', 'L вент. факт, м³/ч', 'Невязка, %', 'Частота ПЧ, Гц', 'Ток двиг., А', 'Точек', 'Вне допуска', 'Дата', 'Заметка']];
+  const secRows = [['Система', '№ точки', 'Помещение, место', 'Тип', 'Метод', 'Размер, мм', 'K решётки', 'Pст, Па', 'L проект, м³/ч', 'L факт, м³/ч', 'Отклонение, %', 'Допуск', 'Оценка', 'Заметка']];
+  const blocks = [];
+  syss.forEach((sys, i) => {
+    const res = M.system(sys), ff = fanFlow(sys, res);
+    const hz = N((((sys.pass || {}).fan || {}).fact || {}).vfd);
+    const amp = N((((sys.pass || {}).motor || {}).fact || {}).I);
+    sysRows.push([i + 1, sys.name || '', sysTypeName(sys.type), sys.location || '', rnd(ff.proj), rnd(ff.fact), rnd(ff.dev, 1), OK(hz) ? hz : '', OK(amp) ? amp : '', res.count, res.badN, fmtDate(sys.date), sys.note || '']);
+    res.secs.forEach(({ s, r }) => {
+      const no = N(s.no);
+      secRows.push([sys.name || '', OK(no) ? no : (s.no || ''), s.place || '', (M.ROLES[s.role] || M.ROLES.terminal).name, M.METHODS[s.method] || '', sizeOf(s), kOf(s), rnd(r.ps), rnd(r.Lp), rnd(r.L), rnd(r.dev, 1), tolText(r.tol), statusRu(r), s.note || '']);
+    });
+    blocks.push({ sys, res, ff, hz });
+  });
+  return { sysRows, secRows, blocks };
+}
+
+/* Свой мини-писатель .xlsx: работает без интернета (zip без сжатия + XML листов) */
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC_T[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zipStore(files) {
+  const enc = new TextEncoder(), parts = [], cent = [];
+  const d = new Date(), time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  let off = 0;
+  files.forEach(({ name, text }) => {
+    const nm = enc.encode(name), data = enc.encode(text), crc = crc32(data);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+    h.setUint16(10, time, true); h.setUint16(12, date, true); h.setUint32(14, crc, true); h.setUint32(18, data.length, true); h.setUint32(22, data.length, true);
+    h.setUint16(26, nm.length, true); h.setUint16(28, 0, true);
+    parts.push(new Uint8Array(h.buffer), nm, data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+    c.setUint16(12, time, true); c.setUint16(14, date, true); c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true);
+    c.setUint16(28, nm.length, true); c.setUint32(42, off, true);
+    cent.push(new Uint8Array(c.buffer), nm);
+    off += 30 + nm.length + data.length;
+  });
+  const cdSize = cent.reduce((a, x) => a + x.length, 0);
+  const e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cdSize, true); e.setUint32(16, off, true);
+  const all = [...parts, ...cent, new Uint8Array(e.buffer)], out = new Uint8Array(all.reduce((a, x) => a + x.length, 0));
+  let p = 0; all.forEach((x) => { out.set(x, p); p += x.length; });
+  return out;
+}
+const xEsc = (v) => String(v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const colName = (i) => { let s = ''; i += 1; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+function sheetXML(rows, widths) {
+  const ncol = rows[0].length, last = colName(ncol - 1) + Math.max(1, rows.length);
+  const cols = widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w + 2}" customWidth="1"/>`).join('');
+  const body = rows.map((r, ri) => `<row r="${ri + 1}">` + r.map((v, ci) => {
+    const ref = colName(ci) + (ri + 1);
+    if (v === '' || v === null || v === undefined) return '';
+    if (typeof v === 'number' && isFinite(v) && ri > 0) return `<c r="${ref}"><v>${v}</v></c>`;
+    return `<c r="${ref}" t="inlineStr"${ri === 0 ? ' s="1"' : ''}><is><t xml:space="preserve">${xEsc(v)}</t></is></c>`;
+  }).join('') + '</row>').join('');
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+    + `<dimension ref="A1:${last}"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>`
+    + `<sheetFormatPr defaultRowHeight="15"/><cols>${cols}</cols><sheetData>${body}</sheetData><autoFilter ref="A1:${last}"/></worksheet>`;
+}
+function buildXLSX(sheets) {
+  const NS = 'http://schemas.openxmlformats.org/', head = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  const files = [];
+  files.push({ name: '[Content_Types].xml', text: head + `<Types xmlns="${NS}package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>`
+    + sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('') + '</Types>' });
+  files.push({ name: '_rels/.rels', text: head + `<Relationships xmlns="${NS}package/2006/relationships"><Relationship Id="rId1" Type="${NS}officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` });
+  files.push({ name: 'xl/workbook.xml', text: head + `<workbook xmlns="${NS}spreadsheetml/2006/main" xmlns:r="${NS}officeDocument/2006/relationships"><sheets>`
+    + sheets.map((sh, i) => `<sheet name="${xEsc(sh.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('') + '</sheets><definedNames>'
+    + sheets.map((sh, i) => `<definedName name="_xlnm._FilterDatabase" localSheetId="${i}" hidden="1">'${xEsc(sh.name)}'!$A$1:$${colName(sh.rows[0].length - 1)}$${Math.max(1, sh.rows.length)}</definedName>`).join('') + '</definedNames></workbook>' });
+  files.push({ name: 'xl/_rels/workbook.xml.rels', text: head + `<Relationships xmlns="${NS}package/2006/relationships">`
+    + sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="${NS}officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')
+    + `<Relationship Id="rId${sheets.length + 1}" Type="${NS}officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>` });
+  files.push({ name: 'xl/styles.xml', text: head + `<styleSheet xmlns="${NS}spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><name val="Calibri"/><family val="2"/></font></fonts>`
+    + '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFF1C2"/><bgColor indexed="64"/></patternFill></fill></fills>'
+    + '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+    + '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf></cellXfs>'
+    + '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>' });
+  sheets.forEach((sh, i) => files.push({ name: `xl/worksheets/sheet${i + 1}.xml`, text: sheetXML(sh.rows, sh.widths) }));
+  return zipStore(files);
+}
+async function exportTable(o) {
+  const { sysRows, secRows } = objectData(o);
+  const base = `${fileSafe(o.name)} — наладка ${fmtDate(todayISO())}`;
+  const cell = (x) => csvCell(typeof x === 'number' ? String(x).replace('.', ',') : x);
+  const csv = '﻿' + secRows.map((r) => r.map(cell).join(';')).join('\r\n');
+  const csvFallback = () => offerFile(base + '.csv', csv, () => showOverlay('Таблица (CSV)', `<textarea readonly style="min-height:320px">${esc(csv.slice(1))}</textarea>`, csv.slice(1)));
+  let buf;
+  try {
+    buf = buildXLSX([
+      { name: 'Системы', rows: sysRows, widths: [6, 10, 18, 22, 12, 12, 10, 10, 10, 8, 9, 11, 30] },
+      { name: 'Точки', rows: secRows, widths: [10, 8, 28, 26, 30, 11, 9, 9, 11, 11, 11, 9, 12, 30] },
+    ]);
+  } catch (e) { csvFallback(); return; }
+  offerFile(base + '.xlsx', new Blob([buf], { type: MIME.xlsx }), csvFallback);
+}
+
+async function photoData(p) {
+  if (p.data) return p.data;
+  try { const b = await photoBlob(p); return b ? await blobToDataURL(b) : ''; } catch (e) { return ''; }
+}
+function dataURLToBlob(u) {
+  const [head, b64] = String(u).split(',');
+  const type = (head.match(/data:([^;]+)/) || [])[1] || 'image/jpeg';
+  const bin = atob(b64 || ''); const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type });
+}
+function photoArrays(sys) {
+  const p = sys.photos || {};
+  return [p.fan || [], p.motor || []].concat((sys.sections || []).map((c) => c.photos || []));
+}
+async function exportSummary(o) {
+  toast('Собираю сводку…');
+  const { sysRows, blocks } = objectData(o);
+  const td = (x) => `<td>${esc(x)}</td>`;
+  const table = (rows) => `<table><thead><tr>${rows[0].map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map((r) => `<tr>${r.map(td).join('')}</tr>`).join('')}</tbody></table>`;
+  let body = `<h1>${esc(o.name || 'Объект')}</h1><p class="m">${esc(o.address || '')}${o.date ? ' · начало работ ' + esc(fmtDate(o.date)) : ''} · сводка от ${esc(fmtDate(todayISO()))}</p>`;
+  const show = (x, j) => (typeof x !== 'number' ? x : (j === 6 ? M.fmtSigned(x, 1) : (j === 4 || j === 5 ? F(x) : String(x).replace('.', ','))));
+  body += '<h2>Системы</h2>' + table(sysRows.map((r, i) => r.slice(0, 11).map((x, j) => (i ? show(x, j) : x))));
+  for (const { sys, res } of blocks) {
+    body += `<h2>${esc(sys.name || 'Система')}${sys.location ? ' <span class="m">· ' + esc(sys.location) + '</span>' : ''}</h2>`;
+    const rows = [['№', 'Помещение, место', 'K решётки', 'Pст, Па', 'L проект', 'L факт', 'Откл., %', 'Оценка', 'Заметка']].concat(res.secs.map(({ s, r }) => [s.no || '', s.place || '', String(kOf(s)).replace('.', ','), OK(r.ps) ? F(r.ps) : '', OK(r.Lp) ? F(r.Lp) : '', OK(r.L) ? F(r.L) : '', OK(r.dev) ? M.fmtSigned(r.dev, 1) : '', statusRu(r), s.note || '']));
+    if (res.count) body += table(rows);
+    if (sys.note) body += `<p><b>Заметки:</b> ${esc(sys.note)}</p>`;
+    let figs = '';
+    const slots = ['fan', 'motor'].concat((sys.sections || []).map((c) => 'sec:' + c.id));
+    for (const slot of slots) {
+      const list = peekPhotos(sys, slot);
+      for (let i = 0; i < list.length; i++) {
+        const src = await photoData(list[i]);
+        if (src) figs += `<figure><img src="${src}" alt=""><figcaption>${esc(slotName(sys, slot))}, фото ${i + 1}</figcaption></figure>`;
+      }
+    }
+    if (figs) body += `<div class="figs">${figs}</div>`;
+  }
+  const css = 'body{font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#111;background:#fff;max-width:1000px;margin:0 auto;padding:20px}h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:22px 0 6px}.m{color:#555;font-weight:normal}table{border-collapse:collapse;width:100%;margin:6px 0}th,td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}th{background:#eee}.figs{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}figure{margin:0;width:calc(50% - 5px)}figure img{width:100%;border:1px solid #ccc}figcaption{font-size:12px;color:#555}@media print{figure{break-inside:avoid}}';
+  const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(o.name || 'Сводка')}</title><style>${css}</style></head><body>${body}</body></html>`;
+  offerFile(`${fileSafe(o.name)} — сводка ${fmtDate(todayISO())}.html`, html, () => showOverlay('Сводка', `<div class="doc">${body}</div>`, html));
+}
+
+function showOverlay(title, inner, copyText) {
+  const root = $('#overlay-root');
+  root.innerHTML = `<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet">
+    <div class="card-head" style="margin:0"><h2>${esc(title)}</h2><div class="head-actions">${copyText ? '<button class="btn" data-act="ov-copy">Копировать</button>' : ''}<button class="btn primary" data-act="ov-close">Закрыть</button></div></div>
+    <p class="small muted">Сохранение файлов в этом окне недоступно. Скопируйте содержимое и вставьте в Word, Excel или текстовый файл.</p>
+    ${inner}</div></div>`;
+  root._copy = copyText;
+}
+/* Резервная копия: записи и фото внутри файла — для переноса между телефоном, офлайн-файлом и облаком */
+async function exportBackup() {
+  toast('Собираю копию…');
+  const docs = clone(Store.all());
+  for (const d of docs) {
+    if (d.kind !== 'system') continue;
+    for (const arr of photoArrays(d)) {
+      for (const p of arr) {
+        if (p.data) continue;
+        const src = await photoData(p);
+        if (src) { p.data = src; delete p.local; delete p.id; }
+      }
+    }
+  }
+  const data = JSON.stringify({ app: 'blocknot-naladchika', v: 2, exported: new Date().toISOString(), docs });
+  offerFile(`Блокнот наладчика — копия ${fmtDate(todayISO())}.json`, data, () => {
+    showOverlay('Резервная копия', `<textarea readonly style="min-height:320px">${esc(data)}</textarea>`, data);
+  });
+}
+function importBackup(file) {
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const o = JSON.parse(String(rd.result));
+      const docs = (o && Array.isArray(o.docs)) ? o.docs : [];
+      let no = 0, ns = 0;
+      docs.forEach((d) => {
+        if (!d || typeof d.id !== 'string' || !/^[A-Za-z0-9_\-.~:@+]{2,80}$/.test(d.id)) return;
+        if (d.kind === 'object') { no++; Store.save(d); }
+        else if (d.kind === 'system' && typeof d.objectId === 'string') {
+          if (!Array.isArray(d.sections)) d.sections = [];
+          /* фото из копии — в память телефона, оттуда уйдут в облако */
+          if (Local.ok) photoArrays(d).forEach((arr) => arr.forEach((p) => {
+            if (!p || !p.data) return;
+            try { const b = dataURLToBlob(p.data); const key = newId('b'); Local.putBlob(key, b).catch(() => {}); Photos.urls.set(key, URL.createObjectURL(b)); p.local = key; delete p.data; delete p.id; } catch (e) { /* оставить как есть */ }
+          }));
+          ns++; Store.save(d);
+        }
+      });
+      if (!no && !ns) { toast('В файле нет записей блокнота.'); return; }
+      toast(`Загружено: объектов — ${no}, систем — ${ns}.`);
+      render();
+      Store.kick();
+    } catch (e) { toast('Не удалось прочитать файл: это не резервная копия блокнота.'); }
+  };
+  rd.readAsText(file);
+}
+
+/* ===== маршрутизация и события ===== */
+const savedUI = lsGet(LS_UI);
+if (savedUI && savedUI.tab) UI.tab = savedUI.tab;
+if (savedUI && savedUI.route) UI.route = savedUI.route;
+const hashTab = (location.hash || '').replace('#', '');
+if (['journal', 'calc', 'norms'].includes(hashTab)) UI.tab = hashTab;
+
+function persistUI() { lsSet(LS_UI, { tab: UI.tab, route: UI.route }); }
+
+function currentDocs() {
+  const r = UI.route;
+  if (r.name === 'object') { const o = objOf(r.oid); return o ? { o } : null; }
+  if (r.name === 'system' || r.name === 'section') {
+    const s = sysOf(r.sid); if (!s) return null;
+    if (r.name === 'section') { const c = secOf(s, r.cid); return c ? { s, c } : null; }
+    return { s };
+  }
+  return {};
+}
+
+function render() {
+  const view = $('#view');
+  $$('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === UI.tab)));
+  const active = document.activeElement && view.contains(document.activeElement) ? document.activeElement.id : null;
+  let html;
+  if (UI.tab === 'calc') html = viewCalcs();
+  else if (UI.tab === 'norms') html = viewNorms();
+  else {
+    let d = Store.ready ? currentDocs() : {};
+    if (d === null) { UI.route = { name: 'objects' }; d = {}; }
+    const r = UI.route;
+    if (!Store.ready || r.name === 'objects') html = viewObjects();
+    else if (r.name === 'object') html = viewObject(d.o);
+    else if (r.name === 'system') html = viewSystem(d.s);
+    else if (r.name === 'section') html = viewSection(d.s, d.c);
+    else html = viewObjects();
+  }
+  view.innerHTML = html;
+  if (active) { const el = document.getElementById(active); if (el) el.focus({ preventScroll: true }); }
+  UI.pendingRender = false;
+  persistUI();
+}
+
+function go(route, keepScroll) {
+  UI.route = route;
+  UI.armed = null;
+  render();
+  if (!keepScroll) window.scrollTo(0, 0);
+}
+
+function refreshAfterInput(doc) {
+  const r = UI.route;
+  if (UI.tab !== 'journal') return;
+  if (r.name === 'section' && doc.kind === 'system') {
+    const sec = secOf(doc, r.cid); if (sec) refreshSection(doc, sec);
+  } else if (r.name === 'system' && doc.kind === 'system') {
+    const box = $('#sys-summary'); if (box) box.innerHTML = sysSummary(doc);
+  }
+}
+
+const view = $('#view');
+view.addEventListener('input', (e) => {
+  const el = e.target;
+  if (el.dataset.calc) { if (el.tagName !== 'SELECT') onCalcInput(el, false); return; }
+  if (!el.dataset.doc || !el.dataset.path) return;
+  if (el.tagName === 'SELECT' || el.type === 'checkbox') return;
+  const doc = Store.get(el.dataset.doc); if (!doc) return;
+  setPath(doc, el.dataset.path, el.value);
+  Store.save(doc);
+  refreshAfterInput(doc);
+});
+view.addEventListener('change', (e) => {
+  const el = e.target;
+  if (el.dataset.photo) { const doc = Store.get(el.dataset.doc); const files = Array.from(el.files || []); el.value = ''; if (doc && files.length) addPhotos(doc, el.dataset.photo, files); return; }
+  if (el.dataset.calc) { onCalcInput(el, el.tagName === 'SELECT'); return; }
+  if (!el.dataset.doc || !el.dataset.path) return;
+  const doc = Store.get(el.dataset.doc); if (!doc) return;
+  if (el.tagName === 'SELECT' || el.type === 'checkbox') {
+    setPath(doc, el.dataset.path, el.type === 'checkbox' ? el.checked : el.value);
+    if (/\.method$/.test(el.dataset.path) && el.value) lsSet(LS_METHOD, el.value);
+    Store.save(doc);
+  }
+  if (el.hasAttribute('data-struct') || el.tagName === 'SELECT' || el.type === 'checkbox') {
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  }
+});
+view.addEventListener('keydown', (e) => {
+  const el = e.target;
+  if (e.key === 'Enter' && el.tagName === 'INPUT' && el.type !== 'checkbox') {
+    e.preventDefault();
+    const all = $$('input[type=text]:not([readonly]), input[type=date]', view);
+    const i = all.indexOf(el);
+    if (i >= 0 && all[i + 1]) all[i + 1].focus(); else el.blur();
+  }
+});
+view.addEventListener('focusout', () => {
+  if (!UI.pendingRender) return;
+  setTimeout(() => { if (!(document.activeElement && view.contains(document.activeElement) && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))) { const y = window.scrollY; render(); window.scrollTo(0, y); } }, 0);
+});
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-tab]');
+  if (t) { UI.tab = t.dataset.tab; UI.armed = null; render(); window.scrollTo(0, 0); return; }
+  const a = e.target.closest('[data-act]');
+  if (!a) return;
+  const act = a.dataset.act;
+  const r = UI.route;
+  const d = currentDocs() || {};
+  if (act !== 'del' && UI.armed) { UI.armed = null; }
+  switch (act) {
+    case 'go': go(JSON.parse(a.dataset.go)); break;
+    case 'jump': { const el = document.getElementById(a.dataset.id); if (el) el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); break; }
+    case 'add-object': { const o = newObject(); go({ name: 'object', oid: o.id }); setTimeout(() => { const f = document.getElementById(fid(o, 'name')); if (f) f.focus(); }, 0); break; }
+    case 'add-example': { const o = makeExample(); go({ name: 'object', oid: o.id }); toast('Пример создан. Его можно править и удалить.'); break; }
+    case 'add-system': {
+      if (!d.o) break;
+      const s = newSystem(d.o.id, systemsOf(d.o.id).length + 1);
+      go({ name: 'system', sid: s.id });
+      setTimeout(() => { const f = document.getElementById(fid(s, 'name')); if (f) { f.focus(); f.select(); } }, 0);
+      break;
+    }
+    case 'add-section': {
+      if (!d.s) break;
+      const c = newSection(d.s, null, d.c && d.c.method, d.c && d.c.entry);
+      go({ name: 'section', sid: d.s.id, cid: c.id });
+      toast('Точка № ' + c.no + ' — чистый лист.');
+      setTimeout(() => { const f = document.getElementById(fid(d.s, `sec:${c.id}.place`)); if (f) f.focus(); }, 0);
+      break;
+    }
+    case 'dup-section': { if (!d.s || !d.c) break; const c = newSection(d.s, d.c); go({ name: 'section', sid: d.s.id, cid: c.id }); toast('Копия: те же тип, метод и размеры, без замеров.'); break; }
+    case 'entry': {
+      if (!d.s || !d.c) break;
+      d.c.entry = a.dataset.v; Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y);
+      const f = $('[data-r]', view); if (f) f.focus({ preventScroll: true });
+      break;
+    }
+    case 'calc-clear': clearCalc(a.dataset.id); break;
+    case 'ps-sign': {
+      if (!d.s || !d.c) break;
+      const raw = String(d.c.ps || '').trim();
+      if (/^[-−]/.test(raw)) { d.c.ps = raw.replace(/^[-−]\s*/, ''); d.c.psSign = '+'; }
+      else d.c.psSign = d.c.psSign === '-' ? '+' : '-';
+      Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y);
+      break;
+    }
+    case 'shape': {
+      if (!d.s || !d.c) break;
+      d.c.shape = a.dataset.v; Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y); break;
+    }
+    case 'export-xlsx': if (d.o) exportTable(d.o); break;
+    case 'export-summary': if (d.o) exportSummary(d.o); break;
+    case 'photo-add': { const inp = document.getElementById('pf-' + a.dataset.slot); if (inp) inp.click(); break; }
+    case 'photo-view': { if (!d.s) break; UI.armedPhoto = null; showPhoto(d.s, a.dataset.slot, Number(a.dataset.i)); break; }
+    case 'photo-del': {
+      if (!d.s) break;
+      const key = a.dataset.slot + ':' + a.dataset.i;
+      if (UI.armedPhoto !== key) { UI.armedPhoto = key; showPhoto(d.s, a.dataset.slot, Number(a.dataset.i)); break; }
+      UI.armedPhoto = null; deletePhoto(d.s, a.dataset.slot, Number(a.dataset.i)); break;
+    }
+    case 'backup': exportBackup(); break;
+    case 'import': $('#import-file').click(); break;
+    case 'ov-close': $('#overlay-root').innerHTML = ''; break;
+    case 'ov-copy': {
+      const txt = $('#overlay-root')._copy || '';
+      const done = () => toast('Скопировано.');
+      const fallback = () => { const ta = $('#overlay-root textarea'); if (ta) { ta.focus(); ta.select(); toast('Выделено — скопируйте сочетанием клавиш.'); } else toast('Не удалось скопировать.'); };
+      try { navigator.clipboard.writeText(txt).then(done, fallback); } catch (err) { fallback(); }
+      break;
+    }
+    case 'del': {
+      const key = a.dataset.key;
+      if (UI.armed !== key) {
+        UI.armed = key; const y = window.scrollY; render(); window.scrollTo(0, y);
+        clearTimeout(UI.armTimer); UI.armTimer = setTimeout(() => { if (UI.armed === key) { UI.armed = null; const yy = window.scrollY; render(); window.scrollTo(0, yy); } }, 4000);
+        break;
+      }
+      UI.armed = null;
+      const [kind, id, sub] = key.split(':');
+      if (kind === 'obj') { systemsOf(id).forEach((s) => { purgePhotos(allPhotos(s)); Store.remove(s.id); }); Store.remove(id); go({ name: 'objects' }); toast('Объект удалён.'); }
+      else if (kind === 'sys') { const s = sysOf(id); if (s) purgePhotos(allPhotos(s)); Store.remove(id); go(s ? { name: 'object', oid: s.objectId } : { name: 'objects' }); toast('Система удалена.'); }
+      else if (kind === 'sec') { const s = sysOf(id); if (s) { const c0 = secOf(s, sub); if (c0) purgePhotos(c0.photos || []); s.sections = (s.sections || []).filter((c) => c.id !== sub); Store.save(s); go({ name: 'system', sid: id }); toast('Точка удалена.'); } }
+      break;
+    }
+    default: break;
+  }
+});
+$('#overlay-root').addEventListener('click', (e) => { if (e.target.classList.contains('overlay')) $('#overlay-root').innerHTML = ''; });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#overlay-root').innerHTML) $('#overlay-root').innerHTML = ''; });
+$('#import-file').addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; if (f) importBackup(f); e.target.value = ''; });
+
+function migrateAll() {
+  Store.all('system').forEach((sys) => {
+    let ch = false;
+    (sys.sections || []).forEach((sec) => { if (M.migrate(sec, baOf(sys))) ch = true; });
+    if (ch) Store.save(sys);
+  });
+}
+Store.on((first) => {
+  migrateAll();
+  if (UI.tab !== 'journal') return;
+  const ae = document.activeElement;
+  if (!first && ae && view.contains(ae) && /INPUT|TEXTAREA|SELECT/.test(ae.tagName)) { UI.pendingRender = true; return; }
+  const y = window.scrollY; render(); if (!first) window.scrollTo(0, y);
+});
+
+render();
+/* Кнопка «Назад» в приложении Android: на уровень выше по журналу */
+window.__vnbBack = () => {
+  const ov = $('#overlay-root');
+  if (ov && ov.innerHTML) { ov.innerHTML = ''; return true; }
+  if (UI.tab !== 'journal') { UI.tab = 'journal'; render(); window.scrollTo(0, 0); return true; }
+  const r = UI.route;
+  if (r.name === 'section') { go({ name: 'system', sid: r.sid }); return true; }
+  if (r.name === 'system') { const s = sysOf(r.sid); go(s ? { name: 'object', oid: s.objectId } : { name: 'objects' }); return true; }
+  if (r.name === 'object') { go({ name: 'objects' }); return true; }
+  return false;
+};
+Store.init();
+
+})();
+</script>
+</body></html>

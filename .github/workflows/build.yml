@@ -1,0 +1,36 @@
+name: Собрать APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v3
+      - name: Сборка
+        run: chmod +x gradlew && ./gradlew assembleRelease --no-daemon
+      - name: Имя файла
+        run: cp app/build/outputs/apk/release/app-release.apk VentNotebook.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VentNotebook-apk
+          path: VentNotebook.apk
+      - name: Выпуск (скачать APK на телефон)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Блокнот наладчика, сборка ${{ github.run_number }}
+          body: Откройте VentNotebook.apk на телефоне и установите.
+          files: VentNotebook.apk
+          make_latest: true

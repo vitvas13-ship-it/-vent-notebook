@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Блокнот наладчика</string>
+    <string name="pick_photo">Фото: камера или галерея</string>
+    <string name="send_file">Отправить файл</string>
+</resources>
