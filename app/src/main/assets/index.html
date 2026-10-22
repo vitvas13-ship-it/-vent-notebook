@@ -491,6 +491,85 @@ th{font-size:11.5px}
 .systbl td.loc{font-size:13px;color:var(--ink-2);min-width:96px}
 tr[class*="st-"] td:first-child{padding-left:10px}
 @media (max-width:480px){.systbl th,.systbl td{padding:5px 2px}.systbl th{font-size:10.5px;letter-spacing:0;text-transform:none;hyphens:manual}.systbl td{font-size:12.5px}.systbl td.num{font-size:12px}.systbl th.loc,.systbl td.loc{min-width:0;width:auto}.systbl td.loc{font-size:12px}.systbl tr[class*="st-"] td:first-child{padding-left:7px}}
+
+/* ===== Страница точки: навигация, быстрый выбор, проект/факт рядом ===== */
+.pnav{display:flex;align-items:center;gap:8px}
+.pnav .btn.sm{min-width:46px;min-height:36px;font-size:20px;font-weight:700;line-height:1}
+.pnav .btn[disabled]{opacity:.35;cursor:default}
+.pnav .btn.sch-btn{font-size:14px;min-width:0;font-weight:600}
+.pnav-t{flex:1;text-align:center;font-family:var(--f-display);font-size:16px;color:var(--ink-2)}
+.pnav-t b{color:var(--ink);font-size:19px}
+.pcard{display:flex;flex-direction:column;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.chip{border:1.5px solid var(--rule);background:var(--sheet);border-radius:999px;padding:5px 12px;font-size:14px;line-height:1.25;cursor:pointer;color:var(--ink);font-family:inherit}
+.chip[aria-pressed="true"]{background:var(--cc,var(--ink));border-color:var(--cc,var(--ink));color:#fff;font-weight:600}
+.psub{border-top:1px dashed var(--rule);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+.lrow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.fields-dims{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+.seg-sm button{padding:4px 11px;font-size:13.5px}
+.seg-xs button{padding:1px 12px;font-size:14px;font-weight:700;min-height:26px}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:end}
+.mrow .f{min-width:0}
+.res2{margin-top:10px;border:2px solid var(--rule);border-radius:10px;padding:8px 12px;background:#fff}
+.res2.st-ok{border-color:var(--ok);background:var(--ok-bg)}
+.res2.st-bad{border-color:var(--bad);background:var(--bad-bg)}
+.res2-top{display:flex;align-items:center;gap:12px}
+.res2-dev{font-family:var(--f-mono);font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.res2.st-ok .res2-dev{color:var(--ok)}
+.res2.st-bad .res2-dev{color:var(--bad)}
+.res2-st{font-weight:600;font-size:15px;display:flex;flex-direction:column;line-height:1.2}
+.res2-st small{font-weight:400;font-size:12px;color:var(--ink-2)}
+.res2-sub{font-size:13.5px;margin-top:5px}
+.res2-msg{font-size:13px;margin-top:4px;color:var(--ink-2)}
+.res2.st-bad .res2-msg{color:var(--bad);font-weight:600}
+.fields.pres{margin-top:10px}
+.pact{display:flex;flex-wrap:wrap;gap:8px}
+.pact .btn.wide{flex:1 1 170px}
+
+.calc-src{margin-bottom:12px}
+.calc-src .linkbtn{margin-top:6px;align-self:flex-start;font-size:13.5px}
+@media (max-width:400px){.sectbl th,.sectbl td{padding:5px 2px}.sectbl th{font-size:10.5px;letter-spacing:0;text-transform:none}.sectbl td{font-size:12.5px}.sectbl td.num{font-size:12px}.sectbl tr[class*="st-"] td:first-child{padding-left:7px}}
+
+/* ===== Модули: свернуть / закрепить ===== */
+.mod-h{display:flex;align-items:center;gap:6px}
+.mod-h2{flex:1;min-width:0;margin:0;font-size:inherit}
+.mod-t{display:flex;align-items:center;gap:8px;width:100%;min-height:34px;border:0;background:none;padding:0;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.mod-tt{font-family:var(--f-display);font-size:19px;font-weight:600;color:var(--ch,var(--ink));white-space:nowrap;letter-spacing:.01em}
+.mod-sum{font-family:var(--f-body);font-size:13px;font-weight:400;color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chev{width:9px;height:9px;flex:none;border-right:2.5px solid var(--ch,var(--ink));border-bottom:2.5px solid var(--ch,var(--ink));transform:rotate(45deg);margin:0 3px 4px 2px;transition:transform .15s}
+.mod.closed .chev{transform:rotate(-45deg);margin-bottom:0}
+.mod-pin{flex:none;border:0;background:none;padding:7px;line-height:0;cursor:pointer;color:var(--ink-2);opacity:.4;border-radius:8px}
+.mod-pin svg{transform:rotate(40deg);transition:transform .15s}
+.mod-pin[aria-pressed="true"]{opacity:1;color:var(--ch,var(--ink));background:color-mix(in srgb,var(--cc,var(--ink)) 15%,transparent)}
+.mod-pin[aria-pressed="true"] svg{transform:none}
+.mod-h .btn.sm{flex:none}
+.mod-b{margin-top:10px}
+.card.mod.closed{padding-top:8px;padding-bottom:8px}
+.bad-t{color:var(--bad);font-weight:600}
+.ok-t{color:var(--ok);font-weight:600}
+.mod .stamp{margin:0}
+@media (prefers-reduced-motion:reduce){.chev,.mod-pin svg{transition:none}}
+
+.res2-room{font-size:13px;margin-top:6px;padding-top:6px;border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent)}
+.res2-room.st-bad{color:var(--bad);font-weight:600}
+
+.unittbl td{font-size:15px;padding:7px 10px;border:1px solid var(--rule)}
+.unittbl td.num{font-family:var(--f-mono);font-weight:600;font-variant-numeric:tabular-nums;text-align:right;width:55%}
+.unittbl tr.cur td{background:var(--t-point,#EAF2FF);font-weight:700}
+.calc .mod-tt{white-space:normal}
+.calc .mod-sum{display:none}
+
+.num-in.auto{background:var(--t-meas,#FFF6D6);border-style:dashed}
+.auto-h{color:var(--ink-2)}
+.calc .ref{white-space:normal;display:inline-block;max-width:100%}
+
+/* проект / факт двигателя */
+.pf{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr);gap:6px 8px;align-items:center}
+.pf-h{font-size:12.5px;font-weight:600;color:var(--ink-2);text-align:center}
+.pf-l{font-size:13.5px;font-weight:600;line-height:1.2}
+.pf-l .u{font-weight:400;color:var(--ink-2);font-size:11.5px}
+.pf input,.pf select{min-height:38px;padding:5px 8px;text-align:center}
+.pf select{text-align:left;font-size:14px}
 </style>
 </head><body><header class="bar">
   <div class="bar-in">
@@ -510,7 +589,6 @@ tr[class*="st-"] td:first-child{padding-left:10px}
     <nav class="tabs" role="tablist" aria-label="Разделы">
       <button class="tab" role="tab" id="tab-journal" data-tab="journal" aria-selected="true">Журнал</button>
       <button class="tab" role="tab" id="tab-calc" data-tab="calc" aria-selected="false">Расчёты</button>
-      <button class="tab" role="tab" id="tab-norms" data-tab="norms" aria-selected="false">Нормы</button>
     </nav>
     <div class="save-state" id="save-state" data-s="busy" title="Состояние сохранения"><i></i><span>Открываю журнал…</span></div>
   </div>
@@ -613,21 +691,26 @@ const M = (() => {
     return out;
   }
 
-  /* Допуски ГОСТ 34060 */
+  /* Допуски ГОСТ 34060-2026 (проект): п. 8.2.5 — сеть и устройства ±10 %, отсосы и душирование 0…+8 %;
+     п. 10.2.6 — вентилятор 5 %. Решётки одного помещения одной системы — см. ROOM ниже. */
   const ROLES = {
-    terminal: { name: 'Воздухораспределитель / воздухоприёмник', short: 'Решётка', tol: [-8, 8], ref: 'ГОСТ 34060, п. 8.2.5' },
-    local: { name: 'Местный отсос', short: 'Отсос', tol: [0, 10], ref: 'ГОСТ 34060, п. 8.2.5' },
-    shower: { name: 'Душирующее устройство', short: 'Душ', tol: [0, 10], ref: 'ГОСТ 34060, п. 8.2.5' },
-    branch: { name: 'Ответвление', short: 'Ответвл.', tol: [-8, 8], ref: 'ГОСТ 34060, прил. А, табл. А.2' },
-    main: { name: 'Магистраль (общая контрольная точка)', short: 'Магистр.', tol: [-8, 8], ref: 'ГОСТ 34060, п. 11.3.5' },
-    fan_in: { name: 'Вентилятор — всасывание', short: 'Вент. вс.', tol: [-5, 5], ref: 'ГОСТ 34060, п. 11.2.6' },
-    fan_out: { name: 'Вентилятор — нагнетание', short: 'Вент. нагн.', tol: [-5, 5], ref: 'ГОСТ 34060, п. 11.2.6' },
+    terminal: { name: 'Воздухораспределитель / воздухоприёмник', short: 'Решётка', tol: [-10, 10], ref: 'ГОСТ 34060-2026, п. 8.2.5' },
+    local: { name: 'Местный отсос', short: 'Отсос', tol: [0, 8], ref: 'ГОСТ 34060-2026, п. 8.2.5' },
+    shower: { name: 'Душирующее устройство', short: 'Душ', tol: [0, 8], ref: 'ГОСТ 34060-2026, п. 8.2.5' },
+    branch: { name: 'Ответвление', short: 'Ответвл.', tol: [-10, 10], ref: 'ГОСТ 34060-2026, п. 8.2.5' },
+    main: { name: 'Магистраль (общая контрольная точка)', short: 'Магистр.', tol: [-10, 10], ref: 'ГОСТ 34060-2026, п. 8.2.5' },
+    fan_in: { name: 'Вентилятор — всасывание', short: 'Вент. вс.', tol: [-5, 5], ref: 'ГОСТ 34060-2026, п. 10.2.6' },
+    fan_out: { name: 'Вентилятор — нагнетание', short: 'Вент. нагн.', tol: [-5, 5], ref: 'ГОСТ 34060-2026, п. 10.2.6' },
   };
+  /* Решётки в одном помещении, одна система: каждая ±20 %, если сумма по помещению в пределах ±10 % */
+  const ROOM = { each: [-20, 20], sum: 10, ref: 'ГОСТ 34060-2026, п. 8.2.5' };
+  const roomKey = (x) => String(x || '').trim().toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ');
   const METHODS = {
     pitot: 'Воздуховод: трубка Пито',
     anemo: 'Воздуховод: анемометр / термоанемометр',
     grille: 'Решётка, проём: анемометр',
     hood: 'Воронка Testo',
+    kfactor: 'Вентилятор: K-фактор',
   };
 
   function devStatus(dev, tol) {
@@ -698,7 +781,7 @@ const M = (() => {
   }
 
   /* K нужен воздухораспределителям, местным отсосам, душам и решёткам; у воронки его нет */
-  function usesK(sec) { return sec.method !== 'hood' && (sec.method === 'grille' || ['terminal', 'local', 'shower'].includes(sec.role || 'terminal')); }
+  function usesK(sec) { return sec.method !== 'hood' && sec.method !== 'kfactor' && (sec.method === 'grille' || ['terminal', 'local', 'shower'].includes(sec.role || 'terminal')); }
 
   /* Мерное сечение: вписывается среднее с прибора — V факт (м/с) или L факт (м³/ч) */
   function section(sec, BakPa) {
@@ -707,7 +790,7 @@ const M = (() => {
     const g = geom(sec.shape, num(sec.D), num(sec.a), num(sec.b));
     r.F = g.F; r.Dh = g.Dh;
     let Fc = g.F;
-    if (method === 'hood') Fc = NaN;
+    if (method === 'hood' || method === 'kfactor') Fc = NaN;
     r.Fcalc = Fc;
     /* Поправочный K решётки (по умолчанию 1): учитывается при вводе V факт, при вводе L факт — нет */
     const kf = num(sec.kFree);
@@ -723,7 +806,14 @@ const M = (() => {
     const role = ROLES[sec.role] || ROLES.terminal;
     r.tol = role.tol;
     r.byL = method === 'hood' || sec.entry === 'L';
-    if (r.byL) {
+    r.kfMode = method === 'kfactor' && !r.byL;
+    if (r.kfMode) {
+      /* Расход вентилятора по K-фактору: L = K · √Δp (Δp на входном коллекторе, Па; K — с шильдика) */
+      r.kFan = num(sec.kFan); r.dpK = num(first(sec.dpK));
+      r.L = ok(r.kFan) && r.kFan > 0 && ok(r.dpK) && r.dpK >= 0 ? r.kFan * Math.sqrt(r.dpK) : NaN;
+      if (ok(r.dpK) && !(ok(r.kFan) && r.kFan > 0)) r.warn.push('Впишите K-фактор с шильдика или из паспорта вентилятора.');
+      if (ok(r.dpK) && r.dpK < 0) r.warn.push('Δp на коллекторе должен быть положительным.');
+    } else if (r.byL) {
       const Lraw = num(first(sec.total));
       r.L = Lraw;
       if (ok(Lraw) && ok(Fc) && Fc > 0) r.v = Lraw / 3600 / Fc;
@@ -762,7 +852,31 @@ const M = (() => {
   function system(sys) {
     const B = num(sys.Ba);
     const secs = (sys.sections || []).map((s) => ({ s, r: section(s, ok(B) ? B : 101.3) }));
-    const out = { secs, count: secs.length, okN: 0, badN: 0, noneN: 0 };
+    const out = { secs, count: secs.length, okN: 0, badN: 0, noneN: 0, rooms: [] };
+    /* помещения: две и более решётки с одинаковым «Помещением» */
+    const groups = new Map();
+    secs.forEach((it) => {
+      const k = (it.s.role || 'terminal') === 'terminal' ? roomKey(it.s.room) : '';
+      if (!k) return;
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(it);
+    });
+    groups.forEach((items) => {
+      if (items.length < 2) return;
+      const room = { name: String(items[0].s.room).trim(), n: items.length, ids: items.map(({ s }) => s.id) };
+      room.m = items.filter(({ r }) => ok(r.L)).length;
+      room.L = items.reduce((a, { r }) => a + (ok(r.L) ? r.L : 0), 0);
+      room.Lp = items.reduce((a, { r }) => a + (ok(r.Lp) ? r.Lp : 0), 0);
+      room.complete = room.m === room.n && items.every(({ r }) => ok(r.Lp));
+      room.dev = room.complete && room.Lp > 0 ? (room.L - room.Lp) / room.Lp * 100 : NaN;
+      room.ok = ok(room.dev) && Math.abs(room.dev) <= ROOM.sum + 1e-9;
+      room.status = !ok(room.dev) ? 'none' : (room.ok ? 'ok' : 'bad');
+      items.forEach(({ r }) => {
+        r.room = room;
+        if (room.ok) { r.tol = ROOM.each; r.status = !ok(r.L) ? 'none' : (ok(r.dev) ? devStatus(r.dev, r.tol) : 'none'); }
+      });
+      out.rooms.push(room);
+    });
     secs.forEach(({ r }) => { if (r.status === 'ok') out.okN++; else if (r.status === 'bad') out.badN++; else out.noneN++; });
     const term = secs.filter(({ s }) => ['terminal', 'local', 'shower'].includes(s.role));
     const main = secs.filter(({ s, r }) => s.role === 'main' && ok(r.L));
@@ -790,67 +904,6 @@ const M = (() => {
     return out;
   }
 
-  /* Приложение к ГОСТ 12.3.018 — погрешность расхода */
-  const DPHI = {
-    round: { 4: [20, 16, 12, 6, 3], 8: [16, 12, 10, 5, 2], 12: [12, 8, 6, 3, 2] },
-    rect: { 4: [24, 20, 15, 8, 4], 16: [12, 8, 6, 3, 2] },
-  };
-  const DPHI_COLS = ['1', '2', '3', '5', '>5'];
-  function dphiIndex(dist) {
-    if (!ok(dist)) return 4;
-    if (dist > 5) return 4;
-    if (dist >= 5) return 3;
-    if (dist >= 3) return 2;
-    if (dist >= 2) return 1;
-    return 0;
-  }
-  const SIG_FR = [1, 0.75, 0.5, 0.25, 0.1, 0.05];
-  const SIG_10 = [0.5, 0.7, 1.0, 2.0, 5.0, 10.0];
-  const SIG_05 = [0.25, 0.24, 0.5, 1.0, 2.5, 5.0];
-  function sigmaInstr(cls, frac) {
-    const i = SIG_FR.indexOf(Number(frac));
-    if (i < 0) return NaN;
-    return (String(cls) === '0.5' ? SIG_05 : SIG_10)[i];
-  }
-  function flowError({ shape, z, dist, Dh, clsP, frP, clsB, frB, clsT, frT }) {
-    const tbl = (DPHI[shape] || {})[z];
-    const idx = dphiIndex(dist);
-    const dphi = tbl ? tbl[idx] : NaN;
-    const sD = ok(Dh) && Dh > 300 ? 2 : 3;
-    const sP = sigmaInstr(clsP, frP), sB = sigmaInstr(clsB, frB), sT = sigmaInstr(clsT, frT);
-    const sL = Math.sqrt(4 * sD * sD + 0.25 * sB * sB + 0.25 * sT * sT + 0.25 * sP * sP);
-    return { dphi, col: DPHI_COLS[idx], sD, sP, sB, sT, sL, plus: 2 * sL + dphi, minus: 2 * sL - dphi };
-  }
-
-  /* п. 7.3 — допустимые утечки */
-  const LEAK_K = { A: 0.097, B: 0.032, C: 0.011, D: 0.004 };
-  function leakAllowed(cls, area, p) { const f = LEAK_K[cls] * Math.pow(p, 0.65); return { f, L: f * area }; }
-
-  /* ГОСТ 34060, табл. 2 — температура пара */
-  const STEAM_P = [20, 40, 70, 100, 150, 200, 250, 300, 350, 400, 500, 600];
-  const STEAM_T = [104.3, 108.9, 114.8, 119.9, 127.1, 133.1, 138.6, 143.4, 147.7, 151.7, 158.7, 164.8];
-  function steamT(p) { if (!ok(p)) return NaN; return interp(STEAM_P, STEAM_T, p); }
-
-  /* Психрометрия: энтальпия и влагосодержание влажного воздуха */
-  function psat(t) { return 610.94 * Math.exp(17.625 * t / (t + 243.04)); }
-  function moist(t, phi, BkPa) {
-    const B = (ok(BkPa) ? BkPa : 101.3) * 1000;
-    const pv = Math.max(0, Math.min(100, phi)) / 100 * psat(t);
-    const d = 622 * pv / (B - pv);
-    const J = 1.006 * t + d / 1000 * (2501 + 1.86 * t);
-    return { d, J, pv };
-  }
-
-  /* Табл. 1 ГОСТ 34060 — поправка на фоновый шум */
-  function noiseCorr(diff) {
-    if (!ok(diff)) return NaN;
-    if (diff < 3) return null;
-    if (diff < 4) return 3;
-    if (diff < 6) return 2;
-    if (diff < 10) return 1;
-    return 0;
-  }
-
   function fmt(x, d = 0) {
     if (!ok(x)) return '—';
     return x.toLocaleString('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -859,9 +912,7 @@ const M = (() => {
 
   return {
     num, ok, mean, interp, kPhi, density, geom, points, pointStats, section, migrate, usesK, system, ROLES, METHODS,
-    devStatus, flowError, DPHI, DPHI_COLS, dphiIndex, SIG_FR, sigmaInstr, LEAK_K, leakAllowed,
-    STEAM_P, STEAM_T, steamT, psat, moist, noiseCorr, fmt, fmtSigned,
-  };
+    devStatus, fmt, fmtSigned, ROOM, roomKey };
 })();
 if (typeof module !== 'undefined') module.exports = M;
 
@@ -1265,6 +1316,8 @@ async function shrinkImage(file, max, q) {
 }
 function blobToDataURL(b) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(b); }); }
 
+let lastPhotoT = 0;
+function photoStamp() { const t = Math.max(Date.now(), lastPhotoT + 1); lastPhotoT = t; return t; }
 async function addPhotos(sys, slot, files) {
   if (Photos.state === 'pending') await Photos.init();
   if (!Photos.canAdd()) { toast('Фото может добавлять только владелец блокнота.'); return; }
@@ -1295,7 +1348,7 @@ async function addPhotos(sys, slot, files) {
       const blob = it.blob;
       let entry = null;
       if (Photos.state === 'assets' && navigator.onLine !== false) {
-        try { const r = await Photos.assets.upload(blob, { type: 'image/jpeg' }); entry = { id: r.id, t: Date.now() }; }
+        try { const r = await Photos.assets.upload(blob, { type: 'image/jpeg' }); entry = { id: r.id, t: photoStamp() }; }
         catch (e) { if (e && (e.code === 'quota_or_state' || e.code === 'too_large' || e.code === 'unsupported_type')) throw e; }
       }
       if (!entry && Local.ok) {
@@ -1303,9 +1356,9 @@ async function addPhotos(sys, slot, files) {
         const key = newId('b');
         await Local.putBlob(key, blob);
         Photos.urls.set(key, URL.createObjectURL(blob));
-        entry = { local: key, t: Date.now() };
+        entry = { local: key, t: photoStamp() };
       }
-      if (!entry) entry = { data: await blobToDataURL(await shrinkImage(blob, scheme ? 1800 : 1280, 0.7)), t: Date.now() };
+      if (!entry) entry = { data: await blobToDataURL(await shrinkImage(blob, scheme ? 1800 : 1280, 0.7)), t: photoStamp() };
       if (it.name) entry.name = it.name;
       list.push(entry);
       added++;
@@ -1365,6 +1418,7 @@ async function deletePhoto(sys, slot, i) {
   const list = photoList(sys, slot);
   const p = list[i]; if (!p) return;
   list.splice(i, 1);
+  if (p.t) (sys.delPh || (sys.delPh = {}))[String(p.t)] = Date.now();
   Store.save(sys);
   dropLocalPhoto(p);
   if (p.id && Photos.assets) { try { await Photos.assets.delete(p.id); } catch (e) { /* запись уже убрана */ } }
@@ -1373,23 +1427,71 @@ async function deletePhoto(sys, slot, i) {
   const y = window.scrollY; render(); window.scrollTo(0, y);
 }
 
+/* Вентилятор и двигатель: значения из «паспорта» системы */
+function equipData(sys) {
+  const pf = ((sys.pass || {}).fan || {}).fact || {}, mp = ((sys.pass || {}).motor || {}).proj || {}, mf = ((sys.pass || {}).motor || {}).fact || {};
+  const psIn = N(String(pf.psIn ?? '').replace(/^\s*[-−]\s*/, '')), psOut = N(pf.psOut);
+  return {
+    hz: N(pf.vfd), psIn: OK(psIn) ? -Math.abs(psIn) : NaN, psOut,
+    N: [N(mp.N), N(mf.N)], ph: [String(mp.ph || ''), String(mf.ph || '')], I: [N(mp.I), N(mf.I)], n: [N(mp.n), N(mf.n)],
+    fanNote: String(((sys.pass || {}).fan || {}).note || '').trim(), motNote: String(((sys.pass || {}).motor || {}).note || '').trim(),
+  };
+}
+const fmtN = (x) => (OK(x) ? String(Math.round(x * 100) / 100).replace('.', ',') : '');
+function fanDpHTML(sys) {
+  const e = equipData(sys), res = M.system(sys);
+  const pt = (role) => { const it = res.secs.find(({ s, r }) => s.role === role && OK(r.ps)); return it ? `в точке № ${esc(it.s.no || '')}: ${M.fmtSigned(it.r.ps, 0)} Па` : ''; };
+  const parts = [];
+  if (OK(e.psIn) && OK(e.psOut)) parts.push(`Перепад статического давления: <b>${F(e.psOut - e.psIn, 0)} Па</b>`);
+  if (!OK(e.psIn) && pt('fan_in')) parts.push(`Pст всас ${pt('fan_in')}`);
+  if (!OK(e.psOut) && pt('fan_out')) parts.push(`Pст нагнет ${pt('fan_out')}`);
+  return parts.join(' · ');
+}
+function motorWarnHTML(sys) {
+  const e = equipData(sys), w = [];
+  if (OK(e.I[0]) && OK(e.I[1]) && e.I[0] > 0 && e.I[1] > e.I[0]) w.push(`Ток выше номинального на ${F((e.I[1] / e.I[0] - 1) * 100, 1)} %`);
+  if (OK(e.N[0]) && OK(e.N[1]) && e.N[0] > 0 && e.N[1] > e.N[0]) w.push(`мощность выше номинальной на ${F((e.N[1] / e.N[0] - 1) * 100, 1)} %`);
+  if (e.ph[0] && e.ph[1] && e.ph[0] !== e.ph[1]) w.push('фазность не совпадает с проектом');
+  return w.length ? `<span class="bad-t">${w.join('; ')}</span>` : '';
+}
+
 function equipCards(sys, res) {
   const ff = fanFlow(sys, res);
+  const e = equipData(sys);
   const flow = OK(ff.fact) || OK(ff.proj)
     ? `<p class="small">Расход: факт <b class="num">${F(ff.fact)}</b> / проект <b class="num">${F(ff.proj)}</b> м³/ч${OK(ff.dev) ? ` · ${pill(Math.abs(ff.dev) <= 5 ? 'ok' : 'bad', M.fmtSigned(ff.dev, 1) + ' %')}` : ''}${ff.auto ? ` <span class="muted">(${esc(ff.src)})</span>` : ''}</p>`
     : '<p class="small muted">Расход появится после замера в точках «Вентилятор — всасывание / нагнетание».</p>';
-  return `<div class="grid2">
-    <section class="card c-fan"><div class="card-head"><h2>Вентилятор</h2></div>
-      <div class="stack" style="gap:12px">${flow}
-        <div class="fields">${inNum(sys, 'pass.fan.fact.vfd', 'Частота ПЧ', 'Гц', { ph: '50' })}</div>
-        ${photoGrid(sys, 'fan')}</div></section>
-    <section class="card c-motor"><div class="card-head"><h2>Электродвигатель</h2></div>
-      <div class="stack" style="gap:12px"><div class="fields">${inNum(sys, 'pass.motor.fact.I', 'Ток фактически', 'А')}</div>
-        ${photoGrid(sys, 'motor')}</div></section>
-  </div>
-  <section class="card c-note"><div class="stack" style="gap:12px"><div class="f"><label for="${fid(sys, 'note')}">Заметки по системе</label>
-    <textarea id="${fid(sys, 'note')}" data-doc="${sys.id}" data-path="note" style="font-family:var(--f-body)" placeholder="напр. что сделано, что осталось, замечания заказчику">${esc(sys.note || '')}</textarea></div>
-    ${photoGrid(sys, 'note', 'к заметке')}</div></section>`;
+  const nFan = peekPhotos(sys, 'fan').length, nMot = peekPhotos(sys, 'motor').length, nNote = peekPhotos(sys, 'note').length;
+  const fanSum = esc([OK(ff.fact) ? F(ff.fact) + ' м³/ч' : '', OK(e.hz) ? fmtN(e.hz) + ' Гц' : '', OK(e.psIn) || OK(e.psOut) ? `Pст ${OK(e.psIn) ? M.fmtSigned(e.psIn, 0) : '—'} / ${OK(e.psOut) ? M.fmtSigned(e.psOut, 0) : '—'} Па` : '', photoCount(nFan)].filter(Boolean).join(' · '));
+  const pick = (a) => (OK(a[1]) ? a[1] : a[0]);
+  const motSum = esc([OK(pick(e.N)) ? fmtN(pick(e.N)) + ' кВт' : '', OK(pick(e.I)) ? fmtN(pick(e.I)) + ' А' : '', OK(pick(e.n)) ? fmtN(pick(e.n)) + ' мин⁻¹' : '', photoCount(nMot)].filter(Boolean).join(' · '));
+  const noteTxt = String(sys.note || '').trim();
+  const noteSum = esc([noteTxt ? (noteTxt.length > 34 ? noteTxt.slice(0, 33) + '…' : noteTxt) : '', photoCount(nNote)].filter(Boolean).join(' · '));
+
+  /* Pст: на всасывании минус ставится сам */
+  const psInPath = 'pass.fan.fact.psIn', psInVal = esc(String(getPath(sys, psInPath)).replace(/^\s*[-−]\s*/, ''));
+  const psIn = `<div class="f"><label for="${fid(sys, psInPath)}">${lab('Pст всасывание', 'Па')}</label><div class="pre"><span aria-hidden="true">−</span><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psInPath)}" data-doc="${sys.id}" data-path="${psInPath}" value="${psInVal}" autocomplete="off"></div></div>`;
+  const fan = modCard('sys.fan', 'c-fan', 'Вентилятор', fanSum, `<div class="stack" style="gap:12px">${flow}
+        <div class="fields">${inNum(sys, 'pass.fan.fact.vfd', 'Частота ПЧ', 'Гц')}${psIn}${inNum(sys, 'pass.fan.fact.psOut', 'Pст нагнетание', 'Па')}</div>
+        <p class="hint" id="fan-dp">${fanDpHTML(sys)}</p>
+        ${inText(sys, 'pass.fan.note', 'Заметка', { ph: 'ремень подтянут, шкив, фильтр' })}
+        ${photoGrid(sys, 'fan')}</div>`);
+
+  const mIn = (path, aria) => `<input type="text" inputmode="decimal" class="num-in" id="${fid(sys, path)}" aria-label="${aria}" data-doc="${sys.id}" data-path="${path}" value="${esc(getPath(sys, path))}" autocomplete="off">`;
+  const mSel = (path, aria) => { const cur = String(getPath(sys, path)); return `<select id="${fid(sys, path)}" aria-label="${aria}" data-doc="${sys.id}" data-path="${path}">${[['', '—'], ['1', '1 ф'], ['3', '3 ф']].map(([v, t]) => `<option value="${v}"${cur === v ? ' selected' : ''}>${t}</option>`).join('')}</select>`; };
+  const rowsM = [['N', 'Мощность', 'кВт'], ['ph', 'Фазность', ''], ['I', 'Ток', 'А'], ['n', 'Частота вращения', 'мин⁻¹']];
+  const grid = `<div class="pf"><span></span><span class="pf-h">Проект</span><span class="pf-h">Факт</span>` +
+    rowsM.map(([k, l, u]) => `<span class="pf-l">${l}${u ? ` <span class="u">${u}</span>` : ''}</span>` +
+      (k === 'ph' ? mSel('pass.motor.proj.ph', l + ' по проекту') + mSel('pass.motor.fact.ph', l + ' фактически')
+        : mIn(`pass.motor.proj.${k}`, `${l} по проекту`) + mIn(`pass.motor.fact.${k}`, `${l} фактически`))).join('') + `</div>`;
+  const motor = modCard('sys.motor', 'c-motor', 'Электродвигатель', motSum, `<div class="stack" style="gap:12px">${grid}
+        <p class="hint" id="motor-warn">${motorWarnHTML(sys)}</p>
+        ${inText(sys, 'pass.motor.note', 'Заметка', { ph: 'перегрев, вибрация, подшипники' })}
+        ${photoGrid(sys, 'motor')}</div>`);
+  const note = modCard('sys.note', 'c-note', 'Заметки по системе', noteSum, `<div class="stack" style="gap:12px"><div class="f">
+    <textarea id="${fid(sys, 'note')}" aria-label="Заметки по системе" data-doc="${sys.id}" data-path="note" style="font-family:var(--f-body)" placeholder="напр. что сделано, что осталось, замечания заказчику">${esc(sys.note || '')}</textarea></div>
+    ${photoGrid(sys, 'note', 'к заметке')}</div>`);
+  return `<div class="grid2">${fan}${motor}</div>${note}`;
 }
 
 /* ===== Схема системы с точками замера: JPEG/PNG или PDF (листы PDF превращаются в картинки) ===== */
@@ -1433,9 +1535,9 @@ async function pdfToImages(file, maxSide, q, maxPages) {
 
 function schemeCard(sys) {
   const list = peekPhotos(sys, 'scheme');
-  return `<section class="card c-geom" id="scheme-card"><div class="card-head"><h2>Схема</h2>${list.length ? `<div class="head-actions"><button class="btn sm" data-act="scheme-view" data-i="0">Открыть</button></div>` : ''}</div>
-    ${list.length ? '' : '<p class="hint" style="margin:-2px 0 8px">Схема системы с номерами точек — JPEG, PNG или PDF. Открывается на весь экран, увеличивается двумя пальцами.</p>'}
-    ${photoGrid(sys, 'scheme', 'JPEG, PDF')}</section>`;
+  const body = `${list.length ? '' : '<p class="hint" style="margin:0 0 8px">Схема системы с номерами точек — JPEG, PNG или PDF. Открывается на весь экран, увеличивается двумя пальцами.</p>'}${photoGrid(sys, 'scheme', 'JPEG, PDF')}`;
+  return modCard('sys.scheme', 'c-geom', 'Схема', list.length ? `${list.length} ${plural(list.length, 'лист', 'листа', 'листов')}` : 'не загружена', body,
+    list.length ? '<button class="btn sm" data-act="scheme-view" data-i="0">Открыть</button>' : '');
 }
 
 function showScheme(sys, i) {
@@ -1566,6 +1668,12 @@ function setPath(doc, path, value) {
   }
   o[parts[parts.length - 1]] = value;
 }
+/* Время изменения: точка — целиком (sec.u), поля системы и объекта — по отдельности (ft) */
+function touch(doc, path) {
+  const now = Date.now();
+  if (doc.kind === 'system' && path.startsWith('sec:')) { const c = secOf(doc, path.slice(4).split('.')[0]); if (c) c.u = now; return; }
+  (doc.ft || (doc.ft = {}))[path] = now;
+}
 function lab(label, unit) { return `${label}${unit ? ` <span class="u">${unit}</span>` : ''}`; }
 function inNum(doc, path, label, unit, o = {}) {
   const id = fid(doc, path);
@@ -1576,12 +1684,7 @@ function inNum(doc, path, label, unit, o = {}) {
 function inText(doc, path, label, o = {}) {
   const id = fid(doc, path);
   return `<div class="f ${o.cls || ''}"><label for="${id}">${label}</label>` +
-    `<input type="${o.type || 'text'}" id="${id}" data-doc="${doc.id}" data-path="${path}"${o.struct ? ' data-struct' : ''} value="${esc(getPath(doc, path))}" placeholder="${o.ph ? 'напр. ' + esc(o.ph) : ''}" autocomplete="off"></div>`;
-}
-function inSel(doc, path, label, opts, o = {}) {
-  const id = fid(doc, path), cur = String(getPath(doc, path));
-  return `<div class="f ${o.cls || ''}"><label for="${id}">${label}</label><select id="${id}" data-doc="${doc.id}" data-path="${path}" data-struct>` +
-    opts.map(([v, t]) => `<option value="${esc(v)}"${String(v) === cur ? ' selected' : ''}>${esc(t)}</option>`).join('') + `</select></div>`;
+    `<input type="${o.type || 'text'}" id="${id}" data-doc="${doc.id}" data-path="${path}"${o.struct ? ' data-struct' : ''}${o.list ? ` list="${esc(o.list)}"` : ''} value="${esc(getPath(doc, path))}" placeholder="${o.ph ? 'напр. ' + esc(o.ph) : ''}" autocomplete="off"></div>`;
 }
 function stampCell(doc, path, label, cls = '', o = {}) {
   const id = fid(doc, path);
@@ -1591,14 +1694,29 @@ function delBtn(key, text = 'Удалить') {
   const armed = UI.armed === key;
   return `<button class="btn danger${armed ? ' armed' : ''}" data-act="del" data-key="${esc(key)}">${armed ? 'Нажмите ещё раз — удалить' : text}</button>`;
 }
+/* ===== Модули: сворачиваются по нажатию на заголовок, «булавка» — держать открытым ===== */
+const LS_MODS = 'vnb.mods.v1';
+const MOD_PIN_DEFAULT = { 'sys.head': true, 'sys.points': true, 'pt.point': true, 'pt.meas': true, 'calc.sect': true };
+const modPins = Object.assign({}, MOD_PIN_DEFAULT, lsGet(LS_MODS) || {});
+UI.modOpen = {};
+function modPinned(k) { return !!modPins[k]; }
+function modIsOpen(k) { return Object.prototype.hasOwnProperty.call(UI.modOpen, k) ? UI.modOpen[k] : modPinned(k); }
+function modToggle(k) { UI.modOpen[k] = !modIsOpen(k); }
+function modPin(k) { const was = modIsOpen(k); modPins[k] = !modPinned(k); UI.modOpen[k] = modPins[k] ? true : was; lsSet(LS_MODS, modPins); }
+const PIN_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>';
+/* sum — короткая сводка в свёрнутом заголовке (уже экранирована) */
+function modCard(k, cls, title, sum, body, actions = '') {
+  const open = modIsOpen(k), pin = modPinned(k);
+  return `<section class="card ${cls} mod${open ? '' : ' closed'}" data-mod="${k}">
+    <div class="mod-h"><h2 class="mod-h2"><button class="mod-t" data-act="mod-toggle" data-mod="${k}" aria-expanded="${open}"><span class="chev" aria-hidden="true"></span><span class="mod-tt">${title}</span>${!open && sum ? `<span class="mod-sum">${sum}</span>` : ''}</button></h2>
+      ${actions}<button class="mod-pin" data-act="mod-pin" data-mod="${k}" aria-pressed="${pin}" aria-label="${pin ? 'Открепить' : 'Закрепить открытым'}: ${title}" title="${pin ? 'Закреплено — всегда открыто' : 'Закрепить открытым'}">${PIN_SVG}</button></div>
+    ${open ? `<div class="mod-b">${body}</div>` : ''}
+  </section>`;
+}
+const photoCount = (n) => (n ? `${n} фото` : '');
+
 function pill(status, text) { return `<span class="pill ${status === 'none' ? '' : status}">${esc(text)}</span>`; }
 function tolText(tol) { return tol[0] === -tol[1] ? `±${tol[1]} %` : `${tol[0] === 0 ? '0' : tol[0]}…+${tol[1]} %`; }
-function statusText(r) {
-  if (r.status === 'ok') return 'В допуске ' + tolText(r.tol);
-  if (r.status === 'bad') return 'Вне допуска ' + tolText(r.tol);
-  if (OK(r.L)) return 'Нет проектного расхода';
-  return 'Нет замеров';
-}
 function crumbs(items) {
   return `<nav class="crumbs" aria-label="Путь">` + items.map((it, i) => (i ? '<span class="sep">/</span>' : '') +
     (it.go ? `<button data-act="go" data-go='${esc(JSON.stringify(it.go))}'>${esc(it.t)}</button>` : `<span>${esc(it.t)}</span>`)).join('') + `</nav>`;
@@ -1683,118 +1801,92 @@ function viewObject(o) {
       ${syss.length ? `<div class="tbl-wrap"><table class="systbl"><thead>
           <tr><th rowspan="2">№ п/п</th><th rowspan="2">Система</th><th rowspan="2" class="loc">Место&shy;нахождение обору&shy;дования</th><th colspan="2" class="cc">Расход вентилятора, м³/ч</th><th rowspan="2" class="r">Невязка, %</th><th rowspan="2" class="r">Частота, Гц</th></tr>
           <tr><th class="r">проект</th><th class="r">факт</th></tr></thead><tbody>${rows}</tbody></table></div>
-        <p class="hint" style="margin-top:8px">Расход — по точкам «Вентилятор — всасывание / нагнетание»: оба — среднее, один — его значение. Нет таких сечений — из таблицы А.1.1. Частота — из А.1.1. Допуск ±5 % (ГОСТ 34060, п. 11.2.6).</p>`
+        <p class="hint" style="margin-top:8px">Расход вентилятора — среднее по точкам «Вент. всас» и «Вент. нагнет» (или одна из них). Допуск ±5 %.</p>`
         : `<p class="muted">Систем пока нет. Добавьте первую — например, П1 или В1.</p>`}
     </section>
     <section class="card c-send"><div class="card-head"><h2>Отправить заказчику</h2></div>
-      <p class="muted small" style="margin-bottom:10px">PDF — готовый отчёт: таблицы, заметки и фото. Excel — все системы и точки с фильтрами для сортировки. Сводка — то же, что PDF, страницей для браузера.</p>
-      <div class="head-actions"><button class="btn primary" data-act="export-pdf">PDF</button><button class="btn" data-act="export-xlsx">Таблица Excel</button><button class="btn" data-act="export-summary">Сводка с фото</button></div></section>
+      <p class="muted small" style="margin-bottom:10px">PDF — готовый отчёт: таблицы, заметки, схема и фото. Excel — все системы и точки с фильтрами для сортировки.</p>
+      <div class="head-actions"><button class="btn primary" data-act="export-pdf">PDF</button><button class="btn" data-act="export-xlsx">Таблица Excel</button></div></section>
+    <section class="card c-point"><div class="card-head"><h2>Обмен с напарником</h2></div>
+      <p class="muted small" style="margin-bottom:10px">Файл только этого объекта: системы, точки, фото, схема. Напарник загружает его кнопкой «Загрузить файл» — данные сливаются: по каждой точке остаётся более свежая запись, удалённое удаляется и у него.</p>
+      <div class="head-actions"><button class="btn primary" data-act="export-object">Отправить объект</button><button class="btn" data-act="import">Загрузить файл</button></div></section>
     <div class="head-actions">${delBtn('obj:' + o.id, 'Удалить объект')}</div>
   </div>`;
 }
 
 /* ===== система ===== */
-function sysSummary(sys) {
-  const r = M.system(sys);
-  const tiles = [];
-  if (r.termN) tiles.push(`<div class="i"><div class="k">Σ по устройствам, факт / проект</div><div class="v">${F(r.sumTermL)} <small>/ ${F(r.sumTermLp)} м³/ч</small></div></div>`);
-  if (OK(r.leakPct)) tiles.push(`<div class="i ${r.leakOk ? '' : 'hl'}"><div class="k">Подсосы / утечки (п. 7.5, 11.3.5)</div><div class="v">${M.fmtSigned(r.leakPct, 1)} % <small>${F(r.leak)} м³/ч</small></div><div>${pill(r.leakOk ? 'ok' : 'bad', r.leakOk ? 'не более 8 %' : 'больше 8 %')}</div></div>`);
-  const ff = fanFlow(sys, r);
-  if (OK(ff.fact)) {
-    const d = OK(ff.dev) ? ` ${pill(Math.abs(ff.dev) <= 5 ? 'ok' : 'bad', M.fmtSigned(ff.dev, 1) + ' %')}` : '';
-    tiles.push(`<div class="i"><div class="k">Вентилятор: расход${ff.auto ? ` (${esc(ff.src)})` : ''}</div><div class="v">${F(ff.fact)} <small>м³/ч</small></div><div>${d}</div></div>`);
-  }
-  if (OK(r.fanP)) {
-    const d = OK(r.fanPdev) ? ` ${pill(Math.abs(r.fanPdev) <= 5 ? 'ok' : 'bad', M.fmtSigned(r.fanPdev, 1) + ' %')}` : '';
-    tiles.push(`<div class="i"><div class="k">Вентилятор: полное давление (п. 5.17)</div><div class="v">${F(r.fanP)} <small>Па</small></div><div>${d}</div></div>`);
-  }
-  let hint = '';
-  if (!OK(r.leakPct) && r.termN) hint = '<p class="hint">Для оценки подсосов добавьте точку с типом «Магистраль (общая контрольная точка)».</p>';
-  return `<div class="kv">${tiles.join('')}</div>${hint}`;
-}
 
 function viewSystem(sys) {
   const o = objOf(sys.objectId);
   const res = M.system(sys);
   const rows = res.secs.map(({ s, r }) => {
-    const size = s.method === 'hood' ? 'воронка' : (s.shape === 'round' ? (s.D ? `Ø${s.D}` : '—') : (s.a && s.b ? `${s.a}×${s.b}` : '—'));
+    const size = s.method === 'hood' ? 'воронка' : s.method === 'kfactor' ? (s.kFan ? `K ${s.kFan}` : 'K-фактор') : (s.shape === 'round' ? (s.D ? `Ø${s.D}` : '—') : (s.a && s.b ? `${s.a}×${s.b}` : '—'));
     return `<tr class="click st-${r.status}" data-act="go" data-go='${esc(JSON.stringify({ name: 'section', sid: sys.id, cid: s.id }))}'>
-      <td class="num"><b>${esc(s.no || '—')}</b></td><td>${esc(s.place || '')}</td><td class="hm">${esc((M.ROLES[s.role] || M.ROLES.terminal).short)}</td>
-      <td class="num sz">${esc(size)}${M.usesK(s) && OK(N(s.kFree)) && N(s.kFree) !== 1 ? ` <span class="ref kt">K ${esc(s.kFree)}</span>` : ''}</td><td class="r num hm">${F(r.Lp)}</td><td class="r num">${F(r.L)}</td>
+      <td class="num"><b>${esc(s.no || '—')}</b></td><td>${esc([(s.role || 'terminal') === 'terminal' ? s.room : '', s.place].filter((x) => String(x || '').trim()).join(' · '))}</td><td class="hm">${esc((M.ROLES[s.role] || M.ROLES.terminal).short)}</td>
+      <td class="num sz">${esc(size)}${M.usesK(s) && OK(N(s.kFree)) && N(s.kFree) !== 1 ? ` <span class="ref kt">K ${esc(s.kFree)}</span>` : ''}</td><td class="r num">${F(r.Lp)}</td><td class="r num">${F(r.L)}</td>
       <td class="r num"><span class="dv ${r.status}">${OK(r.dev) ? M.fmtSigned(r.dev, 1) : '—'}</span></td><td class="hm">${pill(r.status, r.status === 'ok' ? 'в допуске' : r.status === 'bad' ? 'вне допуска' : (OK(r.L) ? 'нет проекта' : 'нет замеров'))}</td></tr>`;
   }).join('');
-  return `<div class="stack">
-    ${crumbs([{ t: 'Объекты', go: { name: 'objects' } }, { t: (o && o.name) || 'Объект', go: { name: 'object', oid: sys.objectId } }, { t: sys.name || 'Система' }])}
-    <div class="stamp">
+  const stamp = `<div class="stamp">
       ${stampCell(sys, 'name', 'Система, установка', 'title s2')}
       ${stampCell(sys, 'location', 'Местонахождение оборудования', 's4')}
-      <div class="c s2 half"><label for="${fid(sys, 'type')}">Тип</label><select id="${fid(sys, 'type')}" data-doc="${sys.id}" data-path="type">${SYS_TYPES.map(([v, t]) => `<option value="${v}"${sys.type === v ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
-      ${stampCell(sys, 'date', 'Дата испытаний', 's2 half', { type: 'date' })}
-      ${stampCell(sys, 'Ba', 'Ba, кПа', 's2', { num: true, ph: '101,3' })}
-    </div>
-    <div id="sys-summary">${sysSummary(sys)}</div>
-    <section class="card c-list">
-      <div class="card-head"><h2>Точки замера</h2><div class="head-actions"><button class="btn primary" data-act="add-section">+ Точка</button></div></div>
-      ${res.count ? `<div class="tbl-wrap"><table class="sectbl"><thead><tr><th>№</th><th>Помещение, место</th><th class="hm">Тип</th><th class="sz">Размер, мм</th><th class="r hm">L проект</th><th class="r">L факт</th><th class="r">Δ, %</th><th class="hm">Статус</th></tr></thead><tbody>${rows}</tbody></table></div>
-`
-        : `<p class="muted">Добавьте первую точку замера: у вентилятора, на магистрали или у воздухораспределителя.</p>`}
-    </section>
+      <div class="c s3 half"><label for="${fid(sys, 'type')}">Тип</label><select id="${fid(sys, 'type')}" data-doc="${sys.id}" data-path="type">${SYS_TYPES.map(([v, t]) => `<option value="${v}"${sys.type === v ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
+      ${stampCell(sys, 'date', 'Дата испытаний', 's3 half', { type: 'date' })}
+    </div>`;
+  const headSum = esc([sys.name, sysTypeName(sys.type), sys.location].filter(Boolean).join(' · '));
+  const table = res.count ? `<div class="tbl-wrap"><table class="sectbl"><thead><tr><th>№</th><th>Помещение, место</th><th class="hm">Тип</th><th class="sz">Размер, мм</th><th class="r">L проект</th><th class="r">L факт</th><th class="r">Δ, %</th><th class="hm">Статус</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    : `<p class="muted">Добавьте первую точку замера: у вентилятора, на магистрали или у воздухораспределителя.</p>`;
+  const ptsSum = res.count ? `${res.count} ${plural(res.count, 'точка', 'точки', 'точек')}${res.badN ? ` · <span class="bad-t">${res.badN} вне допуска</span>` : ''}` : 'нет точек';
+  return `<div class="stack">
+    ${crumbs([{ t: 'Объекты', go: { name: 'objects' } }, { t: (o && o.name) || 'Объект', go: { name: 'object', oid: sys.objectId } }, { t: sys.name || 'Система' }])}
+    ${modCard('sys.head', 'c-note', 'Система', headSum, stamp)}
+    ${modCard('sys.points', 'c-list', 'Точки замера', ptsSum, table, '<button class="btn primary sm" data-act="add-section">+ Точка</button>')}
+    ${roomsCard(res)}
     ${schemeCard(sys)}
     ${equipCards(sys, res)}
     <div class="head-actions">${delBtn('sys:' + sys.id, 'Удалить систему')}</div>
   </div>`;
 }
 
-/* ===== мерное сечение ===== */
-function diagramSVG(r, sec) {
-  if (!r.pts || !r.pts.z) return `<svg viewBox="0 0 220 220" role="img" aria-label="Размеры сечения не заданы"><rect class="sv-wall" x="20" y="20" width="180" height="180" rx="4"/><text class="sv-txt" x="110" y="114" text-anchor="middle">задайте размеры</text></svg>`;
-  const st = r.stats || [];
-  if (sec.shape === 'round') {
-    const c = 110, R = 92;
-    let s = `<svg viewBox="0 0 220 220" role="img" aria-label="Круглое сечение, ${r.pts.z} точек"><circle class="sv-wall" cx="${c}" cy="${c}" r="${R}"/>` +
-      `<line class="sv-axis" x1="${c - R}" y1="${c}" x2="${c + R}" y2="${c}"/><line class="sv-axis" x1="${c}" y1="${c - R}" x2="${c}" y2="${c + R}"/>`;
-    r.pts.pts.forEach((p, i) => {
-      const x = c - R + p.x * 2 * R, y = c - R + p.y * 2 * R;
-      const on = st[i] && st[i].n > 0;
-      s += `<circle class="sv-pt${on ? ' on' : ''}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.5"/>`;
-      const dx = p.axis === 'В' ? 9 : 0, dy = p.axis === 'В' ? 3 : -9;
-      s += `<text class="sv-txt" x="${(x + dx).toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="${p.axis === 'В' ? 'start' : 'middle'}">${esc(p.label)}</text>`;
-    });
-    return s + `</svg>`;
-  }
-  const a = N(sec.a), b = N(sec.b);
-  const k = 180 / Math.max(a, b), w = a * k, h = b * k, x0 = (220 - w) / 2, y0 = (220 - h) / 2;
-  let s = `<svg viewBox="0 0 220 220" role="img" aria-label="Прямоугольное сечение, ${r.pts.z} точек"><rect class="sv-wall" x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}"/>`;
-  const xs = [...new Set(r.pts.pts.map((p) => p.x))], ys = [...new Set(r.pts.pts.map((p) => p.y))];
-  xs.forEach((x) => { s += `<line class="sv-axis" x1="${(x0 + x * w).toFixed(1)}" y1="${y0.toFixed(1)}" x2="${(x0 + x * w).toFixed(1)}" y2="${(y0 + h).toFixed(1)}"/>`; });
-  ys.forEach((y) => { s += `<line class="sv-axis" x1="${x0.toFixed(1)}" y1="${(y0 + y * h).toFixed(1)}" x2="${(x0 + w).toFixed(1)}" y2="${(y0 + y * h).toFixed(1)}"/>`; });
-  r.pts.pts.forEach((p, i) => {
-    const on = st[i] && st[i].n > 0;
-    s += `<circle class="sv-pt${on ? ' on' : ''}" cx="${(x0 + p.x * w).toFixed(1)}" cy="${(y0 + p.y * h).toFixed(1)}" r="5"/>`;
-  });
-  xs.forEach((x, i) => { s += `<text class="sv-txt" x="${(x0 + x * w).toFixed(1)}" y="${(y0 - 5).toFixed(1)}" text-anchor="middle">${i + 1}</text>`; });
-  return s + `</svg>`;
+/* Помещения с несколькими решётками: сумма ±10 % → каждая ±20 % (ГОСТ 34060-2026, п. 8.2.5) */
+function roomsCard(res) {
+  if (!res.rooms || !res.rooms.length) return '';
+  const st = (R) => (R.status === 'ok' ? 'в допуске' : R.status === 'bad' ? 'вне допуска' : `измерено ${R.m} из ${R.n}`);
+  const rows = res.rooms.map((R) => `<tr class="st-${R.status}"><td>${esc(R.name)}</td><td class="num">${R.n}</td><td class="r num">${F(R.Lp)}</td><td class="r num">${R.complete ? F(R.L) : '—'}</td><td class="r num"><span class="dv ${R.status}">${OK(R.dev) ? M.fmtSigned(R.dev, 1) : '—'}</span></td><td class="hm">${pill(R.status, st(R))}</td></tr>`).join('');
+  const bad = res.rooms.filter((R) => R.status === 'bad').length, wait = res.rooms.filter((R) => R.status === 'none').length;
+  const sum = `${res.rooms.length} ${plural(res.rooms.length, 'помещение', 'помещения', 'помещений')}${bad ? ` · <span class="bad-t">${bad} вне допуска</span>` : wait ? ' · не все замеры' : ' · <span class="ok-t">в допуске</span>'}`;
+  return modCard('sys.rooms', 'c-list', 'Помещения', sum, `<div class="tbl-wrap"><table class="sectbl"><thead><tr><th>Помещение</th><th>Решёток</th><th class="r">Σ проект</th><th class="r">Σ факт</th><th class="r">Δ, %</th><th class="hm">Оценка</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="hint" style="margin-top:8px">Решётки одного помещения одной системы: каждая ±20 %, если сумма по помещению отличается от проекта не более чем на ±10 %; иначе каждая ±10 % (ГОСТ 34060-2026, п. 8.2.5). Помещение задаётся в точке, поле «Помещение».</p>`);
 }
+
+/* ===== мерное сечение ===== */
 
 function geoHTML(r, sec) {
   if (sec.method === 'hood' || !sec.method) return '';
-  const rows = [['Площадь F', OK(r.F) ? F(r.F, 4) + ' м²' : '—']];
-  return `<dl class="geo">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
+  return `<p class="hint">Площадь сечения F = ${OK(r.F) ? F(r.F, 4) + ' м²' : '—'}</p>`;
 }
 
-/* Итог точки — сразу под карточкой «Замер» */
+/* Итог точки: отклонение крупно, под ним — как получился L факт */
 function resultHTML(r, sec) {
-  const sub = [];
-  if (sec.method !== 'hood' && OK(r.v)) sub.push(`V ${F(r.v, 2)} м/с`);
-  if (r.kOn && !r.byL && r.k !== 1) sub.push(`K ${F(r.k, 2)}`);
-  if (OK(r.ptot)) sub.push(`Pп ${F(r.ptot, 0)} Па`);
-  const msg = r.warn[0] || r.info[0] || (r.status === 'bad' ? 'Вне допуска — отрегулируйте и повторите замер' : '');
   const stTxt = r.status === 'ok' ? 'в допуске' : r.status === 'bad' ? 'вне допуска' : (OK(r.L) ? 'нет L проект' : 'нет замера');
-  return `<div class="resbar st-${r.status}" role="status">
-      <div class="rb"><span class="k">L факт</span><span class="v">${F(r.L)}</span><span class="u">м³/ч</span></div>
-      <div class="rb"><span class="k">проект</span><span class="v sm">${F(r.Lp)}</span><span class="u">м³/ч</span></div>
-      <div class="rb dv"><span class="k">${stTxt} · ${tolText(r.tol)}</span><span class="v">${OK(r.dev) ? M.fmtSigned(r.dev, 1) + ' %' : '—'}</span></div>
-      ${sub.length || msg ? `<div class="rb-sub">${esc([sub.join(' · '), msg].filter(Boolean).join(' — '))}</div>` : ''}
+  const lines = [];
+  if (r.kfMode && OK(r.L)) lines.push(`L факт = <b>${F(r.L)}</b> м³/ч <span class="muted">(K ${F(r.kFan, Number.isInteger(r.kFan) ? 0 : 2)} × √${F(r.dpK, Number.isInteger(r.dpK) ? 0 : 1)} Па)</span>`);
+  else if (!r.byL && OK(r.L)) {
+    const how = [OK(r.v) ? `V ${F(r.v, 2)} м/с` : '', OK(r.F) ? `F ${F(r.F, 4)} м²` : '', r.kOn && r.k !== 1 ? `K ${F(r.k, 2)}` : ''].filter(Boolean).join(' × ');
+    lines.push(`L факт = <b>${F(r.L)}</b> м³/ч${how ? ` <span class="muted">(${how})</span>` : ''}`);
+  }
+  if (OK(r.ptot)) lines.push(`Pп ${F(r.ptot, 0)} Па`);
+  const msg = r.warn[0] || r.info[0] || (r.status === 'bad' ? 'Отрегулируйте и повторите замер' : '');
+  let roomLine = '';
+  if (r.room) {
+    const R = r.room, nm = `Помещение «${esc(R.name)}», ${R.n} ${plural(R.n, 'решётка', 'решётки', 'решёток')}`;
+    const t = !R.complete ? `${nm}: измерено ${R.m}. Пока допуск ±10 %; когда будут все — проверится сумма.`
+      : R.ok ? `${nm}: Σ ${F(R.L)} / ${F(R.Lp)} м³/ч (${M.fmtSigned(R.dev, 1)} %) — сумма в пределах ±10 %, поэтому для каждой допуск ±20 %.`
+        : `${nm}: Σ ${F(R.L)} / ${F(R.Lp)} м³/ч (${M.fmtSigned(R.dev, 1)} %) — сумма больше ±10 %, для каждой допуск ±10 %.`;
+    roomLine = `<div class="res2-room st-${R.status}">${t}</div>`;
+  }
+  return `<div class="res2 st-${r.status}" role="status">
+      <div class="res2-top"><span class="res2-dev">${OK(r.dev) ? M.fmtSigned(r.dev, 1) + ' %' : '—'}</span><span class="res2-st">${stTxt}<small>допуск ${tolText(r.tol)}</small></span></div>
+      ${lines.length ? `<div class="res2-sub">${lines.join(' · ')}</div>` : ''}${msg ? `<div class="res2-msg">${esc(msg)}</div>` : ''}${roomLine}
     </div>`;
 }
 
@@ -1802,83 +1894,111 @@ function oneVal(x) { return Array.isArray(x) ? (x[0] ?? '') : (x ?? ''); }
 function valInput(sys, path, aria, cur) {
   return `<input type="text" inputmode="decimal" class="num-in" data-r aria-label="${esc(aria)}" id="${fid(sys, path)}" data-doc="${sys.id}" data-path="${path}" value="${esc(cur)}" autocomplete="off">`;
 }
-function singleInput(sys, sec, key, label, unit) {
-  const path = `sec:${sec.id}.${key}`;
-  return `<div class="f big"><label for="${fid(sys, path)}">${lab(label, unit)}</label>${valInput(sys, path, label, oneVal(sec[key]))}</div>`;
+
+/* Быстрый выбор вместо длинных списков */
+const ROLE_CHIPS = [['terminal', 'Решётка'], ['branch', 'Ответвление'], ['main', 'Магистраль'], ['fan_in', 'Вент. всас'], ['fan_out', 'Вент. нагнет'], ['local', 'Отсос'], ['shower', 'Душ']];
+const METHOD_CHIPS = [['hood', 'Воронка Testo'], ['pitot', 'Трубка Пито'], ['anemo', 'Анемометр в воздуховоде'], ['grille', 'Анемометр на решётке'], ['kfactor', 'K-фактор вентилятора']];
+function chips(sec, key, opts, label) {
+  const cur = sec[key] || '';
+  return `<div class="f"><span class="lbl">${label}</span><div class="chips" role="group" aria-label="${esc(label)}">` +
+    opts.map(([v, t]) => `<button class="chip" data-act="sec-set" data-k="${key}" data-v="${v}" aria-pressed="${cur === v}">${esc(t)}</button>`).join('') + `</div></div>`;
 }
-function stepH(n, title) { return `<h2><span class="step" aria-hidden="true">${n}</span>${title}</h2>`; }
+
+function secResult(sys, sec) { const it = M.system(sys).secs.find((x) => x.s.id === sec.id); return it ? it.r : M.section(sec, baOf(sys)); }
 
 function viewSection(sys, sec) {
   const o = objOf(sys.objectId);
-  const r = M.section(sec, baOf(sys));
+  const r = secResult(sys, sec);
   const m = sec.method || '';
   const fan = sec.role === 'fan_in' || sec.role === 'fan_out';
   const duct = m === 'pitot' || m === 'anemo';
   const byL = m === 'hood' || sec.entry === 'L';
-  const roleOpts = Object.entries(M.ROLES).map(([k, v]) => [k, v.name]);
-  const methOpts = (m ? [] : [['', '— выберите метод —']]).concat(Object.entries(M.METHODS));
-  let n = 0;
+  const P = (k) => `sec:${sec.id}.${k}`;
+  const list = sys.sections || [];
+  const idx = list.findIndex((x) => x.id === sec.id);
+  const prev = idx > 0 ? list[idx - 1] : null, next = idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null;
+  const goSec = (x) => `data-act="go" data-go='${esc(JSON.stringify({ name: 'section', sid: sys.id, cid: x.id }))}'`;
 
-  /* 1. Точка: номер, место, тип, метод, проект */
-  const card1 = `<section class="card c-point">${stepH(++n, 'Точка')}
-      <div class="fields">
-        <div class="row-no span2">${inText(sys, `sec:${sec.id}.no`, '№')}${inText(sys, `sec:${sec.id}.place`, 'Место (помещение, решётка)', { ph: 'Офис 201, Р-1' })}</div>
-        ${inSel(sys, `sec:${sec.id}.role`, 'Тип', roleOpts, { cls: 'span2' })}
-        ${inSel(sys, `sec:${sec.id}.method`, 'Метод (прибор)', methOpts, { cls: 'span2' })}
-        ${inNum(sys, `sec:${sec.id}.Lp`, 'L по проекту', 'м³/ч')}
-      </div></section>`;
+  /* навигация: ‹ точка N из M › */
+  const nav = `<div class="pnav">
+      <button class="btn sm" ${prev ? goSec(prev) : 'disabled'} aria-label="Предыдущая точка">‹</button>
+      <span class="pnav-t">Точка <b>${idx + 1}</b> из ${list.length}</span>
+      <button class="btn sm" ${next ? goSec(next) : 'disabled'} aria-label="Следующая точка">›</button>
+      ${peekPhotos(sys, 'scheme').length ? '<button class="btn sm sch-btn" data-act="scheme-view" data-i="0">Схема</button>' : ''}
+    </div>`;
 
-  /* 2. Размеры (не нужны для воронки) */
-  const shapeSeg = `<div class="f span2"><span class="lbl">Форма</span><div class="seg" role="group" aria-label="Форма сечения">
-      <button data-act="shape" data-v="round" aria-pressed="${sec.shape === 'round'}">Круглое</button>
-      <button data-act="shape" data-v="rect" aria-pressed="${sec.shape !== 'round'}">Прямоугольное</button></div></div>`;
+  /* 1. Точка: номер, место, что и чем меряем, размеры */
   const dims = sec.shape === 'round'
-    ? inNum(sys, `sec:${sec.id}.D`, 'Диаметр D', 'мм')
-    : inNum(sys, `sec:${sec.id}.a`, 'Ширина a', 'мм') + inNum(sys, `sec:${sec.id}.b`, 'Высота b', 'мм');
-  const kField = M.usesK(sec) ? inNum(sys, `sec:${sec.id}.kFree`, 'Поправочный K', '', { hint: byL ? 'при вводе L факт не учитывается' : 'L = 3600 · V · F · K' }) : '';
-  const card2 = !m || m === 'hood' ? '' : `<section class="card c-geom">${stepH(++n, m === 'grille' ? 'Размеры решётки' : 'Размеры воздуховода')}
-      <div class="fields">${shapeSeg}${dims}${kField}</div>
-      <div id="sec-geo" style="margin-top:12px">${geoHTML(r, sec)}</div>${byL ? '<p class="hint">При вводе L факт размеры нужны только для записи.</p>' : ''}</section>`;
+    ? inNum(sys, P('D'), 'D', 'мм')
+    : inNum(sys, P('a'), 'a, ширина', 'мм') + inNum(sys, P('b'), 'b, высота', 'мм');
+  const kField = M.usesK(sec) ? inNum(sys, P('kFree'), 'K решётки', '', { hint: byL ? 'при L факт не учитывается' : 'L = 3600·V·F·K' }) : '';
+  const kfBlock = m !== 'kfactor' ? '' : `<div class="psub">
+      <span class="lbl">K-фактор вентилятора</span>
+      <div class="fields fields-dims">${inNum(sys, P('kFan'), 'K', '', { hint: 'с шильдика / из паспорта' })}</div>
+      <p class="hint">L = K · √Δp — Δp на входном коллекторе (кольце) вентилятора, Па. Testo 440dP считает так же в режиме «K-фактор».</p></div>`;
+  const sizes = !m || m === 'hood' || m === 'kfactor' ? kfBlock : `<div class="psub">
+      <div class="lrow"><span class="lbl">${m === 'grille' ? 'Размеры решётки' : 'Сечение воздуховода'}</span>
+        <div class="seg seg-sm" role="group" aria-label="Форма сечения"><button data-act="shape" data-v="round" aria-pressed="${sec.shape === 'round'}">Круглое</button><button data-act="shape" data-v="rect" aria-pressed="${sec.shape !== 'round'}">Прямоуг.</button></div></div>
+      <div class="fields fields-dims">${dims}${kField}</div>
+      <div class="lrow"><div id="sec-geo">${geoHTML(r, sec)}</div>${duct ? '<button class="btn sm" data-act="drill">Точки сверления →</button>' : ''}</div></div>`;
+  const roleName = (ROLE_CHIPS.find(([v]) => v === sec.role) || [])[1] || '';
+  const methName = (METHOD_CHIPS.find(([v]) => v === m) || [])[1] || '';
+  const isTerm = (sec.role || 'terminal') === 'terminal';
+  const ptSum = esc([`№ ${sec.no || '—'}`, isTerm ? sec.room : '', sec.place, roleName, methName].filter(Boolean).join(' · '));
+  const roomNames = [...new Set((sys.sections || []).map((x) => String(x.room || '').trim()).filter(Boolean))];
+  const idRow = isTerm
+    ? `<div class="row-no">${inText(sys, P('no'), '№')}${inText(sys, P('room'), 'Помещение', { ph: 'Офис 201', list: 'rooms-' + sys.id })}</div>
+      ${inText(sys, P('place'), 'Решётка (обозначение, место)', { ph: 'Р-1' })}<datalist id="rooms-${sys.id}">${roomNames.map((x) => `<option value="${esc(x)}">`).join('')}</datalist>`
+    : `<div class="row-no">${inText(sys, P('no'), '№')}${inText(sys, P('place'), 'Место', { ph: 'Вентилятор, всасывание' })}</div>`;
+  const cardPt = modCard('pt.point', 'c-point', 'Точка', ptSum, `<div class="pcard">
+      ${idRow}
+      ${chips(sec, 'role', ROLE_CHIPS, 'Что меряем')}
+      ${chips(sec, 'method', METHOD_CHIPS.filter(([v]) => v !== 'kfactor' || fan || m === 'kfactor'), 'Чем меряем')}
+      ${sizes}
+    </div>`);
 
-  /* 3. Замер: V или L с прибора; Pст в воздуховоде; у вентилятора — Pст и t */
-  const psPath = `sec:${sec.id}.ps`;
+  /* 2. Замер: проект и факт рядом, сразу отклонение */
+  const psPath = P('ps');
   const psVal = esc(String(getPath(sys, psPath)).replace(/^\s*[-−]/, ''));
   const psField = sec.role === 'fan_in'
-    ? `<div class="f"><label for="${fid(sys, psPath)}">${lab('Pст, разрежение', 'Па')}</label><div class="pre"><span aria-hidden="true">−</span><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psPath)}" data-doc="${sys.id}" data-path="${psPath}" value="${psVal}" autocomplete="off"></div><span class="hint">минус ставится сам</span></div>`
-    : `<div class="f"><label for="${fid(sys, psPath)}">${lab('Pст', 'Па')}</label><div class="pre"><button class="sgn" data-act="ps-sign" aria-label="Сменить знак, сейчас ${sec.psSign === '-' ? 'минус' : 'плюс'}">${sec.psSign === '-' ? '−' : '+'}</button><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psPath)}" data-doc="${sys.id}" data-path="${psPath}" value="${psVal}" autocomplete="off"></div><span class="hint">± — сменить знак</span></div>`;
+    ? `<div class="f"><label for="${fid(sys, psPath)}">${lab('Pст, разрежение', 'Па')}</label><div class="pre"><span aria-hidden="true">−</span><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psPath)}" data-doc="${sys.id}" data-path="${psPath}" value="${psVal}" autocomplete="off"></div></div>`
+    : `<div class="f"><label for="${fid(sys, psPath)}">${lab('Pст', 'Па')}</label><div class="pre"><button class="sgn" data-act="ps-sign" aria-label="Сменить знак, сейчас ${sec.psSign === '-' ? 'минус' : 'плюс'}">${sec.psSign === '-' ? '−' : '+'}</button><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psPath)}" data-doc="${sys.id}" data-path="${psPath}" value="${psVal}" autocomplete="off"></div></div>`;
   let meas;
-  if (!m) meas = '<p class="muted">Сначала выберите метод в шаге 1.</p>';
+  if (!m) meas = '<p class="muted">Выберите выше, чем меряете, — появится поле для замера.</p>';
   else {
-    const toggle = m === 'hood' ? '' : `<div class="seg" role="group" aria-label="Что вписать" style="margin-bottom:14px">
-        <button data-act="entry" data-v="V" aria-pressed="${!byL}">V факт, м/с</button>
-        <button data-act="entry" data-v="L" aria-pressed="${byL}">L факт, м³/ч</button></div>`;
-    const main = byL ? singleInput(sys, sec, 'total', 'L факт', 'м³/ч') : singleInput(sys, sec, 'vAvg', 'V факт', 'м/с');
-    const extra = fan ? psField + inNum(sys, `sec:${sec.id}.t`, 'Температура t', '°C') : (duct ? psField : '');
-    meas = toggle + `<div class="fields">${main}${extra}</div><p class="hint" style="margin-top:8px">Среднее значение с прибора.${fan ? ' Pст и t — для давления вентилятора.' : ''}</p>`;
+    const kf = m === 'kfactor';
+    const factPath = byL ? P('total') : (kf ? P('dpK') : P('vAvg'));
+    const toggle = m === 'hood' ? '' : `<div class="seg seg-xs" role="group" aria-label="Что вписать"><button data-act="entry" data-v="V" aria-pressed="${!byL}">${kf ? 'Δp' : 'V'}</button><button data-act="entry" data-v="L" aria-pressed="${byL}">L</button></div>`;
+    const factLbl = byL ? lab('L факт', 'м³/ч') : (kf ? lab('Δp факт', 'Па') : lab('V факт', 'м/с'));
+    const factVal = oneVal(sec[byL ? 'total' : (kf ? 'dpK' : 'vAvg')]);
+    meas = `<div class="mrow">
+        ${inNum(sys, P('Lp'), 'L проект', 'м³/ч', { cls: 'big' })}
+        <div class="f big"><div class="lrow"><label for="${fid(sys, factPath)}">${factLbl}</label>${toggle}</div>${valInput(sys, factPath, byL ? 'L факт' : (kf ? 'Δp факт' : 'V факт'), factVal)}</div>
+      </div>
+      <div id="sec-result">${resultHTML(r, sec)}</div>
+      ${fan || duct ? `<div class="fields pres">${psField}${fan ? inNum(sys, P('t'), 'Температура t', '°C') : ''}</div>${fan ? '<p class="hint">Pст и t — для давления вентилятора.</p>' : ''}` : ''}`;
   }
-  const card3 = `<section class="card c-meas">${stepH(++n, 'Замер')}${meas}</section>`;
+  const measSum = OK(r.L) ? `L ${F(r.L)} / ${F(r.Lp)} м³/ч${OK(r.dev) ? ` · <span class="${r.status === 'bad' ? 'bad-t' : 'ok-t'}">${M.fmtSigned(r.dev, 1)} %</span>` : ''}` : 'нет замера';
+  const cardMeas = modCard('pt.meas', 'c-meas', 'Замер', measSum, `<p class="hint" style="margin:-4px 0 8px">Среднее значение с прибора.</p>${meas}`);
 
-  /* 4. Фото и заметка */
-  const card4 = `<section class="card c-note">${stepH(++n, 'Фото и заметка')}<div class="stack" style="gap:12px">
-      ${photoGrid(sys, 'sec:' + sec.id, 'решётка, место')}
-      <div class="fields wide">${inText(sys, `sec:${sec.id}.note`, 'Заметка', { cls: 'span2', ph: 'положение шибера, замечания' })}</div></div></section>`;
+  /* 3. Фото и заметка */
+  const nPh = (sec.photos || []).length, noteT = String(sec.note || '').trim();
+  const noteSum = esc([photoCount(nPh), noteT ? (noteT.length > 30 ? noteT.slice(0, 29) + '…' : noteT) : ''].filter(Boolean).join(' · ')) || 'пусто';
+  const cardNote = modCard('pt.photo', 'c-note', 'Фото и заметка', noteSum, `<div class="stack" style="gap:10px">${photoGrid(sys, 'sec:' + sec.id, 'решётка, место')}
+      <div class="fields wide">${inText(sys, P('note'), 'Заметка', { cls: 'span2', ph: 'положение шибера, замечания' })}</div></div>`);
 
   return `<div class="stack sec-page">
     ${crumbs([{ t: 'Объекты', go: { name: 'objects' } }, { t: (o && o.name) || 'Объект', go: { name: 'object', oid: sys.objectId } }, { t: sys.name || 'Система', go: { name: 'system', sid: sys.id } }, { t: 'Точка ' + (sec.no || '') }])}
-    <div class="head"><h1>Точка № ${esc(sec.no || '—')}${sec.place ? ' · ' + esc(sec.place) : ''}</h1>
-      <div class="head-actions"><button class="btn primary" data-act="add-section">+ Добавить</button>${peekPhotos(sys, 'scheme').length ? '<button class="btn sch-btn" data-act="scheme-view" data-i="0">Схема</button>' : ''}<button class="btn" data-act="dup-section">Копия</button>${delBtn('sec:' + sys.id + ':' + sec.id)}</div></div>
-    ${card1}${card2}${card3}
-    <div id="sec-result">${resultHTML(r, sec)}</div>
-    ${card4}
-    <div class="next-row">
-      <button class="btn primary wide" data-act="add-section">+ Следующая точка</button>
-      <button class="btn" data-act="go" data-go='${esc(JSON.stringify({ name: 'system', sid: sys.id }))}'>← К списку точек</button>
+    ${nav}${cardPt}${cardMeas}${cardNote}
+    <div class="pact">
+      <button class="btn primary wide" data-act="add-section">+ Новая точка</button>
+      ${delBtn('sec:' + sys.id + ':' + sec.id)}
     </div>
   </div>`;
 }
 
 function refreshSection(sys, sec) {
-  const r = M.section(sec, baOf(sys));
+  const r = secResult(sys, sec);
   const res = $('#sec-result'); if (res) res.innerHTML = resultHTML(r, sec);
   const geo = $('#sec-geo'); if (geo) geo.innerHTML = geoHTML(r, sec);
 }
@@ -1895,16 +2015,17 @@ function newSystem(oid, n) {
   return s;
 }
 /* Метод для нового сечения: как у текущего / последнего сечения, иначе последний выбранный в этом браузере */
-function lastMethod(sys) { const s = (sys.sections || []).slice().reverse().find((x) => x.method); return s ? s.method : (lsGet(LS_METHOD) || ''); }
-function lastEntry(sys) { const s = (sys.sections || []).slice().reverse().find((x) => x.method); const e = s && s.entry; return e === 'L' || e === 'total' ? 'L' : 'V'; }
+function lastMethod(sys) { const s = (sys.sections || []).slice().reverse().find((x) => x.method && x.method !== 'kfactor'); const ls = lsGet(LS_METHOD); return s ? s.method : (ls && ls !== 'kfactor' ? ls : ''); }
+/* как вписывали в прошлый раз (воронка не в счёт — у неё всегда L) */
+function lastEntry(sys) { const s = (sys.sections || []).slice().reverse().find((x) => x.method && x.method !== 'hood' && x.method !== 'kfactor'); const e = s && s.entry; return e === 'L' || e === 'total' ? 'L' : 'V'; }
 function newSection(sys, from, methodHint, entryHint) {
   const secs = sys.sections || (sys.sections = []);
   const nos = secs.map((s) => parseInt(s.no, 10)).filter(Number.isFinite);
   const no = String(nos.length ? Math.max(...nos) + 1 : 1);
   /* «+ Сечение» — чистый лист; «Копия» — те же тип, метод и размеры */
-  const keep = ['role', 'method', 'entry', 'shape', 'D', 'a', 'b', 't', 'kFree'];
+  const keep = ['role', 'method', 'entry', 'shape', 'D', 'a', 'b', 't', 'kFree', 'kFan', 'room'];
   const base = from ? Object.fromEntries(keep.map((k) => [k, k === 'entry' ? (from.entry === 'L' ? 'L' : 'V') : (from[k] ?? '')])) : { role: 'terminal', method: methodHint || lastMethod(sys), entry: entryHint || lastEntry(sys), shape: 'rect', D: '', a: '', b: '', t: '', kFree: '1' };
-  const sec = { id: newId('c'), no, place: '', Lp: '', ps: '', note: '', vAvg: '', total: '', v2: 1, ...base };
+  const sec = { id: newId('c'), no, place: '', Lp: '', ps: '', note: '', vAvg: '', total: '', v2: 1, ...base, u: Date.now() };
   secs.push(sec);
   Store.save(sys);
   return sec;
@@ -1920,10 +2041,10 @@ function makeExample() {
       { id: newId('c'), no: '1', place: 'Вентилятор, всасывание', role: 'fan_in', method: 'pitot', entry: 'V', vAvg: '6,79', shape: 'rect', a: '500', b: '300', D: '', t: '16', ps: '-180', Lp: '3600', v2: 1 },
       { id: newId('c'), no: '2', place: 'Вентилятор, нагнетание', role: 'fan_out', method: 'pitot', entry: 'V', vAvg: '8,00', shape: 'round', D: '400', a: '', b: '', t: '17', ps: '320', Lp: '3600', v2: 1 },
       { id: newId('c'), no: '3', place: 'Магистраль, коридор 2 эт.', role: 'main', method: 'anemo', entry: 'L', total: '3513', shape: 'round', D: '400', a: '', b: '', Lp: '3600', v2: 1 },
-      { id: newId('c'), no: '4', place: 'Офис 201, решётка Р-1', role: 'terminal', method: 'hood', entry: 'L', total: '857', shape: 'rect', Lp: '900', v2: 1 },
-      { id: newId('c'), no: '5', place: 'Офис 202, решётка Р-2', role: 'terminal', method: 'hood', entry: 'L', total: '897', shape: 'rect', Lp: '900', v2: 1 },
-      { id: newId('c'), no: '6', place: 'Офис 203, решётка Р-3', role: 'terminal', method: 'hood', entry: 'L', total: '762', shape: 'rect', Lp: '900', v2: 1, note: 'Шибер на ответвлении прикрыт — открыть и повторить' },
-      { id: newId('c'), no: '7', place: 'Офис 204, решётка Р-4', role: 'terminal', method: 'grille', entry: 'V', vAvg: '1,77', shape: 'rect', a: '600', b: '300', D: '', kFree: '0,8', Lp: '900', v2: 1 },
+      { id: newId('c'), no: '4', room: 'Офис 201', place: 'Р-1', role: 'terminal', method: 'hood', entry: 'L', total: '1010', shape: 'rect', Lp: '900', v2: 1 },
+      { id: newId('c'), no: '5', room: 'Офис 201', place: 'Р-2', role: 'terminal', method: 'hood', entry: 'L', total: '820', shape: 'rect', Lp: '900', v2: 1 },
+      { id: newId('c'), no: '6', room: 'Офис 203', place: 'Р-3', role: 'terminal', method: 'hood', entry: 'L', total: '762', shape: 'rect', Lp: '900', v2: 1, note: 'Шибер на ответвлении прикрыт — открыть и повторить' },
+      { id: newId('c'), no: '7', room: 'Офис 204', place: 'Р-4', role: 'terminal', method: 'grille', entry: 'V', vAvg: '1,77', shape: 'rect', a: '600', b: '300', D: '', kFree: '0,8', Lp: '900', v2: 1 },
     ],
   };
   Store.save(o); Store.save(s);
@@ -1931,14 +2052,9 @@ function makeExample() {
 }
 
 /* ===== расчёты ===== */
-const CLS = [['1.0', '1,0'], ['0.5', '0,5']];
-const FRAC = [['1', '1,00'], ['0.75', '0,75'], ['0.5', '0,50'], ['0.25', '0,25'], ['0.1', '0,10'], ['0.05', '0,05']];
 const SHAPES = [['round', 'Круглое'], ['rect', 'Прямоугольное']];
-const listVals = (s) => String(s || '').split(/[;\s]+/).map((x) => N(x.replace(/,$/, ''))).filter(OK);
 function kvI(k, v, u, hl) { return `<div class="i${hl ? ' hl' : ''}"><div class="k">${k}</div><div class="v">${v}${u ? ` <small>${u}</small>` : ''}</div></div>`; }
 function kvBox(items) { return `<div class="kv">${items.join('')}</div>`; }
-function noteList(items) { const f = items.filter(Boolean); return f.length ? `<ul class="notes">${f.join('')}</ul>` : ''; }
-const nOk = (t) => `<li>${t}</li>`, nW = (t) => `<li class="w">${t}</li>`, nB = (t) => `<li class="b">${t}</li>`;
 const isRound = (v) => v.shape === 'round';
 
 /* Схема сверления: отверстия на выбранной стенке, пути зонда и точки */
@@ -1970,9 +2086,27 @@ function drillSVG(shape, a, b, P, drill) {
   return s + `</svg>`;
 }
 
+/* Единицы: множитель к базовой (м³/с, м/с, Па, Вт) */
+const UNIT_GROUPS = {
+  flow: { t: 'Расход', u: [['m3h', 'м³/ч', 1 / 3600], ['m3s', 'м³/с', 1], ['ls', 'л/с', 0.001], ['lmin', 'л/мин', 1 / 60000], ['cfm', 'CFM (фут³/мин)', 0.00047194745]] },
+  vel: { t: 'Скорость', u: [['ms', 'м/с', 1], ['kmh', 'км/ч', 1 / 3.6], ['fpm', 'фут/мин', 0.00508]] },
+  pres: { t: 'Давление', u: [['Pa', 'Па', 1], ['kPa', 'кПа', 1000], ['mbar', 'мбар', 100], ['bar', 'бар', 1e5], ['mmH2O', 'мм вод. ст.', 9.80665], ['mmHg', 'мм рт. ст.', 133.322], ['kgfcm2', 'кгс/см²', 98066.5], ['inH2O', 'дюйм вод. ст.', 249.08891], ['psi', 'psi', 6894.757]] },
+  pow: { t: 'Мощность', u: [['kW', 'кВт', 1000], ['W', 'Вт', 1], ['kcalh', 'ккал/ч', 1.163], ['Gcalh', 'Гкал/ч', 1.163e6], ['BTUh', 'BTU/ч', 0.29307107], ['hp', 'л. с.', 735.49875]] },
+  temp: { t: 'Температура', u: [['C', '°C', 1], ['F', '°F', 1], ['K', 'K', 1]] },
+};
+/* Плотность воды, кг/м³, по температуре 0–150 °C */
+function achVolume(v) { const Vr = N(v.Vr), S = N(v.S), h = N(v.h); return OK(Vr) && Vr > 0 ? Vr : (OK(S) && OK(h) && S * h > 0 ? S * h : NaN); }
+function waterRho(t) {
+  const T = [[0, 999.8], [10, 999.7], [20, 998.2], [30, 995.7], [40, 992.2], [50, 988.0], [60, 983.2], [70, 977.8], [80, 971.8], [90, 965.3], [100, 958.4], [110, 951.0], [120, 943.1], [130, 934.8], [140, 926.1], [150, 917.0]];
+  if (!(t > 0)) return T[0][1];
+  if (t >= 150) return T[T.length - 1][1];
+  const i = Math.floor(t / 10), [t0, r0] = T[i], [t1, r1] = T[i + 1];
+  return r0 + (r1 - r0) * (t - t0) / (t1 - t0);
+}
+
 const CALCS = [
   {
-    id: 'sect', title: 'Мерное сечение и точки замера', ref: 'ГОСТ 12.3.018, р. 1, черт. 1–2',
+    id: 'sect', title: 'Мерное сечение и точки замера', sum: 'точки и глубина ввода зонда', ref: 'ГОСТ 12.3.018, р. 1, черт. 1–2',
     fields: [
       { k: 'shape', l: 'Форма', t: 'sel', o: SHAPES, d: 'round' },
       { k: 'drill', l: 'Отверстия', t: 'sel', o: [['v', 'Сверху'], ['h', 'Сбоку']], d: 'v' },
@@ -2016,6 +2150,111 @@ const CALCS = [
         <p class="hint" style="margin-top:8px">${esc(where)} Глубина — от внутренней поверхности стенки; прибавьте толщину стенки и изоляции.</p></div></div>`;
     },
   },
+  {
+    id: 'flow', title: 'Скорость и расход', sum: 'L = 3600 · V · F', ref: 'впишите скорость — посчитается расход, впишите расход — скорость',
+    fields: [
+      { k: 'shape', l: 'Форма', t: 'sel', o: SHAPES, d: 'round', w: 'span2' },
+      { k: 'D', l: 'Диаметр D', u: 'мм', d: '', show: isRound },
+      { k: 'a', l: 'Ширина a', u: 'мм', d: '', show: (v) => !isRound(v) },
+      { k: 'b', l: 'Высота b', u: 'мм', d: '', show: (v) => !isRound(v) },
+      { k: 'V', l: 'Скорость V', u: 'м/с', d: '', w: 'vl' },
+      { k: 'L', l: 'Расход L', u: 'м³/ч', d: '', w: 'vl' },
+    ],
+    /* какое из двух полей считается само: то, которое не вписывали последним */
+    auto: (st) => (st.last === 'L' ? 'V' : 'L'),
+    sync(v, k, st) {
+      if (k === 'V' || k === 'L') st.last = k;
+      const g = M.geom(v.shape, N(v.D), N(v.a), N(v.b));
+      if (!OK(g.F)) return {};
+      const num = (x, d) => (OK(x) ? (Math.round(x * 10 ** d) / 10 ** d).toFixed(d).replace('.', ',') : '');
+      if (st.last === 'L') { const L = N(v.L); return { V: OK(L) ? num(L / 3600 / g.F, 2) : '' }; }
+      const V = N(v.V); return { L: OK(V) ? num(3600 * V * g.F, 0) : '' };
+    },
+    formula: 'L = 3600 · V · F;  F = π·D²/4 или a·b;  Pд = ρ·V²/2 (ρ = 1,2 кг/м³)',
+    calc(v) {
+      const g = M.geom(v.shape, N(v.D), N(v.a), N(v.b));
+      if (!OK(g.F)) return '<p class="muted">Введите размеры.</p>';
+      const V = N(v.V), L = N(v.L);
+      const items = [kvI('Площадь F', F(g.F, 4), 'м²')];
+      if (OK(L)) items.push(kvI('Расход', `${F(L / 3600, 4)} м³/с · ${F(L / 3.6, 1)}`, 'л/с'));
+      if (OK(V)) items.push(kvI('Динамическое давление', F(1.2 * V * V / 2, 1), 'Па'));
+      return kvBox(items);
+    },
+  },
+  {
+    id: 'ach', title: 'Кратность воздухообмена', sum: 'n = L / Vпом', ref: 'впишите расход — посчитается кратность, впишите кратность — расход',
+    fields: [
+      { k: 'S', l: 'Площадь S', u: 'м²', d: '' },
+      { k: 'h', l: 'Высота h', u: 'м', d: '' },
+      { k: 'Vr', l: 'или объём V', u: 'м³', d: '', h: 'если вписан — S и h не нужны', w: 'span2' },
+      { k: 'L', l: 'Расход L', u: 'м³/ч', d: '', w: 'vl' },
+      { k: 'n', l: 'Кратность n', u: '1/ч', d: '', w: 'vl' },
+    ],
+    auto: (st) => (st.last === 'n' ? 'L' : 'n'),
+    sync(v, k, st) {
+      if (k === 'L' || k === 'n') st.last = k;
+      const Vr = achVolume(v);
+      if (!OK(Vr)) return {};
+      const num = (x, d) => (OK(x) ? (Math.round(x * 10 ** d) / 10 ** d).toFixed(d).replace('.', ',') : '');
+      if (st.last === 'n') { const n = N(v.n); return { L: OK(n) ? num(n * Vr, 0) : '' }; }
+      const L = N(v.L); return { n: OK(L) ? num(L / Vr, 2) : '' };
+    },
+    formula: 'n = L / V;  L = n · V;  V = S · h',
+    calc(v) {
+      const Vr = achVolume(v), S = N(v.S), L = N(v.L);
+      if (!OK(Vr)) return '<p class="muted">Введите площадь и высоту помещения или объём.</p>';
+      const items = [kvI('Объём помещения', F(Vr, 1), 'м³')];
+      if (OK(L) && OK(S) && S > 0) items.push(kvI('На 1 м² площади', F(L / S, 1), 'м³/(ч·м²)'));
+      return kvBox(items);
+    },
+  },
+  {
+    id: 'heat', title: 'Мощность по разности температур', sum: 'Q = L · ρ · c · Δt', ref: 'воздухонагреватель, охладитель, теплоноситель',
+    fields: [
+      { k: 'med', l: 'Среда', t: 'sel', o: [['air', 'Воздух'], ['water', 'Вода']], d: 'air' },
+      { k: 'rhoAt', l: 'Расход измерен', t: 'sel', o: [['in', 'на входе'], ['out', 'на выходе']], d: 'in', show: (v) => v.med === 'air' },
+      { k: 'L', l: 'Расход', u: 'м³/ч', d: '' },
+      { k: 't1', l: 't на входе', u: '°C', d: '' },
+      { k: 't2', l: 't на выходе', u: '°C', d: '' },
+    ],
+    formula: 'Q = L · ρ · c · Δt / 3600, кВт;  воздух: c = 1,005 кДж/(кг·К), ρ = 353/(273 + t);  вода: c = 4,19 кДж/(кг·К)',
+    calc(v) {
+      const L = N(v.L), t1 = N(v.t1), t2 = N(v.t2);
+      if (!OK(L) || !OK(t1) || !OK(t2)) return '<p class="muted">Введите расход и обе температуры.</p>';
+      const dt = t2 - t1, air = v.med !== 'water';
+      const tr = air ? (v.rhoAt === 'out' ? t2 : t1) : (t1 + t2) / 2;
+      const rho = air ? 101325 / (287.05 * (273.15 + tr)) : waterRho(tr);
+      const c = air ? 1.005 : 4.19;
+      const G = L * rho, Q = G * c * dt / 3600;
+      const items = [kvI('Δt', M.fmtSigned(dt, 1), '°C'), kvI('Плотность ρ', F(rho, air ? 3 : 1), `кг/м³ при ${F(tr, 1)} °C`),
+        kvI('Массовый расход', air ? F(G, 0) : F(G / 1000, 2), air ? 'кг/ч' : 'т/ч'), kvI(air ? (dt >= 0 ? 'Мощность (нагрев воздуха)' : 'Мощность (охлаждение воздуха)') : (dt <= 0 ? 'Мощность (вода отдала)' : 'Мощность (вода получила)'), F(Math.abs(Q), 2), 'кВт', true)];
+      items.push(air ? kvI('То же', F(Math.abs(Q) * 859.845, 0), 'ккал/ч') : kvI('То же', F(Math.abs(Q) * 0.000859845, 4), 'Гкал/ч'));
+      return kvBox(items) + (air ? '<p class="hint">Для воздуха — явная теплота (без учёта влаги).</p>' : '');
+    },
+  },
+  {
+    id: 'units', title: 'Перевод единиц', sum: 'расход, скорость, давление, мощность, температура', ref: 'значение — во все единицы группы',
+    fields: [
+      { k: 'grp', l: 'Величина', t: 'sel', o: Object.entries(UNIT_GROUPS).map(([k, g]) => [k, g.t]), d: 'flow', w: 'span2' },
+      { k: 'val', l: 'Значение', d: '1' },
+      { k: 'unit', l: 'Единица', t: 'sel', o: (v) => (UNIT_GROUPS[v.grp] || UNIT_GROUPS.flow).u.map(([k, t]) => [k, t]), d: '' },
+    ],
+    formula: '',
+    calc(v) {
+      const g = UNIT_GROUPS[v.grp] || UNIT_GROUPS.flow, x = N(v.val);
+      if (!OK(x)) return '<p class="muted">Введите значение.</p>';
+      const nf = new Intl.NumberFormat('ru-RU', { maximumSignificantDigits: 6 });
+      let rows;
+      if (v.grp === 'temp') {
+        const C = v.unit === 'F' ? (x - 32) * 5 / 9 : v.unit === 'K' ? x - 273.15 : x;
+        rows = [['C', '°C', C], ['F', '°F', C * 9 / 5 + 32], ['K', 'K', C + 273.15]];
+      } else {
+        const base = x * ((g.u.find(([k]) => k === v.unit) || g.u[0])[2]);
+        rows = g.u.map(([k, t, f]) => [k, t, base / f]);
+      }
+      return `<div class="tbl-wrap"><table class="unittbl"><tbody>${rows.map(([k, t, val]) => `<tr${k === v.unit ? ' class="cur"' : ''}><td class="r num">${nf.format(val)}</td><td>${t}</td></tr>`).join('')}</tbody></table></div>`;
+    },
+  },
 ];
 
 const calcState = lsGet(LS_CALC) || {};
@@ -2027,6 +2266,7 @@ function calcVals(c) {
   return v;
 }
 function calcFieldsHTML(c, v) {
+  const auto = c.auto ? c.auto(calcState[c.id] || {}) : '';
   return c.fields.filter((f) => !f.show || f.show(v)).map((f) => {
     const id = `c_${c.id}_${f.k}`;
     const label = `<label for="${id}">${lab(f.l, f.u)}</label>`;
@@ -2035,29 +2275,32 @@ function calcFieldsHTML(c, v) {
     if (f.t === 'sel') { const opts = typeof f.o === 'function' ? f.o(v) : f.o; inp = `<select id="${id}" data-calc="${c.id}" data-k="${f.k}" data-struct>${opts.map(([x, t]) => `<option value="${esc(x)}"${x === v[f.k] ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`; }
     else if (f.t === 'list') inp = `<textarea id="${id}" data-calc="${c.id}" data-k="${f.k}" rows="2">${esc(v[f.k])}</textarea>`;
     else if (f.t === 'date') inp = `<input type="date" id="${id}" data-calc="${c.id}" data-k="${f.k}" value="${esc(v[f.k])}">`;
-    else inp = `<input type="text" inputmode="decimal" class="num-in" id="${id}" data-calc="${c.id}" data-k="${f.k}" value="${esc(v[f.k])}" autocomplete="off">`;
-    return `<div class="f ${f.w || ''}">${label}${inp}${hint}</div>`;
+    else inp = `<input type="text" inputmode="decimal" class="num-in${auto === f.k ? ' auto' : ''}" id="${id}" data-calc="${c.id}" data-k="${f.k}" value="${esc(v[f.k])}" autocomplete="off">`;
+    return `<div class="f ${f.w || ''}">${label}${inp}${hint}${auto && (f.k === auto) ? '<span class="hint auto-h">посчитано</span>' : ''}</div>`;
   }).join('');
 }
 function calcOut(c, v) { try { return c.calc(v); } catch (e) { return '<p class="muted">Проверьте введённые значения.</p>'; } }
 function viewCalcs() {
-  const jump = CALCS.map((c) => `<button data-act="jump" data-id="calc-${c.id}">${esc(c.title)}</button>`).join('');
   const cards = CALCS.map((c) => {
     const v = calcVals(c);
-    return `<section class="card calc" id="calc-${c.id}"><div class="card-head"><h2>${esc(c.title)}</h2><button class="btn danger" data-act="calc-clear" data-id="${c.id}">Очистить</button></div><span class="ref" style="display:inline-block;margin-bottom:12px">${esc(c.ref)}</span>
-      <div class="fields" id="cf-${c.id}">${calcFieldsHTML(c, v)}</div>
-      <div class="formula">${esc(c.formula)}</div>
-      <div class="out" id="co-${c.id}">${calcOut(c, v)}</div></section>`;
+    const body = `<span class="ref" style="display:inline-block;margin-bottom:12px">${esc(c.ref)}</span>
+      ${c.id === 'sect' ? `<div id="calc-src-box">${calcSrcHTML()}</div>` : ''}<div class="fields" id="cf-${c.id}">${calcFieldsHTML(c, v)}</div>
+      ${c.formula ? `<div class="formula">${esc(c.formula)}</div>` : ''}
+      <div class="out" id="co-${c.id}">${calcOut(c, v)}</div>`;
+    return `<div id="calc-${c.id}" class="calc">${modCard('calc.' + c.id, 'c-' + (CALC_COLORS[c.id] || 'list'), esc(c.title), esc(c.sum || ''), body, modIsOpen('calc.' + c.id) ? `<button class="btn sm danger" data-act="calc-clear" data-id="${c.id}">Очистить</button>` : '')}</div>`;
   }).join('');
-  return `<div class="stack"><div class="head"><div><h1>Расчёты</h1><p class="lead">Введите размеры — блокнот покажет точки замера и глубину установки зонда.</p></div></div>
-    ${CALCS.length > 1 ? `<nav class="jump" aria-label="Перейти к расчёту">${jump}</nav>` : ''}${cards}</div>`;
+  return `<div class="stack"><div class="head"><div><h1>Расчёты</h1><p class="lead">Нажмите на расчёт, чтобы открыть. Булавка — держать открытым.</p></div></div>${cards}</div>`;
 }
+const CALC_COLORS = { sect: 'geom', flow: 'point', ach: 'list', heat: 'motor', units: 'note' };
 function clearCalc(id) {
   const c = CALCS.find((x) => x.id === id); if (!c) return;
   const st = calcState[c.id] || (calcState[c.id] = {});
   c.fields.forEach((f) => { if (f.t !== 'sel') st[f.k] = ''; });
+  delete st.src;
   lsSet(LS_CALC, calcState);
+  const box = $('#calc-src-box'); if (box) box.innerHTML = calcSrcHTML();
   const v = calcVals(c);
+  if (!$('#cf-' + c.id)) { render(); return; }
   $('#cf-' + c.id).innerHTML = calcFieldsHTML(c, v);
   $('#co-' + c.id).innerHTML = calcOut(c, v);
   const first = $('#cf-' + c.id + ' input'); if (first) first.focus();
@@ -2067,6 +2310,15 @@ function onCalcInput(el, structural) {
   if (!c) return;
   const st = calcState[c.id] || (calcState[c.id] = {});
   st[el.dataset.k] = el.value;
+  if (c.sync) {
+    const upd = c.sync(calcVals(c), el.dataset.k, st);
+    Object.entries(upd).forEach(([k, val]) => { st[k] = val; const inp = document.getElementById(`c_${c.id}_${k}`); if (inp && inp !== el) inp.value = val; });
+    if (c.auto && !structural) {
+      const a = c.auto(st);
+      $$(`#cf-${c.id} input[data-k]`).forEach((inp) => { const on = inp.dataset.k === a; inp.classList.toggle('auto', on); const f = inp.closest('.f'); const h = f && f.querySelector('.auto-h'); if (on && f && !h) f.insertAdjacentHTML('beforeend', '<span class="hint auto-h">посчитано</span>'); if (!on && h) h.remove(); });
+    }
+  }
+  if (c.id === 'sect' && st.src && el.dataset.k !== 'drill') { delete st.src; const box = $('#calc-src-box'); if (box) box.innerHTML = calcSrcHTML(); }
   lsSet(LS_CALC, calcState);
   const v = calcVals(c);
   if (structural) {
@@ -2078,120 +2330,39 @@ function onCalcInput(el, structural) {
   $('#co-' + c.id).innerHTML = calcOut(c, v);
 }
 
-/* ===== нормы: выжимка требований обоих стандартов ===== */
-const NORMS = [
-  { id: 'n-tol', t: 'Допуски и критерии приёмки', table: [
-    ['Расход через воздухораспределители и воздухоприёмники общеобменных систем', '±8 % при обеспечении требуемого подпора или разрежения', '34060, 8.2.5'],
-    ['Расход через местные отсосы и душирующие устройства', 'до +10 %', '34060, 8.2.5'],
-    ['Расходы по помещениям в паспорте (табл. А.2)', 'вывод: ±8 %; примечание формы допускает ±10 % от ПД', '34060, прил. А'],
-    ['Вентилятор: расход и полное давление', 'не более 5 % от данных изготовителя', '34060, 11.2.6'],
-    ['Подсосы и утечки в системе', 'не более 8 % расхода; по классу герметичности — ф. (1)–(5)', '34060, 7.3, 7.5'],
-    ['Камера орошения: холодоотдача по воздуху и по воде', 'расхождение не более 20 %', '34060, 11.7.11'],
-    ['Микроклимат после наладки СКВ', 't ±2 °C; φ ±7 %; v ±0,1 м/с', '34060, 8.4.6'],
-    ['Повторные измерения скорости в точке', 'расхождение не более 5 %', '34060, 10.4.3'],
-    ['Балансы по теплоте, влаге, газам', 'расхождение больше 15 % — дополнительные измерения', '34060, 12.3'],
-    ['Избыточное давление в защищаемых объёмах', '20–150 Па; тамбур-шлюз — скорость в двери не менее 1,3 м/с', '34060, 13.1'],
-    ['Воздухораспределение', 't в рабочей зоне — отклонение 1–2 °C; t и φ при постоянных расходах — 5 %; «застойная зона» — v < 0,02 м/с', '34060, 11.10.4–11.10.5'],
-  ] },
-  { id: 'n-order', t: 'Порядок пусконаладки', items: [
-    ['К пусконаладке приступают после окончания монтажа и при наличии актов о его завершении.', '34060, 8.1.2'],
-    ['До устранения выявленных недостатков пусконаладку не выполняют; дефекты — в ведомость с указанием способа устранения.', '34060, 7.10–7.11'],
-    ['Оборудование с электродвигателем проверяют кратковременным включением с проверкой направления вращения.', '34060, 7.7'],
-    ['Два этапа: индивидуальная наладка (расходы до значений РД, испытание оборудования) и комплексная наладка всех систем здания с сопутствующими сетями и автоматикой.', '34060, 8.1.3'],
-    ['Системы для технологического оборудования испытывают после его монтажа.', '34060, 8.2.4'],
-    ['Перед испытаниями составляют программу: цель, режимы оборудования, условия.', '12.3.018, 3.1'],
-    ['Испытания — не ранее чем через 15 мин после пуска вентагрегата.', '12.3.018, 4.1'],
-    ['Регулировка сети: сначала по ответвлениям, затем по отверстиям каждого ответвления, повторять до проектных расходов; в конце — контрольные замеры.', '34060, 11.3.4'],
-    ['Расход измеряют в основаниях ветвей с двумя и более устройствами, во всех воздухораспределителях и воздухоприёмниках, до и после фильтров, увлажнителей, нагревателей, охладителей, утилизаторов.', '34060, 11.3.2'],
-    ['Подсосы и утечки — разность расхода в общей контрольной точке и суммы по ответвлениям и концевым устройствам.', '34060, 11.3.5'],
-  ] },
-  { id: 'n-sect', t: 'Мерные сечения и точки', items: [
-    ['Сечение — не менее 6Dh после места возмущения (отвод, шибер, диафрагма) и не менее 2Dh перед ним.', '12.3.018, 1.1'],
-    ['Нет прямого участка нужной длины — сечение в месте, делящем участок 3:1 по ходу воздуха.', '12.3.018, 1.1'],
-    ['Можно мерить прямо в месте внезапного расширения или сужения; размер сечения — по наименьшему сечению канала.', '12.3.018, 1.2'],
-    ['Гидравлический диаметр Dh = 4F/П.', '12.3.018, 1.1'],
-    ['Круглое: 100–300 мм — 4 точки на 0,12D от стенки; больше 300 мм — 8 точек на 0,054D и 0,28D от стенки, по двум перпендикулярным диаметрам.', '12.3.018, черт. 1'],
-    ['Прямоугольное: b 100–200 мм — 4 точки на 0,2a и 0,2b от стенок; b больше 200 мм — 16 точек на 0,1 и 0,4 от стенок.', '12.3.018, черт. 2'],
-    ['Отклонение координат точек — не более ±10 %; в каждой точке не менее трёх измерений.', '12.3.018, 1.3'],
-    ['Анемометром — не менее 10 с в каждой точке.', '12.3.018, 1.4'],
-    ['При прямом участке не менее 8Dh статическое давление можно мерить в отдельных точках сечения.', '12.3.018, 4.3'],
-    ['Зазоры вокруг приборов уплотняют, отверстия после испытаний закрывают.', '12.3.018, 4.4'],
-    ['Проверка достоверности: Pп = Pст + Pд.', '34060, 10.3.3'],
-  ] },
-  { id: 'n-dev', t: 'Приборы', table: [
-    ['Комбинированный приёмник давления (Pд, Pст)', 'скорости больше 5 м/с; Ø не более 8 % диаметра или ширины воздуховода', '12.3.018, 2.1'],
-    ['Дифференциальные манометры, тягомеры', 'класс 0,5–1,0', '12.3.018, 2.1'],
-    ['Анемометры, термоанемометры', 'скорости меньше 5 м/с; 0–0,5 м/с — ±0,05; больше 0,5 м/с — ±0,1 м/с; в каналах — зонд «обогреваемая струна», на решётках — крыльчатка', '12.3.018, 2.1; 34060, 10.4.1'],
-    ['Барометр', 'класс не ниже 1,0', '12.3.018, 2.1'],
-    ['Термометры', 'цена деления не более 0,5 °C; для балансов и воздухораспределителей — 0,2 °C; выше 60 °C — 1 °C; в воздуховодах — класс не ниже 0,5 при v до 20 м/с', '34060, 10.1'],
-    ['Гигрометры, психрометры', '0–100 %, погрешность ±2 %', '34060, 10.2'],
-    ['Тахометры', 'класс 0,5 или 1,0', '34060, 10.5'],
-    ['Пирометры (поверхности)', 'класс не ниже 1,0', '34060, 10.1.5'],
-    ['Манометры на трубопроводах воды', 'класс не ниже 0,5', '34060, 10.3.6'],
-    ['Шумомеры', '1-го или 2-го класса', '34060, 10.8.1'],
-    ['Все средства измерений', 'утверждённый тип и действующая поверка (калибровка); пневмотрассы — герметичные шланги', '34060, р. 10, 10.3.4'],
-  ] },
-  { id: 'n-cyc', t: 'Режимы испытаний оборудования', items: [
-    ['Воздухонагреватель (вода): не менее двух циклов по 15 мин; обратная вода — не выше графика теплосети.', '34060, 11.4'],
-    ['Воздухонагреватель (пар): не менее двух циклов по 20 мин; температура пара — по давлению, табл. 2.', '34060, 11.5'],
-    ['Воздухоохладитель: не менее двух циклов по 30 мин, при максимальной нагрузке; процесс — на J–d-диаграмме.', '34060, 11.6'],
-    ['Камера орошения: установившийся режим, не менее двух циклов по 20 мин; сначала сепараторы, затем аэродинамика, затем тепловые характеристики.', '34060, 11.7'],
-    ['Автономный кондиционер: не менее 1 ч, запись каждые 10–15 мин, не ранее 40 мин после включения холодильной машины.', '34060, 11.12'],
-    ['Воздушно-тепловая завеса: после наладки вентиляции, при отрицательной tн; t и v на рабочих местах на 0,5 и 1,5 м; ветер — в 4–5 м от ворот.', '34060, 11.15'],
-    ['Естественная вентиляция: шахты — tн не выше 5 °C и перепад не менее 15 °C; дефлекторы — перепад не менее 15 °C и ветер не менее 1 м/с.', '34060, 11.16'],
-    ['VAV: перепад на открытых клапанах 3–6 % (непараллельные створки) или 10–30 % (параллельные); скорость в клапане не менее 5 м/с при давлении до 250 Па и не менее 10 м/с до 1000 Па.', '34060, 15.5'],
-    ['VAV: датчик статического давления — где потери 50–70 % общих; обратная вода первого подогрева не ниже 20 °C и не менее 0,2 м/с; равномерность при снижении расхода на 30–60 %.', '34060, 15.9–15.13'],
-  ] },
-  { id: 'n-smoke', t: 'Противодымная вентиляция', items: [
-    ['Скорость в проёмах — анемометром; за решёткой или сеткой — в плоскости в 50 мм от неё; жалюзи и створки, меняющие направление потока, на время испытаний снимают.', '34060, 13.3'],
-    ['Давление — относительно примыкающего помещения; приёмники на одной высоте, не ближе 0,5 м от ограждений.', '34060, 13.4'],
-    ['Лестничная клетка: два режима — все двери закрыты (замер у нижнего и верхнего этажей); открыта дверь наружу (замер у двери этажа выше выходного).', '34060, 13.5'],
-    ['Лифтовые шахты: у двери этажа над основным посадочным (подземные — под ним); лифт на основном посадочном этаже, двери открыты.', '34060, 13.6'],
-    ['При работе дымоудаления и подпора проверяют, что двери из коридоров на лестницу и в холлы открываются.', '34060, 13.8'],
-  ] },
-  { id: 'n-noise', t: 'Шум, вибрация, вредные вещества', items: [
-    ['Шум — после регулировки всех систем, при максимальном режиме; поправка на фон по табл. 1; без мебели — ещё −2 дБ(А).', '34060, 10.8.3–10.8.5'],
-    ['Снаружи — не менее трёх мест в 2 м от зданий, на высоте 1,2–1,5 м; вентиляционные проёмы открыты.', '34060, 10.8.6'],
-    ['Вибрация — после наладки, в вертикальном и горизонтальном направлениях, не менее 10 с; калибровка до и после; при регулируемой частоте — на максимальной.', '34060, 10.7'],
-    ['Время по октавам: 2–4 Гц — не менее 20 с; 8–16 Гц — 2 с; 31,5–63 Гц — 1 с. Переходная пластина — 4–5 мм, Ø 200 ± 50 мм.', '34060, 10.7.9–10.7.10'],
-    ['Отбор проб: вещества остронаправленного действия — не менее 5 мин; пыль — не более 30 мин; прочие — не более 15 мин; выбросы — 20–30 мин.', '34060, 10.6.3'],
-    ['Изокинетический отбор обязателен для аэрозолей крупнее 5 мкм; в потоке — 6Dh после и 3Dh до возмущения.', '34060, 10.6.5–10.6.6'],
-  ] },
-  { id: 'n-per', t: 'Периодичность испытаний', table: [
-    ['Общеобменная вентиляция и кондиционирование', 'не реже 1 раза в 2 года', '34060, 8.5.2'],
-    ['Местная вытяжная и местная приточная', '1 раз в год', '34060, 8.5.2'],
-    ['Помещения категорий А и Б', 'не реже 1 раза в год', '34060, 8.5.3'],
-    ['Помещения категорий В, Г, Д', 'не реже 1 раза в 2 года', '34060, 8.5.3'],
-    ['Возможно выделение веществ 1–2 класса опасности', '1 раз в месяц', '34060, 8.5.3'],
-    ['Общеобменная механическая и естественная', '1 раз в 3 года', '34060, 8.5.3'],
-    ['После реконструкции, смены технологии, оборудования, перепланировки', 'вне графика', '34060, 8.5.2'],
-  ] },
-  { id: 'n-doc', t: 'Отчётные документы', items: [
-    ['Паспорт системы — по приложению А, не менее двух экземпляров, по итогам индивидуальных испытаний.', '34060, 17.3'],
-    ['Акт о приёмке после комплексной наладки — по приложению Б.', '34060, 17.4'],
-    ['Технический отчёт — по приложению В (наладка на санитарно-гигиенический эффект) или Г (исходные данные для реконструкции).', '34060, 17.5, 9.3'],
-    ['Графика — по ГОСТ 21.602; на схеме системы — места измерений и согласованные отступления от РД.', '34060, 17.2, прил. А.3'],
-    ['Срок хранения технической документации — шесть лет.', '34060, 18.1'],
-  ] },
-  { id: 'n-safe', t: 'Безопасность', items: [
-    ['Не снимать защитные кожухи; не проверять электрические цепи и автоматику под напряжением.', '34060, 19.1'],
-    ['Не открывать люки, не чистить и не трогать движущиеся части до полной остановки.', '34060, 19.1, 19.4'],
-    ['В закрытых пространствах — звено не менее двух человек: один внутри, один снаружи.', '34060, 19.2'],
-    ['Удары, подозрительный шум, сильная вибрация — немедленно прекратить испытания.', '34060, 19.3'],
-    ['При отключённом питании — табличка «Не включать, работают люди».', '34060, 19.5'],
-    ['Испытания не должны ухудшать проветривание и приводить к скоплению взрывоопасных концентраций.', '12.3.018, 6.2'],
-  ] },
-];
-function viewNorms() {
-  const nav = NORMS.map((s) => `<button data-act="jump" data-id="${s.id}">${esc(s.t)}</button>`).join('');
-  const body = NORMS.map((s) => {
-    let inner;
-    if (s.table) inner = `<div class="tbl-wrap"><table><thead><tr><th>Что</th><th>Требование</th><th>Пункт</th></tr></thead><tbody>${s.table.map(([a, b, c]) => `<tr><td>${esc(a)}</td><td>${esc(b)}</td><td class="norms cl">${esc(c)}</td></tr>`).join('')}</tbody></table></div>`;
-    else inner = `<ul>${s.items.map(([a, c]) => `<li>${esc(a)}${c ? ` <span class="cl">${esc(c)}</span>` : ''}</li>`).join('')}</ul>`;
-    return `<section class="card calc" id="${s.id}"><h2>${esc(s.t)}</h2>${inner}</section>`;
-  }).join('');
-  return `<div class="stack norms"><div class="head"><div><h1>Нормы</h1><p class="lead">Выжимка требований ГОСТ 12.3.018-79 и ГОСТ 34060-2017 с номерами пунктов.</p></div></div>
-    <nav class="jump" aria-label="Разделы норм">${nav}</nav>${body}</div>`;
+/* ===== Размеры воздуховода из журнала: точка замера → расчёт сверления ===== */
+const isDuctSec = (c) => c && (c.method === 'pitot' || c.method === 'anemo');
+function secSizeText(c) { return c.shape === 'round' ? (c.D ? 'Ø' + c.D : '') : (c.a && c.b ? `${c.a}×${c.b}` : ''); }
+function syncCalcFromSec(sys, sec) {
+  if (!isDuctSec(sec)) return;
+  const st = calcState.sect || (calcState.sect = {});
+  st.shape = sec.shape === 'round' ? 'round' : 'rect';
+  if (st.shape === 'round') st.D = String(sec.D ?? ''); else { st.a = String(sec.a ?? ''); st.b = String(sec.b ?? ''); }
+  st.src = { sid: sys.id, cid: sec.id };
+  lsSet(LS_CALC, calcState);
+}
+function ductPoints() {
+  const out = [];
+  Store.all('system').forEach((sys) => (sys.sections || []).forEach((c) => {
+    if (isDuctSec(c) && secSizeText(c)) out.push({ sys, c, o: objOf(sys.objectId) });
+  }));
+  return out;
+}
+function calcSrcHTML() {
+  const st = calcState.sect || {};
+  const list = ductPoints();
+  if (!list.length) return '<p class="hint" style="margin-bottom:10px">Размеры воздуховода, вписанные в точках замера (трубка Пито, анемометр в воздуховоде), появятся здесь сами.</p>';
+  const cur = st.src ? `${st.src.sid}|${st.src.cid}` : '';
+  const opts = [['', '— вручную —']].concat(list.map(({ sys, c, o }) => [`${sys.id}|${c.id}`, `${o && o.name ? o.name + ' · ' : ''}${sys.name || 'Система'} · № ${c.no || ''}${c.place ? ' ' + c.place : ''} · ${secSizeText(c)}`]));
+  const src = list.find(({ sys, c }) => cur === `${sys.id}|${c.id}`);
+  return `<div class="f calc-src"><label for="calc-src">Размеры из точки замера</label><select id="calc-src">${opts.map(([v, t]) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>
+    ${src ? `<button class="linkbtn" data-act="to-sec" data-sid="${src.sys.id}" data-cid="${src.c.id}">← к точке № ${esc(src.c.no || '')}</button>` : ''}</div>`;
+}
+function applyCalcSrc(val) {
+  const st = calcState.sect || (calcState.sect = {});
+  if (!val) { delete st.src; lsSet(LS_CALC, calcState); }
+  else { const [sid, cid] = val.split('|'); const sys = sysOf(sid); const c = sys && secOf(sys, cid); if (c) syncCalcFromSec(sys, c); }
+  const y = window.scrollY; render(); window.scrollTo(0, y);
 }
 
 /* ===== выгрузка: таблица Excel, сводка с фото, резервная копия ===== */
@@ -2200,22 +2371,26 @@ function csvCell(x) { const s = String(x ?? ''); return /[;"\n]/.test(s) ? '"' +
 const rnd = (x, d = 0) => (OK(x) ? Math.round(x * Math.pow(10, d)) / Math.pow(10, d) : '');
 const statusRu = (r) => (r.status === 'ok' ? 'в допуске' : r.status === 'bad' ? 'вне допуска' : (OK(r.L) ? 'нет проекта' : 'нет замера'));
 const kOf = (s) => { if (!M.usesK(s)) return ''; const k = N(s.kFree); return OK(k) && k > 0 ? k : 1; };
-const sizeOf = (s) => (s.method === 'hood' ? 'воронка' : (s.shape === 'round' ? (s.D ? 'Ø' + s.D : '') : (s.a && s.b ? `${s.a}×${s.b}` : '')));
+const placeOf = (s) => [(s.role || 'terminal') === 'terminal' ? s.room : '', s.place].filter((x) => String(x || '').trim()).join(', ');
+const sizeOf = (s) => (s.method === 'hood' ? 'воронка' : s.method === 'kfactor' ? (s.kFan ? 'K ' + s.kFan : 'K-фактор') : (s.shape === 'round' ? (s.D ? 'Ø' + s.D : '') : (s.a && s.b ? `${s.a}×${s.b}` : '')));
 
 /* Данные объекта в виде строк: системы и сечения */
 function objectData(o) {
   const syss = systemsOf(o.id);
-  const sysRows = [['№ п/п', 'Система', 'Тип', 'Местонахождение', 'L вент. проект, м³/ч', 'L вент. факт, м³/ч', 'Невязка, %', 'Частота ПЧ, Гц', 'Ток двиг., А', 'Точек', 'Вне допуска', 'Дата', 'Заметка']];
+  const sysRows = [['№ п/п', 'Система', 'Тип', 'Местонахождение', 'L вент. проект, м³/ч', 'L вент. факт, м³/ч', 'Невязка, %', 'Частота ПЧ, Гц', 'Ток двиг., А', 'Точек', 'Вне допуска', 'Дата', 'Заметка',
+    'Pст всас., Па', 'Pст нагн., Па', 'Заметка: вентилятор', 'N двиг. проект, кВт', 'N двиг. факт, кВт', 'Фазы проект', 'Фазы факт', 'I проект, А', 'n проект, мин⁻¹', 'n факт, мин⁻¹', 'Заметка: двигатель']];
   const secRows = [['Система', '№ точки', 'Помещение, место', 'Тип', 'Метод', 'Размер, мм', 'K решётки', 'Pст, Па', 'L проект, м³/ч', 'L факт, м³/ч', 'Отклонение, %', 'Допуск', 'Оценка', 'Заметка']];
   const blocks = [];
   syss.forEach((sys, i) => {
     const res = M.system(sys), ff = fanFlow(sys, res);
     const hz = N((((sys.pass || {}).fan || {}).fact || {}).vfd);
     const amp = N((((sys.pass || {}).motor || {}).fact || {}).I);
-    sysRows.push([i + 1, sys.name || '', sysTypeName(sys.type), sys.location || '', rnd(ff.proj), rnd(ff.fact), rnd(ff.dev, 1), OK(hz) ? hz : '', OK(amp) ? amp : '', res.count, res.badN, fmtDate(sys.date), sys.note || '']);
+    const e = equipData(sys);
+    sysRows.push([i + 1, sys.name || '', sysTypeName(sys.type), sys.location || '', rnd(ff.proj), rnd(ff.fact), rnd(ff.dev, 1), OK(hz) ? hz : '', OK(amp) ? amp : '', res.count, res.badN, fmtDate(sys.date), sys.note || '',
+      OK(e.psIn) ? e.psIn : '', OK(e.psOut) ? e.psOut : '', e.fanNote, OK(e.N[0]) ? e.N[0] : '', OK(e.N[1]) ? e.N[1] : '', e.ph[0], e.ph[1], OK(e.I[0]) ? e.I[0] : '', OK(e.n[0]) ? e.n[0] : '', OK(e.n[1]) ? e.n[1] : '', e.motNote]);
     res.secs.forEach(({ s, r }) => {
       const no = N(s.no);
-      secRows.push([sys.name || '', OK(no) ? no : (s.no || ''), s.place || '', (M.ROLES[s.role] || M.ROLES.terminal).name, M.METHODS[s.method] || '', sizeOf(s), kOf(s), rnd(r.ps), rnd(r.Lp), rnd(r.L), rnd(r.dev, 1), tolText(r.tol), statusRu(r), s.note || '']);
+      secRows.push([sys.name || '', OK(no) ? no : (s.no || ''), placeOf(s), (M.ROLES[s.role] || M.ROLES.terminal).name, M.METHODS[s.method] || '', sizeOf(s), kOf(s), rnd(r.ps), rnd(r.Lp), rnd(r.L), rnd(r.dev, 1), tolText(r.tol), statusRu(r), s.note || '']);
     });
     blocks.push({ sys, res, ff, hz });
   });
@@ -2294,7 +2469,7 @@ async function exportTable(o) {
   let buf;
   try {
     buf = buildXLSX([
-      { name: 'Системы', rows: sysRows, widths: [6, 10, 18, 22, 12, 12, 10, 10, 10, 8, 9, 11, 30] },
+      { name: 'Системы', rows: sysRows, widths: [6, 10, 18, 22, 12, 12, 10, 10, 10, 8, 9, 11, 30, 10, 10, 26, 11, 11, 8, 8, 10, 11, 11, 26] },
       { name: 'Точки', rows: secRows, widths: [10, 8, 28, 26, 30, 11, 9, 9, 11, 11, 11, 9, 12, 30] },
     ]);
   } catch (e) { csvFallback(); return; }
@@ -2316,40 +2491,6 @@ function photoArrays(sys) {
   const p = sys.photos || {};
   return [p.scheme || [], p.fan || [], p.motor || [], p.note || []].concat((sys.sections || []).map((c) => c.photos || []));
 }
-async function exportSummary(o) {
-  toast('Собираю сводку…');
-  const { sysRows, blocks } = objectData(o);
-  const td = (x) => `<td>${esc(x)}</td>`;
-  const table = (rows) => `<table><thead><tr>${rows[0].map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map((r) => `<tr>${r.map(td).join('')}</tr>`).join('')}</tbody></table>`;
-  let body = `<h1>${esc(o.name || 'Объект')}</h1><p class="m">${esc(o.address || '')}${o.date ? ' · начало работ ' + esc(fmtDate(o.date)) : ''} · сводка от ${esc(fmtDate(todayISO()))}</p>`;
-  const show = (x, j) => (typeof x !== 'number' ? x : (j === 6 ? M.fmtSigned(x, 1) : (j === 4 || j === 5 ? F(x) : String(x).replace('.', ','))));
-  body += '<h2>Системы</h2>' + table(sysRows.map((r, i) => r.slice(0, 11).map((x, j) => (i ? show(x, j) : x))));
-  for (const { sys, res } of blocks) {
-    body += `<h2>${esc(sys.name || 'Система')}${sys.location ? ' <span class="m">· ' + esc(sys.location) + '</span>' : ''}</h2>`;
-    const rows = [['№', 'Помещение, место', 'K решётки', 'Pст, Па', 'L проект', 'L факт', 'Откл., %', 'Оценка', 'Заметка']].concat(res.secs.map(({ s, r }) => [s.no || '', s.place || '', String(kOf(s)).replace('.', ','), OK(r.ps) ? F(r.ps) : '', OK(r.Lp) ? F(r.Lp) : '', OK(r.L) ? F(r.L) : '', OK(r.dev) ? M.fmtSigned(r.dev, 1) : '', statusRu(r), s.note || '']));
-    if (res.count) body += table(rows);
-    if (sys.note) body += `<p><b>Заметки:</b> ${esc(sys.note)}</p>`;
-    const sch = peekPhotos(sys, 'scheme');
-    for (let i = 0; i < sch.length; i++) {
-      const src = await photoData(sch[i]);
-      if (src) body += `<figure class="wide"><img src="${src}" alt=""><figcaption>Схема${sch.length > 1 ? ', лист ' + (i + 1) : ''}${sch[i].name ? ' · ' + esc(sch[i].name) : ''}</figcaption></figure>`;
-    }
-    let figs = '';
-    const slots = ['fan', 'motor', 'note'].concat((sys.sections || []).map((c) => 'sec:' + c.id));
-    for (const slot of slots) {
-      const list = peekPhotos(sys, slot);
-      for (let i = 0; i < list.length; i++) {
-        const src = await photoData(list[i]);
-        if (src) figs += `<figure><img src="${src}" alt=""><figcaption>${esc(slotName(sys, slot))}, фото ${i + 1}</figcaption></figure>`;
-      }
-    }
-    if (figs) body += `<div class="figs">${figs}</div>`;
-  }
-  const css = 'body{font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#111;background:#fff;max-width:1000px;margin:0 auto;padding:20px}h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:22px 0 6px}.m{color:#555;font-weight:normal}table{border-collapse:collapse;width:100%;margin:6px 0}th,td{border:1px solid #999;padding:4px 6px;text-align:center;vertical-align:middle}th{background:#eee}.figs{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}figure{margin:0;width:calc(50% - 5px)}figure.wide{width:100%;margin:10px 0}figure img{width:100%;border:1px solid #ccc}figcaption{font-size:12px;color:#555}@media print{figure{break-inside:avoid}}';
-  const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(o.name || 'Сводка')}</title><style>${css}</style></head><body>${body}</body></html>`;
-  offerFile(`${fileSafe(o.name)} — сводка ${fmtDate(todayISO())}.html`, html, () => showOverlay('Сводка', `<div class="doc">${body}</div>`, html));
-}
-
 function showOverlay(title, inner, copyText) {
   const root = $('#overlay-root');
   root.innerHTML = `<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet">
@@ -2362,46 +2503,168 @@ function showOverlay(title, inner, copyText) {
 async function exportBackup() {
   toast('Собираю копию…');
   const docs = clone(Store.all());
-  for (const d of docs) {
-    if (d.kind !== 'system') continue;
-    for (const arr of photoArrays(d)) {
-      for (const p of arr) {
-        if (p.data) continue;
-        const src = await photoData(p);
-        if (src) { p.data = src; delete p.local; delete p.id; }
-      }
-    }
-  }
+  await embedPhotos(docs);
   const data = JSON.stringify({ app: 'blocknot-naladchika', v: 2, exported: new Date().toISOString(), docs });
   offerFile(`Блокнот наладчика — копия ${fmtDate(todayISO())}.json`, data, () => {
     showOverlay('Резервная копия', `<textarea readonly style="min-height:320px">${esc(data)}</textarea>`, data);
   });
 }
+/* ===== Обмен объектом с напарником: файл одного объекта и слияние при загрузке ===== */
+async function embedPhotos(docs) {
+  for (const d of docs) {
+    if (d.kind !== 'system') continue;
+    for (const arr of photoArrays(d)) for (const p of arr) {
+      if (p.data) continue;
+      const src = await photoData(p);
+      if (src) { p.data = src; delete p.local; delete p.id; }
+    }
+  }
+}
+async function exportObject(o) {
+  toast('Собираю файл объекта…');
+  const docs = [clone(o)].concat(systemsOf(o.id).map(clone));
+  await embedPhotos(docs);
+  const n = new Date(), hm = String(n.getHours()).padStart(2, '0') + '-' + String(n.getMinutes()).padStart(2, '0');
+  const data = JSON.stringify({ app: 'blocknot-naladchika', v: 3, kind: 'object', exported: n.toISOString(), docs });
+  offerFile(`${fileSafe(o.name)} — объект ${fmtDate(todayISO())} ${hm}.json`, data, () => showOverlay('Файл объекта', `<textarea readonly style="min-height:320px">${esc(data)}</textarea>`, data));
+}
+
+const OBJ_FIELDS = ['name', 'address', 'date'];
+const SYS_FIELDS = ['name', 'location', 'type', 'date', 'Ba', 'note', 'pass.fan.fact.vfd', 'pass.fan.fact.psIn', 'pass.fan.fact.psOut', 'pass.fan.note',
+  'pass.motor.proj.N', 'pass.motor.fact.N', 'pass.motor.proj.ph', 'pass.motor.fact.ph', 'pass.motor.proj.I', 'pass.motor.fact.I', 'pass.motor.proj.n', 'pass.motor.fact.n', 'pass.motor.note'];
+const isEmptyVal = (v) => v === undefined || v === null || String(v).trim() === '';
+/* поля: берём более свежее; у старых записей без времени — заполняем только пустое */
+function mergeFields(L, R, base) {
+  const paths = new Set([...base, ...Object.keys(L.ft || {}), ...Object.keys(R.ft || {})]);
+  let ch = 0;
+  paths.forEach((p) => {
+    const tl = (L.ft || {})[p] || 0, tr = (R.ft || {})[p] || 0, vl = getPath(L, p), vr = getPath(R, p);
+    if (tr > tl || (!tl && !tr && isEmptyVal(vl) && !isEmptyVal(vr))) {
+      if (String(vl ?? '') !== String(vr ?? '')) ch++;
+      setPath(L, p, vr ?? '');
+      if (tr) (L.ft || (L.ft = {}))[p] = tr;
+    }
+  });
+  return ch;
+}
+function mergeTombs(a, b) { const out = { ...(a || {}) }; Object.entries(b || {}).forEach(([k, v]) => { out[k] = Math.max(out[k] || 0, v); }); return out; }
+/* фото: объединение по метке t, минус удалённые */
+function mergePhotoList(a, b, del, dropped) {
+  const m = new Map();
+  (a || []).forEach((p) => m.set(String(p.t), p));
+  let added = 0;
+  (b || []).forEach((p) => { const k = String(p.t); if (!m.has(k)) { m.set(k, p); added++; } });
+  const out = [];
+  m.forEach((p, k) => { if (del[k]) dropped.push(p); else out.push(p); });
+  out.sort((x, y) => (x.t || 0) - (y.t || 0));
+  return { list: out, added };
+}
+const sysStamp = (s) => Math.max(s.createdAt || 0, ...Object.values(s.ft || {}), ...(s.sections || []).map((c) => c.u || 0));
+
+function mergeSystem(L, R, st) {
+  st.fields += mergeFields(L, R, SYS_FIELDS);
+  L.delSec = mergeTombs(L.delSec, R.delSec);
+  L.delPh = mergeTombs(L.delPh, R.delPh);
+  const dropped = [];
+  /* фото системы */
+  L.photos = L.photos || {};
+  ['scheme', 'fan', 'motor', 'note'].forEach((slot) => {
+    const r = mergePhotoList(L.photos[slot], (R.photos || {})[slot], L.delPh, dropped);
+    L.photos[slot] = r.list; st.photos += r.added;
+  });
+  /* точки */
+  const secs = L.sections || (L.sections = []);
+  const byId = new Map(secs.map((c) => [c.id, c]));
+  let prevId = null;
+  (R.sections || []).forEach((rc) => {
+    const lc = byId.get(rc.id);
+    if (lc) {
+      const ph = mergePhotoList(lc.photos, rc.photos, L.delPh, dropped);
+      if ((rc.u || 0) > (lc.u || 0)) { const idx = secs.indexOf(lc); secs[idx] = { ...rc, photos: ph.list }; byId.set(rc.id, secs[idx]); st.updPts++; }
+      else lc.photos = ph.list;
+      st.photos += ph.added;
+    } else if (!(L.delSec[rc.id] && L.delSec[rc.id] >= (rc.u || 0))) {
+      const at = prevId ? secs.findIndex((c) => c.id === prevId) + 1 : secs.length;
+      const nc = { ...rc, photos: mergePhotoList([], rc.photos, L.delPh, dropped).list };
+      secs.splice(at > 0 ? at : secs.length, 0, nc); byId.set(rc.id, nc); st.newPts++;
+    }
+    prevId = rc.id;
+  });
+  /* удалённые точки */
+  L.sections = secs.filter((c) => {
+    const ts = L.delSec[c.id];
+    if (ts && ts > (c.u || 0)) { dropped.push(...(c.photos || [])); st.delPts++; return false; }
+    return true;
+  });
+  purgePhotos(dropped.filter((p) => p.local || p.id));
+}
+
+function mergeDocs(docs) {
+  const st = { newObj: 0, newSys: 0, newPts: 0, updPts: 0, delPts: 0, delSys: 0, fields: 0, photos: 0, names: [] };
+  docs.filter((d) => d.kind === 'object').forEach((R) => {
+    const L = Store.get(R.id);
+    st.names.push(R.name || 'Объект');
+    if (!L) { Store.save(R); st.newObj++; return; }
+    st.fields += mergeFields(L, R, OBJ_FIELDS);
+    L.delSys = mergeTombs(L.delSys, R.delSys);
+    Store.save(L);
+  });
+  docs.filter((d) => d.kind === 'system' && typeof d.objectId === 'string').forEach((R) => {
+    if (!Array.isArray(R.sections)) R.sections = [];
+    const L = Store.get(R.id);
+    const o = Store.get(R.objectId);
+    const tomb = o && o.delSys && o.delSys[R.id];
+    if (!L) {
+      if (tomb && tomb >= sysStamp(R)) return;
+      Store.save(R); st.newSys++; st.newPts += R.sections.length; return;
+    }
+    mergeSystem(L, R, st);
+    Store.save(L);
+  });
+  /* системы, удалённые у напарника */
+  docs.filter((d) => d.kind === 'object').forEach((R) => {
+    const o = Store.get(R.id);
+    Object.entries((o && o.delSys) || {}).forEach(([sid, ts]) => {
+      const s = Store.get(sid);
+      if (s && sysStamp(s) < ts) { purgePhotos(allPhotos(s)); Store.remove(sid); st.delSys++; }
+    });
+  });
+  return st;
+}
+
 function importBackup(file) {
   const rd = new FileReader();
   rd.onload = () => {
     try {
       const o = JSON.parse(String(rd.result));
-      const docs = (o && Array.isArray(o.docs)) ? o.docs : [];
-      let no = 0, ns = 0;
-      docs.forEach((d) => {
-        if (!d || typeof d.id !== 'string' || !/^[A-Za-z0-9_\-.~:@+]{2,80}$/.test(d.id)) return;
-        if (d.kind === 'object') { no++; Store.save(d); }
-        else if (d.kind === 'system' && typeof d.objectId === 'string') {
-          if (!Array.isArray(d.sections)) d.sections = [];
-          /* фото из копии — в память телефона, оттуда уйдут в облако */
-          if (Local.ok) photoArrays(d).forEach((arr) => arr.forEach((p) => {
-            if (!p || !p.data) return;
-            try { const b = dataURLToBlob(p.data); const key = newId('b'); Local.putBlob(key, b).catch(() => {}); Photos.urls.set(key, URL.createObjectURL(b)); p.local = key; delete p.data; delete p.id; } catch (e) { /* оставить как есть */ }
-          }));
-          ns++; Store.save(d);
-        }
+      const docs = ((o && Array.isArray(o.docs)) ? o.docs : []).filter((d) => d && typeof d.id === 'string' && /^[A-Za-z0-9_\-.~:@+]{2,80}$/.test(d.id) && (d.kind === 'object' || d.kind === 'system'));
+      if (!docs.length) { toast('В файле нет записей блокнота.'); return; }
+      /* фото из файла — в память телефона */
+      if (Local.ok) docs.filter((d) => d.kind === 'system').forEach((d) => {
+        /* фото, которые уже есть в телефоне (та же метка), второй раз не сохраняем */
+        const cur = Store.get(d.id), known = new Set(cur ? allPhotos(cur).map((p) => String(p.t)) : []);
+        photoArrays(d).forEach((arr) => arr.forEach((p) => {
+        if (!p || !p.data) return;
+        if (!p.t) p.t = photoStamp();
+        if (known.has(String(p.t))) return;
+        try { const b = dataURLToBlob(p.data); const key = newId('b'); Local.putBlob(key, b).catch(() => {}); Photos.urls.set(key, URL.createObjectURL(b)); p.local = key; delete p.data; delete p.id; } catch (e) { /* оставить как есть */ }
+        }));
       });
-      if (!no && !ns) { toast('В файле нет записей блокнота.'); return; }
-      toast(`Загружено: объектов — ${no}, систем — ${ns}.`);
+      const st = mergeDocs(docs);
+      const parts = [];
+      if (st.newObj) parts.push(`новых объектов ${st.newObj}`);
+      if (st.newSys) parts.push(`новых систем ${st.newSys}`);
+      if (st.newPts) parts.push(`новых точек ${st.newPts}`);
+      if (st.updPts) parts.push(`обновлено точек ${st.updPts}`);
+      if (st.delPts) parts.push(`удалено точек ${st.delPts}`);
+      if (st.delSys) parts.push(`удалено систем ${st.delSys}`);
+      if (st.fields) parts.push(`обновлено полей ${st.fields}`);
+      if (st.photos) parts.push(`новых фото ${st.photos}`);
+      const who = o && o.kind === 'object' && st.names.length === 1 ? `«${st.names[0]}»: ` : '';
+      toast(parts.length ? who + parts.join(', ') + '.' : who + 'новых данных нет — всё уже есть.');
       render();
       Store.kick();
-    } catch (e) { toast('Не удалось прочитать файл: это не резервная копия блокнота.'); }
+    } catch (e) { toast('Не удалось прочитать файл: это не файл блокнота.'); }
   };
   rd.readAsText(file);
 }
@@ -2570,12 +2833,23 @@ async function exportPDF(o) {
       const info = [];
       if (OK(ff.fact) || OK(ff.proj)) info.push(`Вентилятор: L факт ${OK(ff.fact) ? F(ff.fact) : '—'} / проект ${OK(ff.proj) ? F(ff.proj) : '—'} м³/ч${OK(ff.dev) ? ` (${M.fmtSigned(ff.dev, 1)} %)` : ''}`);
       if (OK(hz)) info.push(`частота ПЧ ${String(hz).replace('.', ',')} Гц`);
-      if (OK(amp)) info.push(`ток двигателя ${String(amp).replace('.', ',')} А`);
-      if (info.length) para(info.join(' · '), 9, { after: 1.5 });
+      const e = equipData(sys);
+      if (OK(e.psIn) || OK(e.psOut)) info.push(`Pст всас ${OK(e.psIn) ? M.fmtSigned(e.psIn, 0) : '—'} / нагнет ${OK(e.psOut) ? M.fmtSigned(e.psOut, 0) : '—'} Па`);
+      if (info.length) para(info.join(' · '), 9, { after: 1 });
+      if (e.fanNote) para('Вентилятор: ' + e.fanNote, 9, { after: 1 });
+      const pf = (a, u) => (OK(a[0]) || OK(a[1]) ? `${OK(a[0]) ? fmtN(a[0]) : '—'} / ${OK(a[1]) ? fmtN(a[1]) : '—'} ${u}` : '');
+      const mot = [pf(e.N, 'кВт'), e.ph[0] || e.ph[1] ? `${e.ph[0] || '—'} / ${e.ph[1] || '—'} ф` : '', pf(e.I, 'А'), pf(e.n, 'мин⁻¹')].filter(Boolean);
+      if (mot.length) para('Электродвигатель (проект / факт): ' + mot.join(' · '), 9, { after: 1 });
+      if (e.motNote) para('Двигатель: ' + e.motNote, 9, { after: 1 });
+      y += 0.5 * MM;
       if (res.count) {
         const rows = [['№', 'Помещение, место', 'Размер, мм', 'K', 'Pст, Па', 'L проект, м³/ч', 'L факт, м³/ч', 'Откл., %', 'Оценка', 'Заметка']]
-          .concat(res.secs.map(({ s, r }) => [s.no || '', s.place || '', sizeOf(s), String(kOf(s)).replace('.', ','), OK(r.ps) ? F(r.ps) : '', OK(r.Lp) ? F(r.Lp) : '', OK(r.L) ? F(r.L) : '', OK(r.dev) ? M.fmtSigned(r.dev, 1) : '', statusRu(r), s.note || '']));
+          .concat(res.secs.map(({ s, r }) => [s.no || '', placeOf(s), sizeOf(s), String(kOf(s)).replace('.', ','), OK(r.ps) ? F(r.ps) : '', OK(r.Lp) ? F(r.Lp) : '', OK(r.L) ? F(r.L) : '', OK(r.dev) ? M.fmtSigned(r.dev, 1) : '', statusRu(r), s.note || '']));
         table(rows, [5, 25, 10, 5, 7, 10, 10, 8, 10, 20], [3, 4, 5, 6, 7], 8);
+      }
+      if (res.rooms && res.rooms.length) {
+        para('Помещения с несколькими решётками: каждая ±20 %, если сумма по помещению в пределах ±10 % (ГОСТ 34060-2026, п. 8.2.5)', 8.5, { bold: true, after: 1 });
+        table([['Помещение', 'Решёток', 'Σ проект, м³/ч', 'Σ факт, м³/ч', 'Откл., %', 'Оценка']].concat(res.rooms.map((R) => [R.name, R.n, F(R.Lp), R.complete ? F(R.L) : '', OK(R.dev) ? M.fmtSigned(R.dev, 1) : '', R.status === 'ok' ? 'в допуске' : R.status === 'bad' ? 'вне допуска' : 'не все замеры'])), [30, 10, 15, 15, 12, 15], [], 5);
       }
       if (sys.note) { para('Заметки', 9, { bold: true }); para(sys.note, 9, { after: 2 }); }
       const sch = peekPhotos(sys, 'scheme');
@@ -2631,7 +2905,8 @@ const savedUI = lsGet(LS_UI);
 if (savedUI && savedUI.tab) UI.tab = savedUI.tab;
 if (savedUI && savedUI.route) UI.route = savedUI.route;
 const hashTab = (location.hash || '').replace('#', '');
-if (['journal', 'calc', 'norms'].includes(hashTab)) UI.tab = hashTab;
+if (['journal', 'calc'].includes(hashTab)) UI.tab = hashTab;
+if (!['journal', 'calc'].includes(UI.tab)) UI.tab = 'journal';
 
 function persistUI() { lsSet(LS_UI, { tab: UI.tab, route: UI.route }); }
 
@@ -2652,7 +2927,6 @@ function render() {
   const active = document.activeElement && view.contains(document.activeElement) ? document.activeElement.id : null;
   let html;
   if (UI.tab === 'calc') html = viewCalcs();
-  else if (UI.tab === 'norms') html = viewNorms();
   else {
     let d = Store.ready ? currentDocs() : {};
     if (d === null) { UI.route = { name: 'objects' }; d = {}; }
@@ -2672,6 +2946,7 @@ function render() {
 function go(route, keepScroll) {
   UI.route = route;
   UI.armed = null;
+  UI.modOpen = {};
   render();
   if (!keepScroll) window.scrollTo(0, 0);
 }
@@ -2682,7 +2957,9 @@ function refreshAfterInput(doc) {
   if (r.name === 'section' && doc.kind === 'system') {
     const sec = secOf(doc, r.cid); if (sec) refreshSection(doc, sec);
   } else if (r.name === 'system' && doc.kind === 'system') {
-    const box = $('#sys-summary'); if (box) box.innerHTML = sysSummary(doc);
+    /* сводка в свёрнутых модулях обновится при следующем открытии */
+    const dp = $('#fan-dp'); if (dp) dp.innerHTML = fanDpHTML(doc);
+    const mw = $('#motor-warn'); if (mw) mw.innerHTML = motorWarnHTML(doc);
   }
 }
 
@@ -2694,17 +2971,23 @@ view.addEventListener('input', (e) => {
   if (el.tagName === 'SELECT' || el.type === 'checkbox') return;
   const doc = Store.get(el.dataset.doc); if (!doc) return;
   setPath(doc, el.dataset.path, el.value);
+  touch(doc, el.dataset.path);
   Store.save(doc);
+  /* размеры воздуховода точки → вкладка «Расчёты» */
+  const dm = /^sec:([^.]+)\.(D|a|b)$/.exec(el.dataset.path);
+  if (dm && doc.kind === 'system') { const c = secOf(doc, dm[1]); if (c) syncCalcFromSec(doc, c); }
   refreshAfterInput(doc);
 });
 view.addEventListener('change', (e) => {
   const el = e.target;
+  if (el.id === 'calc-src') { applyCalcSrc(el.value); return; }
   if (el.dataset.photo) { const doc = Store.get(el.dataset.doc); const files = Array.from(el.files || []); el.value = ''; if (doc && files.length) addPhotos(doc, el.dataset.photo, files); return; }
   if (el.dataset.calc) { onCalcInput(el, el.tagName === 'SELECT'); return; }
   if (!el.dataset.doc || !el.dataset.path) return;
   const doc = Store.get(el.dataset.doc); if (!doc) return;
   if (el.tagName === 'SELECT' || el.type === 'checkbox') {
     setPath(doc, el.dataset.path, el.type === 'checkbox' ? el.checked : el.value);
+    touch(doc, el.dataset.path);
     if (/\.method$/.test(el.dataset.path) && el.value) lsSet(LS_METHOD, el.value);
     Store.save(doc);
   }
@@ -2744,6 +3027,7 @@ document.addEventListener('click', (e) => {
       if (!d.o) break;
       const s = newSystem(d.o.id, systemsOf(d.o.id).length + 1);
       go({ name: 'system', sid: s.id });
+      if (!modIsOpen('sys.head')) { UI.modOpen['sys.head'] = true; render(); }
       setTimeout(() => { const f = document.getElementById(fid(s, 'name')); if (f) { f.focus(); f.select(); } }, 0);
       break;
     }
@@ -2751,33 +3035,46 @@ document.addEventListener('click', (e) => {
       if (!d.s) break;
       const c = newSection(d.s, null, d.c && d.c.method, d.c && d.c.entry);
       go({ name: 'section', sid: d.s.id, cid: c.id });
+      if (!modIsOpen('pt.point')) { UI.modOpen['pt.point'] = true; render(); }
       toast('Точка № ' + c.no + ' — чистый лист.');
-      setTimeout(() => { const f = document.getElementById(fid(d.s, `sec:${c.id}.place`)); if (f) f.focus(); }, 0);
+      setTimeout(() => { const f = document.getElementById(fid(d.s, `sec:${c.id}.room`)) || document.getElementById(fid(d.s, `sec:${c.id}.place`)); if (f) f.focus(); }, 0);
       break;
     }
-    case 'dup-section': { if (!d.s || !d.c) break; const c = newSection(d.s, d.c); go({ name: 'section', sid: d.s.id, cid: c.id }); toast('Копия: те же тип, метод и размеры, без замеров.'); break; }
     case 'entry': {
       if (!d.s || !d.c) break;
-      d.c.entry = a.dataset.v; Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y);
+      d.c.entry = a.dataset.v; d.c.u = Date.now(); Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y);
       const f = $('[data-r]', view); if (f) f.focus({ preventScroll: true });
       break;
     }
     case 'calc-clear': clearCalc(a.dataset.id); break;
+    case 'mod-toggle': { modToggle(a.dataset.mod); const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'mod-pin': { modPin(a.dataset.mod); const y = window.scrollY; render(); window.scrollTo(0, y); toast(modPinned(a.dataset.mod) ? 'Закреплено: будет открыто всегда.' : 'Откреплено: будет свёрнуто при открытии.'); break; }
+    case 'drill': { if (!d.s || !d.c) break; syncCalcFromSec(d.s, d.c); UI.tab = 'calc'; UI.modOpen['calc.sect'] = true; render(); window.scrollTo(0, 0); break; }
+    case 'to-sec': { UI.tab = 'journal'; go({ name: 'section', sid: a.dataset.sid, cid: a.dataset.cid }); break; }
+    case 'sec-set': {
+      if (!d.s || !d.c || !['role', 'method'].includes(a.dataset.k)) break;
+      if (a.dataset.k === 'method' && a.dataset.v === 'kfactor' && d.c.method !== 'kfactor') d.c.entry = 'V';
+      else if (a.dataset.k === 'method' && a.dataset.v !== 'hood' && (d.c.method === 'hood' || d.c.method === 'kfactor' || !d.c.method)) d.c.entry = lastEntry(d.s);
+      d.c[a.dataset.k] = a.dataset.v; d.c.u = Date.now();
+      if (a.dataset.k === 'method') lsSet(LS_METHOD, a.dataset.v);
+      Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y);
+      break;
+    }
     case 'ps-sign': {
       if (!d.s || !d.c) break;
       const raw = String(d.c.ps || '').trim();
       if (/^[-−]/.test(raw)) { d.c.ps = raw.replace(/^[-−]\s*/, ''); d.c.psSign = '+'; }
       else d.c.psSign = d.c.psSign === '-' ? '+' : '-';
-      Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y);
+      d.c.u = Date.now(); Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y);
       break;
     }
     case 'shape': {
       if (!d.s || !d.c) break;
-      d.c.shape = a.dataset.v; Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y); break;
+      d.c.shape = a.dataset.v; d.c.u = Date.now(); Store.save(d.s); syncCalcFromSec(d.s, d.c); const y = window.scrollY; render(); window.scrollTo(0, y); break;
     }
     case 'export-xlsx': if (d.o) exportTable(d.o); break;
-    case 'export-summary': if (d.o) exportSummary(d.o); break;
     case 'export-pdf': if (d.o) exportPDF(d.o); break;
+    case 'export-object': if (d.o) exportObject(d.o); break;
     case 'photo-add': { const inp = document.getElementById('pf-' + a.dataset.slot); if (inp) inp.click(); break; }
     case 'photo-view': { if (!d.s) break; UI.armedPhoto = null; showPhoto(d.s, a.dataset.slot, Number(a.dataset.i)); break; }
     case 'scheme-view': { if (!d.s) break; UI.armedPhoto = null; showScheme(d.s, Number(a.dataset.i)); break; }
@@ -2809,8 +3106,8 @@ document.addEventListener('click', (e) => {
       UI.armed = null;
       const [kind, id, sub] = key.split(':');
       if (kind === 'obj') { systemsOf(id).forEach((s) => { purgePhotos(allPhotos(s)); Store.remove(s.id); }); Store.remove(id); go({ name: 'objects' }); toast('Объект удалён.'); }
-      else if (kind === 'sys') { const s = sysOf(id); if (s) purgePhotos(allPhotos(s)); Store.remove(id); go(s ? { name: 'object', oid: s.objectId } : { name: 'objects' }); toast('Система удалена.'); }
-      else if (kind === 'sec') { const s = sysOf(id); if (s) { const c0 = secOf(s, sub); if (c0) purgePhotos(c0.photos || []); s.sections = (s.sections || []).filter((c) => c.id !== sub); Store.save(s); go({ name: 'system', sid: id }); toast('Точка удалена.'); } }
+      else if (kind === 'sys') { const s = sysOf(id); if (s) { purgePhotos(allPhotos(s)); const o = objOf(s.objectId); if (o) { (o.delSys || (o.delSys = {}))[id] = Date.now(); Store.save(o); } } Store.remove(id); go(s ? { name: 'object', oid: s.objectId } : { name: 'objects' }); toast('Система удалена.'); }
+      else if (kind === 'sec') { const s = sysOf(id); if (s) { const c0 = secOf(s, sub); if (c0) purgePhotos(c0.photos || []); (s.delSec || (s.delSec = {}))[sub] = Date.now(); s.sections = (s.sections || []).filter((c) => c.id !== sub); Store.save(s); go({ name: 'system', sid: id }); toast('Точка удалена.'); } }
       break;
     }
     default: break;
