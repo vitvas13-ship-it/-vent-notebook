@@ -480,6 +480,17 @@ th{font-size:11.5px}
   .result .v,.resbar .v{font-size:20px}
 }
 @media (max-width:420px){.resbar .v{font-size:19px}.resbar .v.sm{font-size:16px}}
+
+/* ===== Таблицы: линии по строкам и столбцам, значения по центру ===== */
+.tbl-wrap > table{border-style:hidden}
+.systbl th,.systbl td,.sectbl th,.sectbl td,.drilltbl th,.drilltbl td,.norms table th,.norms table td{border:1px solid var(--rule);vertical-align:middle}
+.systbl th,.systbl td,.sectbl th,.sectbl td,.drilltbl th,.drilltbl td,
+.systbl td.r,.systbl th.r,.sectbl td.r,.sectbl th.r{text-align:center}
+.norms table th{text-align:center}
+.systbl th.loc{white-space:normal;min-width:96px}
+.systbl td.loc{font-size:13px;color:var(--ink-2);min-width:96px}
+tr[class*="st-"] td:first-child{padding-left:10px}
+@media (max-width:480px){.systbl th,.systbl td{padding:5px 2px}.systbl th{font-size:10.5px;letter-spacing:0;text-transform:none;hyphens:manual}.systbl td{font-size:12.5px}.systbl td.num{font-size:12px}.systbl th.loc,.systbl td.loc{min-width:0;width:auto}.systbl td.loc{font-size:12px}.systbl tr[class*="st-"] td:first-child{padding-left:7px}}
 </style>
 </head><body><header class="bar">
   <div class="bar-in">
@@ -1657,7 +1668,7 @@ function viewObject(o) {
     const hz = (fan.fact || {}).vfd || '';
     const devCell = OK(dev) ? `<span class="dv ${Math.abs(dev) <= 5 ? 'ok' : 'bad'}">${M.fmtSigned(dev, 1)}</span>` : '—';
     return `<tr class="click st-${OK(dev) ? (Math.abs(dev) <= 5 ? 'ok' : 'bad') : 'none'}" data-act="go" data-go='${esc(JSON.stringify({ name: 'system', sid: s.id }))}'>
-      <td class="num">${i + 1}</td><td><b>${esc(s.name || '—')}</b></td>
+      <td class="num">${i + 1}</td><td><b>${esc(s.name || '—')}</b></td><td class="loc">${esc(s.location || '—')}</td>
       <td class="r num">${F(Lp)}</td><td class="r num">${F(Lf)}</td><td class="r num">${devCell}</td><td class="r num">${esc(hz) || '—'}</td></tr>`;
   }).join('');
   return `<div class="stack">
@@ -1670,7 +1681,7 @@ function viewObject(o) {
     <section class="card c-list">
       <div class="card-head"><h2>Системы</h2><button class="btn primary" data-act="add-system">+ Система</button></div>
       ${syss.length ? `<div class="tbl-wrap"><table class="systbl"><thead>
-          <tr><th rowspan="2">№ п/п</th><th rowspan="2">Система</th><th colspan="2" class="cc">Расход вентилятора, м³/ч</th><th rowspan="2" class="r">Невязка, %</th><th rowspan="2" class="r">Частота, Гц</th></tr>
+          <tr><th rowspan="2">№ п/п</th><th rowspan="2">Система</th><th rowspan="2" class="loc">Место&shy;нахождение обору&shy;дования</th><th colspan="2" class="cc">Расход вентилятора, м³/ч</th><th rowspan="2" class="r">Невязка, %</th><th rowspan="2" class="r">Частота, Гц</th></tr>
           <tr><th class="r">проект</th><th class="r">факт</th></tr></thead><tbody>${rows}</tbody></table></div>
         <p class="hint" style="margin-top:8px">Расход — по точкам «Вентилятор — всасывание / нагнетание»: оба — среднее, один — его значение. Нет таких сечений — из таблицы А.1.1. Частота — из А.1.1. Допуск ±5 % (ГОСТ 34060, п. 11.2.6).</p>`
         : `<p class="muted">Систем пока нет. Добавьте первую — например, П1 или В1.</p>`}
@@ -1722,13 +1733,13 @@ function viewSystem(sys) {
       ${stampCell(sys, 'Ba', 'Ba, кПа', 's2', { num: true, ph: '101,3' })}
     </div>
     <div id="sys-summary">${sysSummary(sys)}</div>
-    ${schemeCard(sys)}
     <section class="card c-list">
       <div class="card-head"><h2>Точки замера</h2><div class="head-actions"><button class="btn primary" data-act="add-section">+ Точка</button></div></div>
       ${res.count ? `<div class="tbl-wrap"><table class="sectbl"><thead><tr><th>№</th><th>Помещение, место</th><th class="hm">Тип</th><th class="sz">Размер, мм</th><th class="r hm">L проект</th><th class="r">L факт</th><th class="r">Δ, %</th><th class="hm">Статус</th></tr></thead><tbody>${rows}</tbody></table></div>
 `
         : `<p class="muted">Добавьте первую точку замера: у вентилятора, на магистрали или у воздухораспределителя.</p>`}
     </section>
+    ${schemeCard(sys)}
     ${equipCards(sys, res)}
     <div class="head-actions">${delBtn('sys:' + sys.id, 'Удалить систему')}</div>
   </div>`;
@@ -2334,7 +2345,7 @@ async function exportSummary(o) {
     }
     if (figs) body += `<div class="figs">${figs}</div>`;
   }
-  const css = 'body{font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#111;background:#fff;max-width:1000px;margin:0 auto;padding:20px}h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:22px 0 6px}.m{color:#555;font-weight:normal}table{border-collapse:collapse;width:100%;margin:6px 0}th,td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}th{background:#eee}.figs{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}figure{margin:0;width:calc(50% - 5px)}figure.wide{width:100%;margin:10px 0}figure img{width:100%;border:1px solid #ccc}figcaption{font-size:12px;color:#555}@media print{figure{break-inside:avoid}}';
+  const css = 'body{font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#111;background:#fff;max-width:1000px;margin:0 auto;padding:20px}h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:22px 0 6px}.m{color:#555;font-weight:normal}table{border-collapse:collapse;width:100%;margin:6px 0}th,td{border:1px solid #999;padding:4px 6px;text-align:center;vertical-align:middle}th{background:#eee}.figs{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}figure{margin:0;width:calc(50% - 5px)}figure.wide{width:100%;margin:10px 0}figure img{width:100%;border:1px solid #ccc}figcaption{font-size:12px;color:#555}@media print{figure{break-inside:avoid}}';
   const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(o.name || 'Сводка')}</title><style>${css}</style></head><body>${body}</body></html>`;
   offerFile(`${fileSafe(o.name)} — сводка ${fmtDate(todayISO())}.html`, html, () => showOverlay('Сводка', `<div class="doc">${body}</div>`, html));
 }
@@ -2507,7 +2518,7 @@ async function exportPDF(o) {
           const st = !isHead && j === statusCol ? String(raw[j]) : '';
           ctx.fillStyle = st === 'вне допуска' ? '#C62828' : st === 'в допуске' ? '#1B7F3B' : st ? '#666' : '#111';
           cell.forEach((ln, k) => {
-            const x = !isHead && numCols.includes(j) ? xs[j] + ws[j] - pad - ctx.measureText(ln).width : xs[j] + pad;
+            const x = xs[j] + (ws[j] - ctx.measureText(ln).width) / 2;
             ctx.fillText(ln, x, yy + pad + k * lh);
           });
         });
