@@ -397,6 +397,89 @@ select option:hover,select option:focus{background-color:#1F6FEB;color:#FFFFFF}
 .resbar.st-bad .dv .v{color:var(--bad)}
 .resbar .rb-sub{grid-column:1 / -1;font-size:13.5px;color:var(--ink);border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent);padding-top:6px}
 @media (max-width:420px){.resbar .v{font-size:22px}.resbar .v.sm{font-size:17px}}
+
+/* ===== Схема: миниатюры и просмотр на весь экран ===== */
+.ph.sch{width:150px;height:106px;background:#fff}
+.ph.sch img{object-fit:contain}
+.zv{position:fixed;inset:0;z-index:40;background:#2A333B;display:flex;flex-direction:column;color:#fff}
+.zv-top,.zv-bot{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#1B2228;flex:none}
+.zv-top{padding-top:max(8px,env(safe-area-inset-top,0px))}
+.zv-top b{font-family:var(--f-display);font-size:16px;white-space:nowrap}
+.zv-name{font-size:12px;color:#AEB8C0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zv-bot{justify-content:center;flex-wrap:wrap;padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
+.zv .btn,.zv .btn.sm{min-height:36px;min-width:42px;font-size:15px;background:#2F3A43;color:#fff;border:1px solid #4A5761}
+.zv .btn.danger{background:transparent;color:#FF9C94;border-color:#B0281F}
+.zv .btn.danger.armed{background:#B0281F;color:#fff}
+.zv-stage{flex:1;position:relative;overflow:hidden;touch-action:none;cursor:grab}
+.zv-stage img{position:absolute;left:0;top:0;max-width:none;max-height:none;transform-origin:0 0;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.35)}
+.sch-btn{border-color:var(--c-geom,#1D5E8C);color:var(--h-geom,#1D5E8C);font-weight:600}
+
+/* ===== Компактный вид: меньше шрифт и отступы, низкая шапка ===== */
+body{font-size:14.5px;line-height:1.42}
+h1{font-size:22px}
+h2{font-size:19px}
+.card[class*="c-"] > h2,.card[class*="c-"] .card-head h2{font-size:19px}
+.crumbs,.crumbs button{font-size:13px}
+.f label,.lbl{font-size:13px}
+.f .u{font-size:11.5px}
+.hint{font-size:12px}
+input[type=text],input[type=date],select,textarea{min-height:40px;font-size:15.5px;padding:6px 10px}
+.f.big input{font-size:19px;min-height:44px}
+.seg button{padding:7px 12px;font-size:14px}
+.btn{min-height:38px;padding:6px 13px;font-size:14.5px}
+.btn.wide{min-height:44px;font-size:15.5px}
+.btn.sm{min-height:32px;padding:4px 10px;font-size:13.5px}
+.pill{font-size:12.5px;padding:2px 9px}
+.result .v{font-size:24px}
+.subline,.subline b{font-size:13.5px}
+td{font-size:14px;padding-top:7px;padding-bottom:7px}
+th{font-size:11.5px}
+.kv .i{padding:6px 9px}
+.kv .i .k{font-size:12.5px}
+.kv .i .v{font-size:18px}
+.pre span,.pre .sgn{font-size:17px;min-width:40px}
+.stamp .c{padding:4px 8px 6px}
+.stamp .c label{font-size:11px}
+.stamp input,.stamp select{min-height:28px;font-size:15px}
+.stamp .c.title input{font-size:21px}
+.card{padding:13px}
+.card-head{margin-bottom:9px}
+.stack{gap:12px}
+.grid2{gap:12px}
+.fields{gap:8px 10px}
+.step{width:24px;height:24px;font-size:13px;margin-right:8px}
+.resbar{padding:8px 12px}
+.resbar .v{font-size:22px}
+.resbar .v.sm{font-size:17px}
+.ocard{padding:11px 13px;gap:7px}
+.ocard h3{font-size:17px}
+.ph{width:84px;height:84px}
+.banner{font-size:13px;padding:8px 10px}
+.empty h2{font-size:20px}
+.wrap{padding-block:12px 56px}
+/* шапка в одну строку */
+.bar-in{min-height:44px;gap:12px;padding-block:4px}
+.brand-mark{width:24px;height:24px}
+.brand-name{font-size:16px;letter-spacing:.03em}
+.brand-sub{display:none}
+.tabs{padding:2px;border-radius:7px}
+.tab{font-size:15px;padding:5px 14px}
+.save-state{font-size:11px;cursor:pointer}
+@media (max-width:720px){
+  .bar-in{flex-wrap:nowrap;gap:8px;padding-block:5px;min-height:0}
+  .brand > div{display:none}
+  .brand-mark{width:22px;height:22px}
+  .tabs{order:0;width:auto;flex:1 1 auto;margin-left:0}
+  .tab{flex:1;padding:6px 4px;font-size:15px}
+  .save-state{margin-left:0;padding:8px 2px}
+  .save-state span{display:none}
+  .save-state i{width:10px;height:10px}
+  h1{font-size:19px}
+  .card{padding:11px}
+  .stamp .c.title input{font-size:19px}
+  .result .v,.resbar .v{font-size:20px}
+}
+@media (max-width:420px){.resbar .v{font-size:19px}.resbar .v.sm{font-size:16px}}
 </style>
 </head><body><header class="bar">
   <div class="bar-in">
@@ -1092,7 +1175,7 @@ async function offerFile(filename, data, fallback) {
 }
 
 /* ===== фото шильдиков: вентилятор, электродвигатель ===== */
-const SLOTS = { fan: 'Вентилятор', motor: 'Электродвигатель', note: 'Заметки по системе' };
+const SLOTS = { fan: 'Вентилятор', motor: 'Электродвигатель', note: 'Заметки по системе', scheme: 'Схема' };
 /* Фото: {id} — в облаке блокнота; {local} — в памяти телефона, ждёт отправки; {data} — встроено в запись */
 const Photos = {
   state: 'local', assets: null, busy: 0, urls: new Map(), syncing: false,
@@ -1175,11 +1258,30 @@ async function addPhotos(sys, slot, files) {
   if (Photos.state === 'pending') await Photos.init();
   if (!Photos.canAdd()) { toast('Фото может добавлять только владелец блокнота.'); return; }
   const list = photoList(sys, slot);
-  Photos.busy++; toast('Сохраняю фото…');
+  const scheme = slot === 'scheme';
+  Photos.busy++; toast(scheme ? 'Сохраняю схему…' : 'Сохраняю фото…');
   let added = 0;
+  const items = [];
   for (const f of files) {
+    const isPdf = /pdf/i.test(f.type || '') || /\.pdf$/i.test(f.name || '');
     try {
-      const blob = await shrinkImage(f, 1600, 0.82);
+      if (isPdf) {
+        if (!scheme) { toast('PDF можно загрузить только как схему.'); continue; }
+        toast('Открываю PDF…');
+        const { blobs, total } = await pdfToImages(f, 2800, 0.85, 12);
+        blobs.forEach((b, i) => items.push({ blob: b, name: (f.name || 'схема.pdf') + (total > 1 ? ', стр. ' + (i + 1) : '') }));
+        if (total > blobs.length) toast(`Из PDF взяты первые ${blobs.length} стр. из ${total}.`);
+      } else {
+        items.push({ blob: await shrinkImage(f, scheme ? 2800 : 1600, scheme ? 0.85 : 0.82), name: scheme ? (f.name || '') : '' });
+      }
+    } catch (e) {
+      try { console.warn('scheme file', e); } catch (err) { /* нет */ }
+      toast(isPdf ? 'Не удалось открыть PDF. Сохраните схему как JPEG и загрузите снова.' : 'Не удалось прочитать фото.');
+    }
+  }
+  for (const it of items) {
+    try {
+      const blob = it.blob;
       let entry = null;
       if (Photos.state === 'assets' && navigator.onLine !== false) {
         try { const r = await Photos.assets.upload(blob, { type: 'image/jpeg' }); entry = { id: r.id, t: Date.now() }; }
@@ -1192,7 +1294,8 @@ async function addPhotos(sys, slot, files) {
         Photos.urls.set(key, URL.createObjectURL(blob));
         entry = { local: key, t: Date.now() };
       }
-      if (!entry) entry = { data: await blobToDataURL(await shrinkImage(f, 1280, 0.7)), t: Date.now() };
+      if (!entry) entry = { data: await blobToDataURL(await shrinkImage(blob, scheme ? 1800 : 1280, 0.7)), t: Date.now() };
+      if (it.name) entry.name = it.name;
       list.push(entry);
       added++;
       Store.save(sys);
@@ -1202,20 +1305,22 @@ async function addPhotos(sys, slot, files) {
     }
   }
   Photos.busy--;
-  if (added) toast(added === 1 ? 'Фото добавлено.' : `Добавлено фото: ${added}.`);
+  if (added) toast(scheme ? (added === 1 ? 'Схема добавлена.' : `Добавлено листов схемы: ${added}.`) : added === 1 ? 'Фото добавлено.' : `Добавлено фото: ${added}.`);
   if ((UI.route.name === 'system' || UI.route.name === 'section') && UI.route.sid === sys.id) { const y = window.scrollY; render(); window.scrollTo(0, y); }
 }
 
 function photoGrid(sys, slot, what = 'шильдик') {
   const list = peekPhotos(sys, slot);
-  const thumbs = list.map((p, i) => `<button class="ph" data-act="photo-view" data-slot="${esc(slot)}" data-i="${i}" aria-label="${esc(slotName(sys, slot))}: фото ${i + 1}"><img src="${esc(photoSrc(p))}" alt="" loading="lazy"></button>`).join('');
+  const scheme = slot === 'scheme';
+  const thumbs = list.map((p, i) => `<button class="ph${scheme ? ' sch' : ''}" data-act="photo-view" data-slot="${esc(slot)}" data-i="${i}" aria-label="${esc(slotName(sys, slot))}: ${scheme ? 'лист' : 'фото'} ${i + 1}"><img src="${esc(photoSrc(p))}" alt="" loading="lazy"></button>`).join('');
   const add = Photos.canAdd()
-    ? `<button class="ph add" data-act="photo-add" data-slot="${esc(slot)}"><span>+ Фото<br><small>${esc(what)}</small></span></button><input type="file" accept="image/*" multiple hidden id="pf-${esc(slot)}" data-photo="${esc(slot)}" data-doc="${sys.id}">`
+    ? `<button class="ph add${scheme ? ' sch' : ''}" data-act="photo-add" data-slot="${esc(slot)}"><span>+ ${scheme ? 'Схема' : 'Фото'}<br><small>${esc(what)}</small></span></button><input type="file" accept="${scheme ? 'image/*,application/pdf,.pdf' : 'image/*'}" multiple hidden id="pf-${esc(slot)}" data-photo="${esc(slot)}" data-doc="${sys.id}">`
     : '';
   return `<div class="phs">${thumbs}${add}</div>${Photos.canAdd() ? '' : '<p class="hint">Фото может добавлять только владелец блокнота.</p>'}`;
 }
 
 function showPhoto(sys, slot, i) {
+  if (slot === 'scheme') { showScheme(sys, i); return; }
   const p = peekPhotos(sys, slot)[i];
   if (!p) return;
   const armed = UI.armedPhoto === `${slot}:${i}`;
@@ -1231,7 +1336,7 @@ function showPhoto(sys, slot, i) {
 /* Все фото системы: вентилятор, двигатель, сечения */
 function allPhotos(sys) {
   const p = sys.photos || {};
-  return [].concat(p.fan || [], p.motor || [], p.note || [], ...(sys.sections || []).map((c) => c.photos || []));
+  return [].concat(p.scheme || [], p.fan || [], p.motor || [], p.note || [], ...(sys.sections || []).map((c) => c.photos || []));
 }
 function dropLocalPhoto(p) {
   if (!p || !p.local) return;
@@ -1274,6 +1379,125 @@ function equipCards(sys, res) {
   <section class="card c-note"><div class="stack" style="gap:12px"><div class="f"><label for="${fid(sys, 'note')}">Заметки по системе</label>
     <textarea id="${fid(sys, 'note')}" data-doc="${sys.id}" data-path="note" style="font-family:var(--f-body)" placeholder="напр. что сделано, что осталось, замечания заказчику">${esc(sys.note || '')}</textarea></div>
     ${photoGrid(sys, 'note', 'к заметке')}</div></section>`;
+}
+
+/* ===== Схема системы с точками замера: JPEG/PNG или PDF (листы PDF превращаются в картинки) ===== */
+let pdfjsP = null;
+function loadPdfJs() {
+  if (!pdfjsP) {
+    pdfjsP = (async () => {
+      const base = new URL('pdfjs/', document.baseURI).href;
+      const lib = await import(base + 'pdf.min.js');
+      lib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.js';
+      return { lib, base };
+    })();
+    pdfjsP.catch(() => { pdfjsP = null; });
+  }
+  return pdfjsP;
+}
+async function pdfToImages(file, maxSide, q, maxPages) {
+  const { lib, base } = await loadPdfJs();
+  const data = new Uint8Array(await file.arrayBuffer());
+  const task = lib.getDocument({ data, standardFontDataUrl: base + 'standard_fonts/', wasmUrl: base + 'wasm/', isEvalSupported: false });
+  const doc = await task.promise;
+  const total = doc.numPages, blobs = [];
+  try {
+    for (let n = 1; n <= Math.min(total, maxPages); n++) {
+      const page = await doc.getPage(n);
+      const v1 = page.getViewport({ scale: 1 });
+      const vp = page.getViewport({ scale: Math.min(6, maxSide / Math.max(v1.width, v1.height)) });
+      const cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.floor(vp.width)); cv.height = Math.max(1, Math.floor(vp.height));
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+      await page.render({ canvasContext: ctx, canvas: cv, viewport: vp }).promise;
+      const b = await new Promise((res) => cv.toBlob(res, 'image/jpeg', q));
+      if (b) blobs.push(b);
+      page.cleanup(); cv.width = 1; cv.height = 1;
+    }
+  } finally { try { task.destroy(); } catch (e) { /* нет */ } }
+  if (!blobs.length) throw new Error('pdf');
+  return { blobs, total };
+}
+
+function schemeCard(sys) {
+  const list = peekPhotos(sys, 'scheme');
+  return `<section class="card c-geom" id="scheme-card"><div class="card-head"><h2>Схема</h2>${list.length ? `<div class="head-actions"><button class="btn sm" data-act="scheme-view" data-i="0">Открыть</button></div>` : ''}</div>
+    ${list.length ? '' : '<p class="hint" style="margin:-2px 0 8px">Схема системы с номерами точек — JPEG, PNG или PDF. Открывается на весь экран, увеличивается двумя пальцами.</p>'}
+    ${photoGrid(sys, 'scheme', 'JPEG, PDF')}</section>`;
+}
+
+function showScheme(sys, i) {
+  const list = peekPhotos(sys, 'scheme');
+  const p = list[i];
+  if (!p) return;
+  const armed = UI.armedPhoto === `scheme:${i}`;
+  const n = list.length, prev = (i - 1 + n) % n, next = (i + 1) % n;
+  const root = $('#overlay-root');
+  root._copy = null;
+  root.innerHTML = `<div class="zv" role="dialog" aria-modal="true" aria-label="Схема ${esc(sys.name || '')}">
+    <div class="zv-top"><b>${esc(sys.name || 'Система')} · схема${n > 1 ? ` ${i + 1}/${n}` : ''}</b><span class="zv-name">${esc(p.name || '')}</span>
+      <button class="btn sm" data-act="ov-close">Закрыть</button></div>
+    <div class="zv-stage" id="zv-stage"><img id="zv-img" src="${esc(photoSrc(p))}" alt="Схема ${esc(sys.name || '')}" draggable="false"></div>
+    <div class="zv-bot">
+      ${n > 1 ? `<button class="btn sm" data-act="scheme-view" data-i="${prev}" aria-label="Предыдущий лист">‹</button>` : ''}
+      <button class="btn sm" data-act="zv-zoom" data-k="0.6" aria-label="Уменьшить">−</button>
+      <button class="btn sm" data-act="zv-fit">Вписать</button>
+      <button class="btn sm" data-act="zv-zoom" data-k="1.6" aria-label="Увеличить">+</button>
+      ${n > 1 ? `<button class="btn sm" data-act="scheme-view" data-i="${next}" aria-label="Следующий лист">›</button>` : ''}
+      <button class="btn sm danger${armed ? ' armed' : ''}" data-act="photo-del" data-slot="scheme" data-i="${i}">${armed ? 'Ещё раз — удалить' : 'Удалить'}</button>
+    </div></div>`;
+  zoomInit();
+}
+
+/* Просмотр с увеличением: два пальца — масштаб, один — сдвиг, двойное касание — ×2,5 / вписать */
+function zoomInit() {
+  const st = $('#zv-stage'), img = $('#zv-img');
+  if (!st || !img) return;
+  const z = { s: 1, x: 0, y: 0, fit: 1 };
+  const apply = () => { img.style.transform = `translate(${z.x}px,${z.y}px) scale(${z.s})`; };
+  const fit = () => {
+    const W = st.clientWidth, H = st.clientHeight, w = img.naturalWidth || 1, h = img.naturalHeight || 1;
+    z.fit = Math.min(W / w, H / h); z.s = z.fit; z.x = (W - w * z.s) / 2; z.y = (H - h * z.s) / 2; apply();
+  };
+  const zoomAt = (k, cx, cy) => {
+    const ns = Math.min(Math.max(z.fit * 14, 3), Math.max(z.fit * 0.7, z.s * k)), r = ns / z.s;
+    z.x = cx - (cx - z.x) * r; z.y = cy - (cy - z.y) * r; z.s = ns; apply();
+  };
+  if (img.complete && img.naturalWidth) fit(); else img.addEventListener('load', fit, { once: true });
+  const pts = new Map();
+  let pinch = null, tap = null, lastTap = 0;
+  const local = (e) => { const r = st.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  st.addEventListener('pointerdown', (e) => {
+    try { st.setPointerCapture(e.pointerId); } catch (err) { /* нет */ }
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    pinch = null;
+    tap = pts.size === 1 ? { x: e.clientX, y: e.clientY, moved: false } : null;
+  });
+  st.addEventListener('pointermove', (e) => {
+    const prev = pts.get(e.pointerId);
+    if (!prev) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (tap && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) > 8) tap.moved = true;
+    if (pts.size === 1) { z.x += e.clientX - prev.x; z.y += e.clientY - prev.y; apply(); return; }
+    const [a, b] = [...pts.values()];
+    const r = st.getBoundingClientRect();
+    const d = Math.hypot(a.x - b.x, a.y - b.y), cx = (a.x + b.x) / 2 - r.left, cy = (a.y + b.y) / 2 - r.top;
+    if (pinch && pinch.d > 0) { zoomAt(d / pinch.d, cx, cy); z.x += cx - pinch.cx; z.y += cy - pinch.cy; apply(); }
+    pinch = { d, cx, cy };
+  });
+  const up = (e) => {
+    pts.delete(e.pointerId); pinch = null;
+    if (e.type === 'pointerup' && tap && !tap.moved && !pts.size) {
+      const t = Date.now();
+      if (t - lastTap < 320) { const [cx, cy] = local(e); if (z.s > z.fit * 1.4) fit(); else zoomAt(2.5, cx, cy); lastTap = 0; } else lastTap = t;
+    }
+    if (!pts.size) tap = null;
+  };
+  st.addEventListener('pointerup', up);
+  st.addEventListener('pointercancel', up);
+  st.addEventListener('wheel', (e) => { e.preventDefault(); const [cx, cy] = local(e); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, cx, cy); }, { passive: false });
+  st._zv = { fit, zoom: (k) => zoomAt(k, st.clientWidth / 2, st.clientHeight / 2) };
 }
 
 /* ===== журнал: объекты → системы → мерные сечения ===== */
@@ -1498,6 +1722,7 @@ function viewSystem(sys) {
       ${stampCell(sys, 'Ba', 'Ba, кПа', 's2', { num: true, ph: '101,3' })}
     </div>
     <div id="sys-summary">${sysSummary(sys)}</div>
+    ${schemeCard(sys)}
     <section class="card c-list">
       <div class="card-head"><h2>Точки замера</h2><div class="head-actions"><button class="btn primary" data-act="add-section">+ Точка</button></div></div>
       ${res.count ? `<div class="tbl-wrap"><table class="sectbl"><thead><tr><th>№</th><th>Помещение, место</th><th class="hm">Тип</th><th class="sz">Размер, мм</th><th class="r hm">L проект</th><th class="r">L факт</th><th class="r">Δ, %</th><th class="hm">Статус</th></tr></thead><tbody>${rows}</tbody></table></div>
@@ -1630,7 +1855,7 @@ function viewSection(sys, sec) {
   return `<div class="stack sec-page">
     ${crumbs([{ t: 'Объекты', go: { name: 'objects' } }, { t: (o && o.name) || 'Объект', go: { name: 'object', oid: sys.objectId } }, { t: sys.name || 'Система', go: { name: 'system', sid: sys.id } }, { t: 'Точка ' + (sec.no || '') }])}
     <div class="head"><h1>Точка № ${esc(sec.no || '—')}${sec.place ? ' · ' + esc(sec.place) : ''}</h1>
-      <div class="head-actions"><button class="btn primary" data-act="add-section">+ Добавить</button><button class="btn" data-act="dup-section">Копия</button>${delBtn('sec:' + sys.id + ':' + sec.id)}</div></div>
+      <div class="head-actions"><button class="btn primary" data-act="add-section">+ Добавить</button>${peekPhotos(sys, 'scheme').length ? '<button class="btn sch-btn" data-act="scheme-view" data-i="0">Схема</button>' : ''}<button class="btn" data-act="dup-section">Копия</button>${delBtn('sec:' + sys.id + ':' + sec.id)}</div></div>
     ${card1}${card2}${card3}
     <div id="sec-result">${resultHTML(r, sec)}</div>
     ${card4}
@@ -2078,7 +2303,7 @@ function dataURLToBlob(u) {
 }
 function photoArrays(sys) {
   const p = sys.photos || {};
-  return [p.fan || [], p.motor || [], p.note || []].concat((sys.sections || []).map((c) => c.photos || []));
+  return [p.scheme || [], p.fan || [], p.motor || [], p.note || []].concat((sys.sections || []).map((c) => c.photos || []));
 }
 async function exportSummary(o) {
   toast('Собираю сводку…');
@@ -2093,6 +2318,11 @@ async function exportSummary(o) {
     const rows = [['№', 'Помещение, место', 'K решётки', 'Pст, Па', 'L проект', 'L факт', 'Откл., %', 'Оценка', 'Заметка']].concat(res.secs.map(({ s, r }) => [s.no || '', s.place || '', String(kOf(s)).replace('.', ','), OK(r.ps) ? F(r.ps) : '', OK(r.Lp) ? F(r.Lp) : '', OK(r.L) ? F(r.L) : '', OK(r.dev) ? M.fmtSigned(r.dev, 1) : '', statusRu(r), s.note || '']));
     if (res.count) body += table(rows);
     if (sys.note) body += `<p><b>Заметки:</b> ${esc(sys.note)}</p>`;
+    const sch = peekPhotos(sys, 'scheme');
+    for (let i = 0; i < sch.length; i++) {
+      const src = await photoData(sch[i]);
+      if (src) body += `<figure class="wide"><img src="${src}" alt=""><figcaption>Схема${sch.length > 1 ? ', лист ' + (i + 1) : ''}${sch[i].name ? ' · ' + esc(sch[i].name) : ''}</figcaption></figure>`;
+    }
     let figs = '';
     const slots = ['fan', 'motor', 'note'].concat((sys.sections || []).map((c) => 'sec:' + c.id));
     for (const slot of slots) {
@@ -2104,7 +2334,7 @@ async function exportSummary(o) {
     }
     if (figs) body += `<div class="figs">${figs}</div>`;
   }
-  const css = 'body{font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#111;background:#fff;max-width:1000px;margin:0 auto;padding:20px}h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:22px 0 6px}.m{color:#555;font-weight:normal}table{border-collapse:collapse;width:100%;margin:6px 0}th,td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}th{background:#eee}.figs{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}figure{margin:0;width:calc(50% - 5px)}figure img{width:100%;border:1px solid #ccc}figcaption{font-size:12px;color:#555}@media print{figure{break-inside:avoid}}';
+  const css = 'body{font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#111;background:#fff;max-width:1000px;margin:0 auto;padding:20px}h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:22px 0 6px}.m{color:#555;font-weight:normal}table{border-collapse:collapse;width:100%;margin:6px 0}th,td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}th{background:#eee}.figs{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}figure{margin:0;width:calc(50% - 5px)}figure.wide{width:100%;margin:10px 0}figure img{width:100%;border:1px solid #ccc}figcaption{font-size:12px;color:#555}@media print{figure{break-inside:avoid}}';
   const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(o.name || 'Сводка')}</title><style>${css}</style></head><body>${body}</body></html>`;
   offerFile(`${fileSafe(o.name)} — сводка ${fmtDate(todayISO())}.html`, html, () => showOverlay('Сводка', `<div class="doc">${body}</div>`, html));
 }
@@ -2337,6 +2567,26 @@ async function exportPDF(o) {
         table(rows, [5, 25, 10, 5, 7, 10, 10, 8, 10, 20], [3, 4, 5, 6, 7], 8);
       }
       if (sys.note) { para('Заметки', 9, { bold: true }); para(sys.note, 9, { after: 2 }); }
+      const sch = peekPhotos(sys, 'scheme');
+      for (let i = 0; i < sch.length; i++) {
+        let th = await pdfThumb(sch[i], CW, 205 * MM);
+        if (!th) continue;
+        if (th.width > th.height && th.height > 124 * MM) {
+          /* горизонтальный лист — по два на страницу */
+          const k = (124 * MM) / th.height, c2 = document.createElement('canvas');
+          c2.width = Math.round(th.width * k); c2.height = Math.round(th.height * k);
+          c2.getContext('2d').drawImage(th, 0, 0, c2.width, c2.height); th = c2;
+        }
+        const cap = `Схема${sch.length > 1 ? ', лист ' + (i + 1) : ''}${sch[i].name ? ' · ' + sch[i].name : ''}`, capF = font(7.5);
+        need(th.height + 8 * MM);
+        const yy = y, x = ML + (CW - th.width) / 2;
+        cur().push(() => {
+          ctx.drawImage(th, x, yy, th.width, th.height);
+          ctx.strokeStyle = '#C9CFD4'; ctx.lineWidth = 1; ctx.strokeRect(x, yy, th.width, th.height);
+          ctx.font = capF; ctx.fillStyle = '#555'; ctx.fillText(cap, x, yy + th.height + 1 * MM);
+        });
+        y += th.height + 7 * MM;
+      }
       const list = [];
       ['fan', 'motor', 'note'].concat((sys.sections || []).map((c) => 'sec:' + c.id)).forEach((slot) => {
         peekPhotos(sys, slot).forEach((p, i, arr) => list.push({ p, cap: `${sys.name || ''} · ${slotName(sys, slot)}${arr.length > 1 ? ', фото ' + (i + 1) : ''}` }));
@@ -2519,6 +2769,9 @@ document.addEventListener('click', (e) => {
     case 'export-pdf': if (d.o) exportPDF(d.o); break;
     case 'photo-add': { const inp = document.getElementById('pf-' + a.dataset.slot); if (inp) inp.click(); break; }
     case 'photo-view': { if (!d.s) break; UI.armedPhoto = null; showPhoto(d.s, a.dataset.slot, Number(a.dataset.i)); break; }
+    case 'scheme-view': { if (!d.s) break; UI.armedPhoto = null; showScheme(d.s, Number(a.dataset.i)); break; }
+    case 'zv-zoom': { const st = $('#zv-stage'); if (st && st._zv) st._zv.zoom(Number(a.dataset.k)); break; }
+    case 'zv-fit': { const st = $('#zv-stage'); if (st && st._zv) st._zv.fit(); break; }
     case 'photo-del': {
       if (!d.s) break;
       const key = a.dataset.slot + ':' + a.dataset.i;
@@ -2552,6 +2805,7 @@ document.addEventListener('click', (e) => {
     default: break;
   }
 });
+$('#save-state').addEventListener('click', () => { const t = $('#save-state').textContent.trim(); if (t) toast(t); });
 $('#overlay-root').addEventListener('click', (e) => { if (e.target.classList.contains('overlay')) $('#overlay-root').innerHTML = ''; });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#overlay-root').innerHTML) $('#overlay-root').innerHTML = ''; });
 $('#import-file').addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; if (f) importBackup(f); e.target.value = ''; });

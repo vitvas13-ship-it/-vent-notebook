@@ -150,9 +150,16 @@ class MainActivity : AppCompatActivity() {
     /** Фото: камера + галерея; остальные файлы (резервная копия) — проводник. */
     private fun buildChooser(accept: String, multiple: Boolean): Intent {
         val isImage = accept.contains("image")
+        val withPdf = accept.contains("pdf")
         val pick = Intent(Intent.ACTION_GET_CONTENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = if (isImage) "image/*" else "*/*"
+            if (isImage && withPdf) {
+                // схема: картинка или PDF
+                type = "*/*"
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "application/pdf"))
+            } else {
+                type = if (isImage) "image/*" else "*/*"
+            }
             if (multiple) putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         }
         if (!isImage) return Intent.createChooser(pick, "Выберите файл")
@@ -168,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             cam.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
             extras.add(cam)
         }
-        return Intent.createChooser(pick, getString(R.string.pick_photo)).apply {
+        return Intent.createChooser(pick, getString(if (withPdf) R.string.pick_scheme else R.string.pick_photo)).apply {
             putExtra(Intent.EXTRA_INITIAL_INTENTS, extras.toTypedArray())
         }
     }
