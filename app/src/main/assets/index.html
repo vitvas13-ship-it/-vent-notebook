@@ -594,7 +594,7 @@ tr[class*="st-"] td:first-child{padding-left:10px}
   </div>
 </header>
 <main class="wrap" id="view" aria-live="polite"></main>
-<input type="file" id="import-file" accept=".json,application/json" hidden>
+<input type="file" id="import-file" accept=".json,application/json,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
 <div id="overlay-root"></div>
 <div id="toast-root"></div>
 
@@ -1737,7 +1737,7 @@ function viewObjects() {
       <div class="empty">
         <span class="ref">Журнал пуст</span>
         <h2>Заведите первый объект</h2>
-        <p class="lead">Объект → системы (П1, В1…) → точки замера. Блокнот расставит точки замера, посчитает расход, сравнит с проектом по допускам ГОСТ 34060 и соберёт паспорт системы.</p>
+        <p class="lead">Объект → системы (П1, В1…) → точки замера. Блокнот посчитает расход, сравнит с проектом по допускам ГОСТ 34060 и сделает отчёт PDF и таблицу Excel. Точки можно заранее заполнить на компьютере — шаблон Excel ниже.</p>
         <div class="head-actions">
           <button class="btn primary" data-act="add-object">+ Новый объект</button>
           <button class="btn" data-act="add-example">Открыть пример с замерами</button>
@@ -1771,7 +1771,10 @@ function viewObjects() {
 }
 function plural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few; return many; }
 function backupBlock() {
-  return `<section class="card c-note"><div class="card-head"><h2>Резервная копия</h2><span class="ref">.json</span></div>
+  return `<section class="card c-point"><div class="card-head"><h2>Шаблон Excel</h2><span class="ref">.xlsx</span></div>
+    <p class="muted small" style="margin-bottom:10px">Заполните на компьютере объект, системы и точки: номера, помещения, размеры, L проект. Потом «Загрузить из файла» — точки появятся в журнале, останется вписать замеры.</p>
+    <div class="head-actions"><button class="btn" data-act="template">Скачать шаблон</button><button class="btn" data-act="import">Загрузить из файла</button></div></section>
+    <section class="card c-note"><div class="card-head"><h2>Резервная копия</h2><span class="ref">.json</span></div>
     <div class="head-actions"><button class="btn" data-act="backup">Сохранить копию</button><button class="btn" data-act="import">Загрузить из файла</button></div></section>`;
 }
 
@@ -2427,7 +2430,7 @@ function zipStore(files) {
 }
 const xEsc = (v) => String(v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const colName = (i) => { let s = ''; i += 1; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
-function sheetXML(rows, widths) {
+function sheetXML(rows, widths, opt = {}) {
   const ncol = rows[0].length, last = colName(ncol - 1) + Math.max(1, rows.length);
   const cols = widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w + 2}" customWidth="1"/>`).join('');
   const body = rows.map((r, ri) => `<row r="${ri + 1}">` + r.map((v, ci) => {
@@ -2438,7 +2441,9 @@ function sheetXML(rows, widths) {
   }).join('') + '</row>').join('');
   return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
     + `<dimension ref="A1:${last}"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>`
-    + `<sheetFormatPr defaultRowHeight="15"/><cols>${cols}</cols><sheetData>${body}</sheetData><autoFilter ref="A1:${last}"/></worksheet>`;
+    + `<sheetFormatPr defaultRowHeight="15"/><cols>${cols}</cols><sheetData>${body}</sheetData>${opt.noFilter ? '' : `<autoFilter ref="A1:${last}"/>`}`
+    + (opt.lists && opt.lists.length ? `<dataValidations count="${opt.lists.length}">${opt.lists.map((v) => `<dataValidation type="list" allowBlank="1" showErrorMessage="0" sqref="${v.ref}"><formula1>"${xEsc(v.items.join(','))}"</formula1></dataValidation>`).join('')}</dataValidations>` : '')
+    + '</worksheet>';
 }
 function buildXLSX(sheets) {
   const NS = 'http://schemas.openxmlformats.org/', head = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
@@ -2447,8 +2452,8 @@ function buildXLSX(sheets) {
     + sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('') + '</Types>' });
   files.push({ name: '_rels/.rels', text: head + `<Relationships xmlns="${NS}package/2006/relationships"><Relationship Id="rId1" Type="${NS}officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` });
   files.push({ name: 'xl/workbook.xml', text: head + `<workbook xmlns="${NS}spreadsheetml/2006/main" xmlns:r="${NS}officeDocument/2006/relationships"><sheets>`
-    + sheets.map((sh, i) => `<sheet name="${xEsc(sh.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('') + '</sheets><definedNames>'
-    + sheets.map((sh, i) => `<definedName name="_xlnm._FilterDatabase" localSheetId="${i}" hidden="1">'${xEsc(sh.name)}'!$A$1:$${colName(sh.rows[0].length - 1)}$${Math.max(1, sh.rows.length)}</definedName>`).join('') + '</definedNames></workbook>' });
+    + sheets.map((sh, i) => `<sheet name="${xEsc(sh.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('') + '</sheets>'
+    + ((dn) => (dn ? `<definedNames>${dn}</definedNames>` : ''))(sheets.map((sh, i) => (sh.noFilter ? '' : `<definedName name="_xlnm._FilterDatabase" localSheetId="${i}" hidden="1">'${xEsc(sh.name)}'!$A$1:$${colName(sh.rows[0].length - 1)}$${Math.max(1, sh.rows.length)}</definedName>`)).join('')) + '</workbook>' });
   files.push({ name: 'xl/_rels/workbook.xml.rels', text: head + `<Relationships xmlns="${NS}package/2006/relationships">`
     + sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="${NS}officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')
     + `<Relationship Id="rId${sheets.length + 1}" Type="${NS}officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>` });
@@ -2457,7 +2462,7 @@ function buildXLSX(sheets) {
     + '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
     + '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf></cellXfs>'
     + '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>' });
-  sheets.forEach((sh, i) => files.push({ name: `xl/worksheets/sheet${i + 1}.xml`, text: sheetXML(sh.rows, sh.widths) }));
+  sheets.forEach((sh, i) => files.push({ name: `xl/worksheets/sheet${i + 1}.xml`, text: sheetXML(sh.rows, sh.widths, sh) }));
   return zipStore(files);
 }
 async function exportTable(o) {
@@ -2633,6 +2638,7 @@ function mergeDocs(docs) {
 }
 
 function importBackup(file) {
+  if (/\.xlsx$/i.test(file.name || '') || /spreadsheetml/.test(file.type || '')) { importTemplate(file); return; }
   const rd = new FileReader();
   rd.onload = () => {
     try {
@@ -2900,6 +2906,225 @@ async function exportPDF(o) {
   } finally { UI.pdfBusy = false; }
 }
 
+/* ===== Шаблон Excel: заполнить на компьютере → «Загрузить из файла» ===== */
+const TPL_HEAD = ['Объект', 'Адрес', 'Система', 'Местонахождение оборудования', 'Тип системы', '№ точки', 'Помещение', 'Решётка / место', 'Что меряем', 'Чем меряем', 'Форма', 'D, мм', 'a, мм', 'b, мм', 'K решётки', 'K-фактор', 'L проект, м³/ч'];
+const TPL_W = [22, 24, 9, 24, 22, 8, 16, 22, 16, 24, 15, 8, 8, 8, 10, 10, 14];
+const TPL_SHAPES = ['Круглое', 'Прямоугольное'];
+function templateSheets() {
+  const lists = [
+    { ref: 'E2:E3000', items: SYS_TYPES.map(([, t]) => t) },
+    { ref: 'I2:I3000', items: ROLE_CHIPS.map(([, t]) => t) },
+    { ref: 'J2:J3000', items: METHOD_CHIPS.map(([, t]) => t) },
+    { ref: 'K2:K3000', items: TPL_SHAPES },
+  ];
+  const ex = [TPL_HEAD,
+    ['ЖК Пример, корпус 1', 'ул. Примерная, 1', 'П1', 'Венткамера, кровля', 'Приточная', 1, '', 'Вентилятор, всасывание', 'Вент. всас', 'Трубка Пито', 'Прямоугольное', '', 500, 300, '', '', 3600],
+    ['', '', '', '', '', 2, '', 'Вентилятор, нагнетание', 'Вент. нагнет', 'Трубка Пито', 'Круглое', 400, '', '', '', '', 3600],
+    ['', '', '', '', '', 3, 'Офис 101', 'Р-1', 'Решётка', 'Воронка Testo', '', '', '', '', '', '', 450],
+    ['', '', '', '', '', 4, 'Офис 101', 'Р-2', 'Решётка', 'Воронка Testo', '', '', '', '', '', '', 450],
+    ['', '', '', '', '', 5, 'Офис 102', 'Р-3', 'Решётка', 'Анемометр на решётке', 'Прямоугольное', '', 600, 300, 0.8, '', 900],
+    ['', '', 'В1', 'Венткамера, кровля', 'Вытяжная', 1, '', 'Вентилятор', 'Вент. всас', 'K-фактор вентилятора', '', '', '', '', '', 148, 2500],
+    ['', '', '', '', '', 2, 'Санузел 103', 'В-1', 'Решётка', 'Воронка Testo', '', '', '', '', '', '', 150],
+  ];
+  const help = [['Как заполнять шаблон'],
+    ['1. Лист «Точки»: одна строка — одна точка замера.'],
+    ['2. Объект, адрес, система, местонахождение и тип системы можно писать только в первой строке — ниже они подставятся сами, пока не встретится новое значение.'],
+    ['3. «Тип системы», «Что меряем», «Чем меряем», «Форма» — выбирайте из списка (стрелка в ячейке).'],
+    ['4. Размеры в мм: для круглого — D, для прямоугольного — a и b. Для воронки размеры не нужны.'],
+    ['5. K решётки — поправочный коэффициент (если не указан — 1). K-фактор — для замера вентилятора по K-фактору.'],
+    ['6. Сохраните файл (.xlsx), перешлите на телефон и в приложении нажмите «Загрузить из файла».'],
+    ['7. Если объект и система с таким названием уже есть в телефоне, точки сопоставляются по номеру: обновляются только проектные данные, замеры и фото не трогаются. Новые номера добавляются.'],
+    ['8. Лист «Пример» — образец заполнения, он не загружается.']];
+  return [
+    { name: 'Точки', rows: [TPL_HEAD], widths: TPL_W, lists, noFilter: true },
+    { name: 'Пример', rows: ex, widths: TPL_W, noFilter: true },
+    { name: 'Как заполнять', rows: help, widths: [140], noFilter: true },
+  ];
+}
+function exportTemplate() {
+  const buf = buildXLSX(templateSheets());
+  offerFile('Шаблон блокнота наладчика.xlsx', new Blob([buf], { type: MIME.xlsx }), () => toast('Не удалось сохранить шаблон.'));
+}
+
+/* Чтение .xlsx без интернета: zip (stored / deflate) + XML листов */
+async function unzipEntries(buf) {
+  const u8 = new Uint8Array(buf), dv = new DataView(buf), dec = new TextDecoder();
+  let e = u8.length - 22;
+  while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0) throw new Error('zip');
+  const n = dv.getUint16(e + 10, true);
+  let p = dv.getUint32(e + 16, true);
+  const files = {};
+  for (let i = 0; i < n && dv.getUint32(p, true) === 0x02014b50; i++) {
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    files[dec.decode(u8.subarray(p + 46, p + 46 + nlen))] = { method, csize, off };
+    p += 46 + nlen + xlen + clen;
+  }
+  async function read(name) {
+    const f = files[name] || files[name.replace(/^\//, '')];
+    if (!f) return null;
+    const start = f.off + 30 + dv.getUint16(f.off + 26, true) + dv.getUint16(f.off + 28, true);
+    const data = u8.subarray(start, start + f.csize);
+    if (f.method === 0) return dec.decode(data);
+    if (f.method === 8) {
+      if (typeof DecompressionStream === 'undefined') throw new Error('nodeflate');
+      return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+    }
+    throw new Error('zipmethod');
+  }
+  return { read };
+}
+async function readXLSX(file) {
+  const z = await unzipEntries(await file.arrayBuffer());
+  const P = new DOMParser();
+  const xml = async (n) => { const t = await z.read(n); return t ? P.parseFromString(t, 'application/xml') : null; };
+  const tags = (node, name) => Array.from(node.getElementsByTagNameNS('*', name));
+  const ss = [];
+  const sst = await xml('xl/sharedStrings.xml');
+  if (sst) tags(sst, 'si').forEach((si) => ss.push(tags(si, 't').filter((t) => !(t.parentNode && t.parentNode.localName === 'rPh')).map((t) => t.textContent).join('')));
+  const wb = await xml('xl/workbook.xml'), rels = await xml('xl/_rels/workbook.xml.rels');
+  if (!wb) throw new Error('xlsx');
+  const relMap = {};
+  if (rels) tags(rels, 'Relationship').forEach((r) => { relMap[r.getAttribute('Id')] = r.getAttribute('Target'); });
+  const out = [];
+  for (const sh of tags(wb, 'sheet')) {
+    const rid = sh.getAttribute('r:id') || Array.from(sh.attributes).find((a) => a.localName === 'id')?.value;
+    let target = relMap[rid] || '';
+    target = target.startsWith('/') ? target.slice(1) : 'xl/' + target.replace(/^\.\//, '');
+    const doc = await xml(target);
+    if (!doc) continue;
+    const rows = [];
+    tags(doc, 'row').forEach((row) => {
+      const ri = Number(row.getAttribute('r')) - 1;
+      const cells = [];
+      tags(row, 'c').forEach((c, ci) => {
+        const ref = c.getAttribute('r') || '';
+        const letters = (ref.match(/^[A-Z]+/) || [''])[0];
+        const col = letters ? letters.split('').reduce((a, ch) => a * 26 + ch.charCodeAt(0) - 64, 0) - 1 : ci;
+        const t = c.getAttribute('t'), v = tags(c, 'v')[0];
+        let val = '';
+        if (t === 's') val = ss[Number(v && v.textContent)] ?? '';
+        else if (t === 'inlineStr') val = tags(c, 't').map((x) => x.textContent).join('');
+        else if (t === 'str' || t === 'e') val = v ? v.textContent : '';
+        else if (t === 'b') val = v && v.textContent === '1' ? 'да' : '';
+        else if (v) { const x = Number(v.textContent); val = Number.isFinite(x) ? x : v.textContent; }
+        cells[col] = val;
+      });
+      rows[Number.isFinite(ri) && ri >= 0 ? ri : rows.length] = cells;
+    });
+    out.push({ name: sh.getAttribute('name') || '', rows: Array.from(rows, (r) => r || []) });
+  }
+  return out;
+}
+
+/* Сопоставление столбцов шаблона по заголовкам (порядок столбцов любой) */
+const normH = (x) => String(x ?? '').trim().toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ');
+const TPL_KEYS = [
+  ['stype', (h) => h.startsWith('тип системы')], ['loc', (h) => h.startsWith('местонахожд')], ['obj', (h) => h.startsWith('объект')], ['addr', (h) => h.startsWith('адрес')],
+  ['sys', (h) => h.startsWith('система')], ['no', (h) => h.startsWith('№') || h.startsWith('номер')], ['room', (h) => h.startsWith('помещени')],
+  ['place', (h) => h.startsWith('решетка') || h.startsWith('место')], ['role', (h) => h.startsWith('что меряем') || h.startsWith('тип точки')],
+  ['method', (h) => h.startsWith('чем меряем') || h.startsWith('метод')], ['shape', (h) => h.startsWith('форма')],
+  ['kFan', (h) => /^[kк][- ]?фактор/.test(h)], ['kFree', (h) => /^[kк] реш/.test(h) || h.startsWith('поправочн')],
+  ['Lp', (h) => /^[lл] ?(проект|по проекту)/.test(h) || h.startsWith('расход по проекту') || h.startsWith('расход проект')],
+  ['D', (h) => /^d(,|\s|$)/.test(h) || h.startsWith('диаметр')], ['a', (h) => /^[aа](,|\s|$)/.test(h) || h.startsWith('ширина')], ['b', (h) => /^b(,|\s|$)/.test(h) || h.startsWith('высота')],
+];
+function tplRole(v) {
+  const h = normH(v); if (!h) return '';
+  const hit = ROLE_CHIPS.find(([, t]) => normH(t) === h) || Object.entries(M.ROLES).find(([, r]) => normH(r.name) === h || normH(r.short) === h);
+  if (hit) return hit[0];
+  if (h.startsWith('реш') || h.includes('воздухораспред') || h.includes('диффуз')) return 'terminal';
+  if (h.startsWith('ответв')) return 'branch';
+  if (h.startsWith('магистр')) return 'main';
+  if (h.startsWith('вент')) return /нагн/.test(h) ? 'fan_out' : 'fan_in';
+  if (h.includes('отсос')) return 'local';
+  if (h.includes('душ')) return 'shower';
+  return '';
+}
+function tplMethod(v) {
+  const h = normH(v); if (!h) return '';
+  const hit = METHOD_CHIPS.find(([, t]) => normH(t) === h) || Object.entries(M.METHODS).find(([, t]) => normH(t) === h);
+  if (hit) return hit[0];
+  if (h.includes('воронк')) return 'hood';
+  if (h.includes('пито')) return 'pitot';
+  if (h.includes('фактор')) return 'kfactor';
+  if (h.includes('анемометр') || h.includes('крыльчат') || h.includes('термоанем')) return h.includes('реш') || h.includes('проем') ? 'grille' : 'anemo';
+  return '';
+}
+const tplNum = (v) => (v === '' || v === null || v === undefined ? '' : typeof v === 'number' ? String(Math.round(v * 1e6) / 1e6).replace('.', ',') : String(v).trim());
+
+async function importTemplate(file) {
+  let sheets;
+  try { sheets = await readXLSX(file); } catch (e) { toast(e && e.message === 'nodeflate' ? 'Телефон не может открыть Excel: обновите «Android System WebView».' : 'Не удалось прочитать файл Excel.'); return; }
+  /* лист «Точки» или первый, где есть заголовки шаблона */
+  let found = null;
+  const order = sheets.slice().sort((a, b) => (normH(b.name) === 'точки') - (normH(a.name) === 'точки')).filter((s) => normH(s.name) !== 'пример' && !normH(s.name).startsWith('как заполн'));
+  for (const sh of order) {
+    for (let r = 0; r < Math.min(10, sh.rows.length) && !found; r++) {
+      const map = {};
+      (sh.rows[r] || []).forEach((cell, ci) => { const h = normH(cell); if (!h) return; const k = TPL_KEYS.find(([key, f]) => !(key in map) && f(h)); if (k) map[k[0]] = ci; });
+      if ('sys' in map && 'no' in map) found = { sh, r, map };
+    }
+    if (found) break;
+  }
+  if (!found) { toast('В файле нет таблицы шаблона: нужны столбцы «Система» и «№ точки».'); return; }
+  const { sh, r: hr, map } = found;
+  const get = (row, k) => (k in map ? row[map[k]] : '');
+  const st = { objs: new Set(), newObj: 0, newSys: 0, newPts: 0, updPts: 0, skipped: 0 };
+  const now = Date.now(), touched = new Map();
+  let cur = { obj: '', addr: '', sys: '', loc: '', stype: '' };
+  for (let i = hr + 1; i < sh.rows.length; i++) {
+    const row = sh.rows[i] || [];
+    if (!row.some((x) => String(x ?? '').trim())) continue;
+    /* объект, система и их поля «тянутся» вниз */
+    const objName = String(get(row, 'obj') ?? '').trim(), sysName = String(get(row, 'sys') ?? '').trim();
+    if (objName && objName !== cur.obj) cur = { obj: objName, addr: '', sys: '', loc: '', stype: '' };
+    if (sysName && sysName !== cur.sys) { cur.sys = sysName; cur.loc = ''; cur.stype = ''; }
+    ['addr', 'loc', 'stype'].forEach((k) => { const v = String(get(row, k) ?? '').trim(); if (v) cur[k] = v; });
+    if (!cur.obj || !cur.sys) { st.skipped++; continue; }
+    let o = Store.all('object').find((x) => normH(x.name) === normH(cur.obj)) || Array.from(touched.values()).find((x) => x.kind === 'object' && normH(x.name) === normH(cur.obj));
+    if (!o) { o = { id: newId('o'), kind: 'object', name: cur.obj, address: '', date: todayISO(), createdAt: now, ft: {} }; st.newObj++; }
+    if (cur.addr && o.address !== cur.addr) { o.address = cur.addr; (o.ft || (o.ft = {})).address = now; }
+    touched.set(o.id, o); st.objs.add(o.name);
+    let s = Store.all('system').find((x) => x.objectId === o.id && normH(x.name) === normH(cur.sys));
+    if (!s) s = Array.from(touched.values()).find((x) => x.kind === 'system' && x.objectId === o.id && normH(x.name) === normH(cur.sys));
+    if (!s) { s = { id: newId('s'), kind: 'system', objectId: o.id, name: cur.sys, location: '', type: 'supply', date: todayISO(), sections: [], pass: {}, createdAt: now, ft: {} }; st.newSys++; }
+    if (cur.loc && s.location !== cur.loc) { s.location = cur.loc; (s.ft || (s.ft = {})).location = now; }
+    if (cur.stype) { const t = SYS_TYPES.find(([, n]) => normH(n) === normH(cur.stype)) || SYS_TYPES.find(([, n]) => normH(n).startsWith(normH(cur.stype))); if (t && s.type !== t[0]) { s.type = t[0]; (s.ft || (s.ft = {})).type = now; } }
+    touched.set(s.id, s);
+    const no = tplNum(get(row, 'no'));
+    if (!no) continue;
+    s.sections = s.sections || [];
+    let c = s.sections.find((x) => normH(x.no) === normH(no));
+    const isNew = !c;
+    if (!c) {
+      c = { id: newId('c'), no, place: '', room: '', Lp: '', ps: '', note: '', vAvg: '', total: '', v2: 1, role: 'terminal', method: '', entry: 'V', shape: 'rect', D: '', a: '', b: '', t: '', kFree: '1', kFan: '' };
+      s.sections.push(c);
+    }
+    let ch = false;
+    const set = (k, v) => { if (v === '' || v === undefined) return; if (String(c[k] ?? '') !== String(v)) { c[k] = v; ch = true; } };
+    set('room', String(get(row, 'room') ?? '').trim());
+    set('place', String(get(row, 'place') ?? '').trim());
+    set('role', tplRole(get(row, 'role')));
+    const m = tplMethod(get(row, 'method'));
+    if (m) { set('method', m); if (isNew) c.entry = m === 'hood' ? 'L' : 'V'; }
+    ['D', 'a', 'b', 'kFree', 'kFan', 'Lp'].forEach((k) => set(k, tplNum(get(row, k))));
+    const shp = normH(get(row, 'shape'));
+    if (shp.startsWith('кругл')) set('shape', 'round'); else if (shp.startsWith('прям')) set('shape', 'rect');
+    else if (isNew && c.D && !(c.a || c.b)) c.shape = 'round';
+    if (isNew) { st.newPts++; c.u = now; } else if (ch) { st.updPts++; c.u = now; }
+  }
+  touched.forEach((d) => Store.save(d));
+  const parts = [];
+  if (st.newObj) parts.push(`новых объектов ${st.newObj}`);
+  if (st.newSys) parts.push(`новых систем ${st.newSys}`);
+  if (st.newPts) parts.push(`новых точек ${st.newPts}`);
+  if (st.updPts) parts.push(`обновлено точек ${st.updPts}`);
+  if (st.skipped) parts.push(`пропущено строк без объекта или системы ${st.skipped}`);
+  toast('Шаблон: ' + (parts.length ? parts.join(', ') : 'изменений нет') + '.');
+  if (st.objs.size === 1) { const o = Store.all('object').find((x) => st.objs.has(x.name)); if (o) { go({ name: 'object', oid: o.id }); Store.kick(); return; } }
+  render(); Store.kick();
+}
+
 /* ===== маршрутизация и события ===== */
 const savedUI = lsGet(LS_UI);
 if (savedUI && savedUI.tab) UI.tab = savedUI.tab;
@@ -3087,6 +3312,7 @@ document.addEventListener('click', (e) => {
       UI.armedPhoto = null; deletePhoto(d.s, a.dataset.slot, Number(a.dataset.i)); break;
     }
     case 'backup': exportBackup(); break;
+    case 'template': exportTemplate(); break;
     case 'import': $('#import-file').click(); break;
     case 'ov-close': $('#overlay-root').innerHTML = ''; break;
     case 'ov-copy': {
