@@ -23,6 +23,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.view.WindowCompat
 import androidx.webkit.WebViewAssetLoader
 import java.io.File
 
@@ -214,8 +215,52 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        /** «Отправить…»: только окно «Поделиться» (WhatsApp, Telegram, почта), без копии в Загрузках. */
+        @JavascriptInterface
+        fun shareFile(name: String, base64: String, mime: String) {
+            val bytes = try {
+                Base64.decode(base64, Base64.DEFAULT)
+            } catch (e: Exception) {
+                toast("Файл не отправлен: ошибка данных"); return
+            }
+            val safeName = name.replace(Regex("[\\\\/:*?\"<>|]"), "_")
+            runOnUiThread {
+                try {
+                    val shareFile = File(File(cacheDir, "exports").apply { mkdirs() }, safeName)
+                    shareFile.writeBytes(bytes)
+                    val uri = FileProvider.getUriForFile(this@MainActivity, "$packageName.files", shareFile)
+                    val send = Intent(Intent.ACTION_SEND).apply {
+                        type = mime
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        putExtra(Intent.EXTRA_SUBJECT, safeName)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    startActivity(Intent.createChooser(send, getString(R.string.send_file)))
+                } catch (e: Exception) {
+                    toast("Не удалось отправить — нажмите «Сохранить»")
+                }
+            }
+        }
+
+        /** Тема страницы: строка состояния и панель навигации в цвет фона. */
+        @JavascriptInterface
+        fun setBars(dark: Boolean) {
+            runOnUiThread { applyBars(dark) }
+        }
+
         @JavascriptInterface
         fun isApp(): Boolean = true
+    }
+
+    private fun applyBars(dark: Boolean) {
+        val bg = if (dark) 0xFF0E1317.toInt() else 0xFFE8EDF2.toInt()
+        window.statusBarColor = bg
+        window.navigationBarColor = bg
+        web.setBackgroundColor(bg)
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = !dark
+            isAppearanceLightNavigationBars = !dark
+        }
     }
 
     private fun saveToDownloads(name: String, bytes: ByteArray, mime: String): Boolean {

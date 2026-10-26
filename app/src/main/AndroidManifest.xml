@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- интернет нужен только для таблицы Excel; всё остальное работает без сети -->
+    <!-- интернет не обязателен: всё работает без сети (шрифты подгружаются, если сеть есть) -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <queries>
@@ -13,7 +13,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.VentNotebook">

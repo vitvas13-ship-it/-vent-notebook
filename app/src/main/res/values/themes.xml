@@ -3,9 +3,9 @@
     <style name="Theme.VentNotebook" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/graphite</item>
         <item name="colorAccent">@color/signal</item>
-        <item name="android:windowBackground">@color/white</item>
-        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowBackground">@color/paper</item>
+        <item name="android:statusBarColor">@color/paper</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:navigationBarColor">@color/paper</item>
     </style>
 </resources>
