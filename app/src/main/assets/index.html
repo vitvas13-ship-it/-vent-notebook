@@ -655,6 +655,22 @@ body .crumbs.scr > .scr-o{flex:0 1 auto !important;min-width:0;overflow:hidden;t
 .ed-pen{flex:none;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);color:var(--ink-2);min-width:40px;min-height:36px;font-size:17px;line-height:1;cursor:pointer;padding:0 8px}
 .sys-head .mod-tt{font-size:26px;color:var(--ink)}
 
+/* кнопки выгрузки: название документа + формат */
+.btn.fmt-b{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.15}
+.btn.fmt-b small{font-size:11px;font-weight:700;letter-spacing:.05em;padding:1px 7px;border-radius:4px;font-family:var(--f-body)}
+.fmt-pdf{background:#FBE3E1;color:#B0281F}
+.fmt-excel{background:#DDF1E4;color:#1C7343}
+:root[data-app-theme="dark"] .fmt-pdf{background:#4A1F1C;color:#FF9C94}
+:root[data-app-theme="dark"] .fmt-excel{background:#173826;color:#7FD3A0}
+
+/* выгрузка: кнопка + что внутри */
+.exp-list{display:flex;flex-direction:column}
+.exp-row{display:grid;grid-template-columns:118px minmax(0,1fr);gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--grid)}
+.exp-row:first-child{border-top:0}
+.exp-row .btn{width:100%;min-height:52px}
+.exp-row p{margin:0;font-size:13.5px;line-height:1.35;color:var(--ink-2)}
+.exp-row p b{color:var(--ink);font-weight:600}
+
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
 .sect-sw{display:flex;width:100%;max-width:520px}
@@ -2059,12 +2075,9 @@ function viewObject(o) {
         <p class="hint" style="margin-top:8px">Расход вентилятора — среднее по точкам «Вент. всас» и «Вент. нагнет» (или одна из них). Брак — только недобор больше 5 % от проекта; превышение проекта допускается.</p>`
         : `<p class="muted">Систем пока нет. Добавьте первую — например, П1 или В1, или заполните объект из паспортов PDF на главном экране.</p>`}
     </section>
-    <section class="card c-send"><div class="card-head"><h2>Отправить заказчику</h2></div>
-      <p class="muted small" style="margin-bottom:10px">Отчёт PDF — таблицы, заметки, схема и фото. Паспорта — по форме СП 73. Excel — все системы и точки с фильтрами.</p>
-      <div class="head-actions"><button class="btn primary" data-act="export-pdf">Отчёт PDF</button><button class="btn" data-act="export-pass">Паспорта систем</button><button class="btn" data-act="export-xlsx">Таблица Excel</button></div></section>
-    <section class="card c-point"><div class="card-head"><h2>Обмен с напарником</h2></div>
-      <p class="muted small" style="margin-bottom:10px">Файл только этого объекта: системы, точки, фото, схема. Напарник загружает его кнопкой «Загрузить файл» — данные сливаются: по каждой точке остаётся более свежая запись, удалённое удаляется и у него.</p>
-      <div class="head-actions"><button class="btn primary" data-act="export-object">Отправить объект</button><button class="btn" data-act="import">Загрузить файл</button></div></section>
+    ${modCard('obj.send', 'c-send', 'Отправить заказчику', 'PDF · Excel', `<div class="exp-list"><div class="exp-row"><button class="btn fmt-b" data-act="export-pdf"><span>Отчёт</span><small class="fmt-pdf">PDF</small></button><p><b>Отчёт по объекту.</b> Все системы: таблицы замеров, отклонения, заметки и замечания, фото, схемы — одним файлом.</p></div><div class="exp-row"><button class="btn fmt-b" data-act="export-pass"><span>Паспорта</span><small class="fmt-pdf">PDF</small></button><p><b>Для сдачи объекта.</b> Паспорта всех систем по форме СП 73 одним файлом — каждая система с новой страницы, со схемой.</p></div><div class="exp-row"><button class="btn fmt-b" data-act="export-xlsx"><span>Таблица</span><small class="fmt-excel">Excel</small></button><p><b>Все системы и точки</b> на двух листах с фильтрами — для работы на компьютере.</p></div></div>`)}
+    ${modCard('obj.swap', 'c-point', 'Обмен с напарником', 'файл объекта', `      <p class="muted small" style="margin-bottom:10px">Файл только этого объекта: системы, точки, фото, схема. Напарник загружает его кнопкой «Загрузить файл» — данные сливаются: по каждой точке остаётся более свежая запись, удалённое удаляется и у него.</p>
+      <div class="head-actions"><button class="btn primary" data-act="export-object">Отправить объект</button><button class="btn" data-act="import">Загрузить файл</button></div>`)}
     <div class="head-actions">${delBtn('obj:' + o.id, 'Удалить объект')}</div>
   </div>`;
 }
@@ -2101,9 +2114,8 @@ function viewSystem(sys) {
     ${roomsCard(res)}
     ${schemeCard(sys)}
     ${eq[1]}
-    <section class="card c-send sys-share"><div class="card-head"><h2>Отправить систему</h2></div>
-      <p class="small muted" style="margin:0 0 10px">Замеры только этой системы — в WhatsApp, Telegram или на почту.</p>
-      <div class="head-actions"><button class="btn" data-act="sys-share" data-fmt="pass">Паспорт</button><button class="btn" data-act="sys-share" data-fmt="pdf">Отчёт</button><button class="btn" data-act="sys-share" data-fmt="xlsx">Excel</button></div></section>
+    ${modCard('sys.share', 'c-send sys-share', 'Отправить систему', 'PDF · Excel', `      <p class="small muted" style="margin:0 0 4px">Только эта система. Выберите документ — дальше «Отправить» (WhatsApp, Telegram, почта) или «Сохранить».</p>
+      <div class="exp-list"><div class="exp-row"><button class="btn fmt-b" data-act="sys-share" data-fmt="pass"><span>Паспорт</span><small class="fmt-pdf">PDF</small></button><p><b>Для сдачи системы.</b> Паспорт по форме приложения Е СП 73.13330.2016: вентилятор и двигатель (проект / факт), расходы по точкам, выводы о соответствии, подписи, схема.</p></div><div class="exp-row"><button class="btn fmt-b" data-act="sys-share" data-fmt="pdf"><span>Отчёт</span><small class="fmt-pdf">PDF</small></button><p><b>Рабочий отчёт по замерам.</b> Все точки: место, размер сечения, метод, проект / факт, отклонение; заметки и замечания, фото шильдиков, схема.</p></div><div class="exp-row"><button class="btn fmt-b" data-act="sys-share" data-fmt="xlsx"><span>Таблица</span><small class="fmt-excel">Excel</small></button><p><b>Замеры таблицей</b> — сортировать, фильтровать и править на компьютере.</p></div></div>`)}
     ${(() => {
       const ss = systemsOf(sys.objectId), at = ss.findIndex((x) => x.id === sys.id), pv = ss[at - 1], nx = ss[at + 1];
       const nav = (x, t) => (x ? `<button class="btn sm" data-act="go" data-go='${esc(JSON.stringify({ name: 'system', sid: x.id }))}' aria-label="${t} система">${t === 'prev' ? '‹ ' + esc(x.name || '') : esc(x.name || '') + ' ›'}</button>` : '<span></span>');
@@ -3608,7 +3620,7 @@ async function importTemplate(file) {
     for (let r = 0; r < Math.min(10, sh.rows.length) && !found; r++) {
       const map = {};
       (sh.rows[r] || []).forEach((cell, ci) => { const h = normH(cell); if (!h) return; const k = TPL_KEYS.find(([key, f]) => !(key in map) && f(h)); if (k) map[k[0]] = ci; });
-      if ('sys' in map && 'no' in map) found = { sh, r, map };
+      if ('sys' in map && 'no' in map && 'obj' in map) found = { sh, r, map };
     }
     if (found) break;
   }
@@ -4675,6 +4687,18 @@ body.pdv-on .norms .tbl-wrap td:first-child{font-weight:600}
 body.pdv-on .norms .tbl-wrap td:nth-child(2){color:var(--ink-2);margin-top:2px}}
 body.pdv-on .fgrid input[data-path$=".type"],body.pdv-on .fgrid input[data-path$=".typeF"]{text-align:left;font-size:13px;padding-left:6px;padding-right:4px}
 body.pdv-on .ed-pen{flex:none;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);color:var(--ink-2);min-width:40px;min-height:36px;font-size:17px;line-height:1;cursor:pointer;padding:0 8px}
+body.pdv-on .btn.fmt-b{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.15}
+body.pdv-on .btn.fmt-b small{font-size:11px;font-weight:700;letter-spacing:.05em;padding:1px 7px;border-radius:4px;font-family:var(--f-body)}
+body.pdv-on .fmt-pdf{background:#FBE3E1;color:#B0281F}
+body.pdv-on .fmt-excel{background:#DDF1E4;color:#1C7343}
+body.pdv-on[data-app-theme="dark"] .fmt-pdf{background:#4A1F1C;color:#FF9C94}
+body.pdv-on[data-app-theme="dark"] .fmt-excel{background:#173826;color:#7FD3A0}
+body.pdv-on .exp-list{display:flex;flex-direction:column}
+body.pdv-on .exp-row{display:grid;grid-template-columns:118px minmax(0,1fr);gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--grid)}
+body.pdv-on .exp-row:first-child{border-top:0}
+body.pdv-on .exp-row .btn{width:100%;min-height:52px}
+body.pdv-on .exp-row p{margin:0;font-size:13.5px;line-height:1.35;color:var(--ink-2)}
+body.pdv-on .exp-row p b{color:var(--ink);font-weight:600}
 /* редактор пометок — общий для обоих разделов */
 .toast{z-index:60}
 .ann{position:fixed;inset:0;z-index:55;background:#1E252B;display:flex;flex-direction:column;color:#fff;padding-top:env(safe-area-inset-top,0px)}
@@ -5252,9 +5276,8 @@ function viewSystem(o, name) {
       return modCard('sys.sch', 'c-geom c-sch', 'Схема', sum, `${photoGrid(o, 'sch:' + keyEnc(name), 'схема, план', { pdf: true })}
       ${field(o, `${k}.schNote`, 'Примечание', { area: true, ph: 'лист проекта, отличия от схемы, что уточнить…' })}`);
     })()}
-    <section class="card c-send sys-share"><div class="card-head"><h2>Отправить систему</h2></div>
-      <p class="small muted" style="margin:0 0 10px">Замеры только этой системы — в WhatsApp, Telegram или на почту.</p>
-      <div class="head-actions"><button class="btn" data-act="sys-share" data-fmt="pass">Паспорт</button><button class="btn" data-act="sys-share" data-fmt="pdf">Протокол</button><button class="btn" data-act="sys-share" data-fmt="xlsx">Excel</button></div></section>
+    ${modCard('sys.share', 'c-send sys-share', 'Отправить систему', 'PDF · Excel', `      <p class="small muted" style="margin:0 0 4px">Только эта система. Выберите документ — дальше «Отправить» (WhatsApp, Telegram, почта) или «Сохранить».</p>
+      <div class="exp-list"><div class="exp-row"><button class="btn fmt-b" data-act="sys-share" data-fmt="pass"><span>Паспорт</span><small class="fmt-pdf">PDF</small></button><p><b>Для сдачи системы.</b> Паспорт по форме приложения Е СП 73.13330.2016: вентилятор и двигатель (проект / факт), расходы по точкам, выводы о соответствии, подписи, схема.</p></div><div class="exp-row"><button class="btn fmt-b" data-act="sys-share" data-fmt="pdf"><span>Протокол</span><small class="fmt-pdf">PDF</small></button><p><b>Протокол испытаний по ГОСТ Р 53300.</b> Расход и давление по точкам, норма, вывод «соответствует / не соответствует», приборы, подписи.</p></div><div class="exp-row"><button class="btn fmt-b" data-act="sys-share" data-fmt="xlsx"><span>Таблица</span><small class="fmt-excel">Excel</small></button><p><b>Точки системы таблицей</b> — для правки на компьютере.</p></div></div>`)}
     <div class="obar sbar">${nav(prev, 'Предыдущая')}<button class="btn primary" data-act="row-add">+ Точка</button>${nav(next, 'Следующая')}</div>
   </div>`;
 }
@@ -5279,6 +5302,7 @@ function viewZones(o) {
     <div class="obar">
       <button class="btn primary" data-act="zone-add">+ Зона</button>
       ${floorsOf(o).filter(Boolean).length ? '<button class="btn" data-act="zone-auto">Зоны по этажам</button>' : ''}
+      ${zs.some((z) => (z.members || []).length) ? '<button class="btn fmt-b" data-act="zones-pdf"><span>Лист для приёмки</span><small class="fmt-pdf">PDF</small></button>' : ''}
     </div>
   </div>`;
 }
@@ -5413,7 +5437,7 @@ function sheetProto(o) {
     ${field(o, 'address', 'Адрес объекта')}
     <div class="lbl" style="margin-top:12px">Приборы</div>${inst || '<p class="muted small">Попадут в протокол.</p>'}
     <button class="btn sm" data-act="inst-add" style="margin-top:6px">+ Прибор</button>`;
-  return sheetWrap('Протокол', body, `<button class="btn primary" data-act="export-pdf">Протокол PDF</button><button class="btn" data-act="export-pass">Паспорта систем</button><button class="btn" data-act="export-xlsx">Таблица Excel</button><button class="btn" data-act="sheet-close">Закрыть</button>`);
+  return sheetWrap('Протокол', body + `<div class="lbl" style="margin-top:16px">Выгрузить</div><div class="exp-list"><div class="exp-row"><button class="btn fmt-b" data-act="export-pdf"><span>Протокол</span><small class="fmt-pdf">PDF</small></button><p><b>Протокол по ГОСТ Р 53300 на весь объект.</b> Все системы и точки, приборы, подписи; шапка — из полей выше.</p></div><div class="exp-row"><button class="btn fmt-b" data-act="export-pass"><span>Паспорта</span><small class="fmt-pdf">PDF</small></button><p><b>Для сдачи объекта.</b> Паспорта всех систем по форме СП 73 одним файлом — каждая система с новой страницы, со схемой.</p></div><div class="exp-row"><button class="btn fmt-b" data-act="export-xlsx"><span>Таблица</span><small class="fmt-excel">Excel</small></button><p><b>Все точки</b> — листы по этажам и по зонам.</p></div></div>`, `<button class="btn" data-act="sheet-close">Закрыть</button>`);
 }
 function sheetMore(o) {
   return sheetWrap('Ещё', `<div class="stack" style="gap:8px">
@@ -5848,7 +5872,8 @@ async function importXLSX(file) {
     });
   });
   if (!items.size) { toast('В таблице не нашлось столбцов «Система» и «Этаж».'); return; }
-  const o = targetObject(String(file.name || 'Объект').replace(/\.xlsx$/i, '').replace(/_/g, ' ').trim());
+  const fn = String(file.name || '').replace(/\.xlsx$/i, '').replace(/_/g, ' ').trim();
+  const o = targetObject(/[a-zа-яё0-9]/i.test(fn) ? fn : 'Объект из Excel');
   const map = sysMap(o);
   let nSys = 0, nNew = 0, nUpd = 0;
   items.forEach((it) => {
@@ -7459,6 +7484,121 @@ async function importSpec(recs, file) {
   toast(`Спецификация: марки оборудования.${smoke.length ? ` Противодымная: новых систем ${nS}, обновлено ${nU}.` : ''}${vMsg}`);
 }
 
+/* ===== Зоны PDF: лист для приёмщиков на комплексном опробовании =====
+   Зоны подряд; в каждой — системы, которые должны запуститься, и квадрат для отметки.
+   Отмеченное в блокноте «работает» печатается с галочкой. */
+async function zonesPDF(o) {
+  const zs = zonesOf(o).filter((z) => (z.members || []).length);
+  const DPI = 150, MM = DPI / 25.4, PT = DPI / 72;
+  const PW = Math.round(210 * MM), PH = Math.round(297 * MM);
+  const ML = 15 * MM, MR = 10 * MM, MT = 12 * MM, MB = 14 * MM, CW = PW - ML - MR, BOTTOM = PH - MB;
+  const FAM = 'Arial, Roboto, "Helvetica Neue", Helvetica, sans-serif';
+  const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH;
+  const ctx = cv.getContext('2d');
+  const font = (pt, b) => `${b ? 'bold ' : ''}${Math.round(pt * PT)}px ${FAM}`;
+  const pages = [[]];
+  let y = MT;
+  const cur = () => pages[pages.length - 1];
+  const newPage = () => { pages.push([]); y = MT; };
+  function wrap(text, maxW, f) {
+    ctx.font = f;
+    const out = []; let line = '';
+    String(text ?? '').split(/\s+/).filter(Boolean).forEach((w) => {
+      const t = line ? line + ' ' + w : w;
+      if (ctx.measureText(t).width <= maxW || !line) line = t; else { out.push(line); line = w; }
+    });
+    if (line) out.push(line);
+    return out.length ? out : [''];
+  }
+  const text = (t, x, yy, f, color = '#111', align = 'left') => cur().push(() => { ctx.font = f; ctx.fillStyle = color; ctx.textAlign = align; ctx.fillText(t, x, yy); ctx.textAlign = 'left'; });
+
+  /* шапка */
+  const head = (first) => {
+    if (first) {
+      text('Комплексное опробование противодымной вентиляции', ML, y, font(13, true)); y += 13 * PT * 1.4;
+      const sub = [o.name, o.address, fmtDate(todayISO())].filter((x) => String(x || '').trim()).join(' · ');
+      wrap(sub, CW, font(9)).forEach((l) => { text(l, ML, y, font(9), '#444'); y += 9 * PT * 1.35; });
+      y += 2 * MM;
+    }
+  };
+  /* колонки: система | назначение | где | ✓ */
+  const COLS = [0.17, 0.39, 0.32, 0.12].map((k) => k * CW);
+  const X = COLS.reduce((a, w, i) => (a.push(a[i] + w), a), [ML]);
+  const PAD = 1.6 * MM, FS = 9, LH = FS * PT * 1.3;
+  const thead = () => {
+    const h = 7 * MM, yy = y;
+    cur().push(() => { ctx.fillStyle = '#EEF1F4'; ctx.fillRect(ML, yy, CW, h); ctx.strokeStyle = '#9AA6AF'; ctx.lineWidth = 1; ctx.strokeRect(ML, yy, CW, h); });
+    ['Система', 'Назначение', 'Где стоит', 'Работает'].forEach((t, i) => text(t, i === 3 ? X[i] + COLS[i] / 2 : X[i] + PAD, yy + 2 * MM, font(8, true), '#333', i === 3 ? 'center' : 'left'));
+    y += h;
+  };
+  const zRows = (z) => sortRows(o, (z.members || []).map((n) => ({ s: n, floor: '' }))).map((x) => x.s).map((n) => {
+    const i = sysInfo(o, n);
+    const loc = /венткамер/i.test(i.loc || '') ? 'Венткамера ' + locNo(i.loc) : String(i.loc || '').trim();
+    const cab = String(i.cab || '').trim() ? 'шкаф ' + locNo(i.cab).replace(/^пом\. /, '') : '';
+    return { n, pur: purposeLabel(o, n), where: [loc, cab].filter(Boolean).join(', ') || '—', done: !!(z.done && z.done[n]) };
+  });
+  const rowH = (r) => Math.max(wrap(r.pur, COLS[1] - 2 * PAD, font(FS)).length, wrap(r.where, COLS[2] - 2 * PAD, font(FS)).length, 1) * LH + 2 * PAD;
+
+  head(true);
+  if (!zs.length) text('Зон с системами нет.', ML, y, font(10), '#666');
+  zs.forEach((z) => {
+    const rows = zRows(z);
+    const zh = 8 * MM, hh = 7 * MM, firstH = rows.length ? rowH(rows[0]) : 0;
+    /* зону не разрываем, если она помещается на страницу целиком */
+    const total = zh + hh + rows.reduce((a, r) => a + rowH(r), 0) + 4 * MM;
+    if (y + total > BOTTOM && total < BOTTOM - MT) newPage();
+    else if (y + zh + hh + firstH > BOTTOM) newPage();
+    /* полоса зоны */
+    const yy = y, dn = rows.filter((r) => r.done).length;
+    cur().push(() => { ctx.fillStyle = '#1B2228'; ctx.fillRect(ML, yy, CW, zh); });
+    text(z.name || 'Зона', ML + PAD, yy + 2 * MM, font(10.5, true), '#fff');
+    text(`систем: ${rows.length}${dn ? ` · отмечено: ${dn}` : ''}`, ML + CW - PAD, yy + 2.4 * MM, font(8.5), '#C9D1D7', 'right');
+    y += zh;
+    thead();
+    rows.forEach((r) => {
+      const h = rowH(r);
+      if (y + h > BOTTOM) { newPage(); text(`${z.name || 'Зона'} (продолжение)`, ML, y, font(9, true), '#333'); y += 6 * MM; thead(); }
+      const ry = y;
+      cur().push(() => {
+        ctx.strokeStyle = '#9AA6AF'; ctx.lineWidth = 1;
+        X.slice(0, -1).forEach((x, i) => ctx.strokeRect(x, ry, COLS[i], h));
+        /* квадрат отметки */
+        const s = 5 * MM, bx = X[3] + (COLS[3] - s) / 2, by = ry + (h - s) / 2;
+        ctx.lineWidth = 2; ctx.strokeStyle = '#333'; ctx.strokeRect(bx, by, s, s);
+        if (r.done) { ctx.strokeStyle = '#1C7343'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(bx + s * 0.18, by + s * 0.55); ctx.lineTo(bx + s * 0.42, by + s * 0.8); ctx.lineTo(bx + s * 0.85, by + s * 0.2); ctx.stroke(); }
+      });
+      text(r.n, X[0] + PAD, ry + PAD, font(FS + 1, true));
+      wrap(r.pur, COLS[1] - 2 * PAD, font(FS)).forEach((l, k) => text(l, X[1] + PAD, ry + PAD + k * LH, font(FS)));
+      wrap(r.where, COLS[2] - 2 * PAD, font(FS)).forEach((l, k) => text(l, X[2] + PAD, ry + PAD + k * LH, font(FS), '#333'));
+      y += h;
+    });
+    y += 5 * MM;
+  });
+
+  const total = pages.length, out = [];
+  for (let i = 0; i < total; i++) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, PW, PH);
+    ctx.textBaseline = 'top';
+    pages[i].forEach((fn) => fn());
+    ctx.font = font(7); ctx.fillStyle = '#888'; ctx.textAlign = 'left';
+    const pg = `стр. ${i + 1} из ${total}`; ctx.fillText(pg, PW - MR - ctx.measureText(pg).width, PH - MB + 5 * MM);
+    const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.85));
+    if (!blob) throw new Error('jpeg');
+    out.push({ w: PW, h: PH, bytes: new Uint8Array(await blob.arrayBuffer()) });
+  }
+  return pdfFromJpegs(out, 'Комплексное опробование — ' + (o.name || ''));
+}
+async function exportZones(o) {
+  if (UI.pdfBusy) return;
+  if (!zonesOf(o).some((z) => (z.members || []).length)) { toast('В зонах пока нет систем.'); return; }
+  UI.pdfBusy = true; toast('Готовлю лист по зонам…');
+  try {
+    const pdf = await zonesPDF(o);
+    offerFile(`${fileSafe(o.name)} — зоны опробования ${fmtDate(todayISO())}.pdf`, pdf, () => toast('Не удалось сохранить PDF.'));
+  } catch (e) { toast('Не удалось сделать PDF. Попробуйте ещё раз.'); } finally { UI.pdfBusy = false; }
+}
+
 
 /* ===== отрисовка: объекты → объект (системы) → система (вентилятор + точки); зоны отдельно ===== */
 function persistUI() { lsSet(LS_UI, { tab: UI.tab, route: UI.route, ov: UI.ov }); }
@@ -7752,6 +7892,7 @@ document.addEventListener('click', (e) => {
       Promise.resolve(a.dataset.fmt === 'pass' ? exportPassports(o, [n]) : a.dataset.fmt === 'pdf' ? exportPDF(sub) : exportTable(sub)).finally(() => { window.__shareNext = false; });
       break;
     }
+    case 'zones-pdf': if (o) exportZones(o); break;
     case 'export-object': if (o) { if (UI.sheet && UI.sheet.type === 'more') closeSheet(); exportObject(o); } break;
     case 'ov-close': ovRoot.innerHTML = ''; break;
     case 'ov-copy': {
@@ -8040,7 +8181,7 @@ function tplImportPdv(sheets, objFor) {
     for (let r = 0; r < Math.min(10, sh.rows.length) && !found; r++) {
       const map = {};
       (sh.rows[r] || []).forEach((cell, ci) => { const h = normH(cell); if (!h) return; const k = PT_KEYS.find(([key, f]) => !(key in map) && f(h)); if (k) map[k[0]] = ci; });
-      if ('sys' in map && ('pur' in map || 'floor' in map) && !('no' in map)) found = { sh, r, map };
+      if ('sys' in map && 'obj' in map && ('pur' in map || 'floor' in map) && !('no' in map)) found = { sh, r, map };
     }
     if (found) break;
   }
