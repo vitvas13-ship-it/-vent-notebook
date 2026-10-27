@@ -1513,7 +1513,8 @@ function photoGrid(sys, slot, what = 'шильдик') {
 }
 
 function showPhoto(sys, slot, i) {
-  if (slot === 'scheme') { showScheme(sys, i); return; }
+  /* все фото — в полноэкранном просмотре с масштабом пальцами (как схема) */
+  showScheme(sys, i, slot); return;
   const p = peekPhotos(sys, slot)[i];
   if (!p) return;
   const armed = UI.armedPhoto === `${slot}:${i}`;
@@ -1711,26 +1712,27 @@ function schemeCard(sys) {
     list.length ? '<button class="btn sm" data-act="scheme-view" data-i="0">Открыть</button>' : '');
 }
 
-function showScheme(sys, i) {
-  const list = peekPhotos(sys, 'scheme');
+function showScheme(sys, i, slot = 'scheme') {
+  const list = peekPhotos(sys, slot);
   const p = list[i];
-  if (!p) return;
-  const armed = UI.armedPhoto === `scheme:${i}`;
+  if (!p) { $('#overlay-root').innerHTML = ''; return; }
+  const armed = UI.armedPhoto === `${slot}:${i}`;
+  const sch = slot === 'scheme', what = sch ? 'схема' : slotName(sys, slot).toLowerCase();
   const n = list.length, prev = (i - 1 + n) % n, next = (i + 1) % n;
   const root = $('#overlay-root');
   root._copy = null;
-  root.innerHTML = `<div class="zv" role="dialog" aria-modal="true" aria-label="Схема ${esc(sys.name || '')}">
-    <div class="zv-top"><b>${esc(sys.name || 'Система')} · схема${n > 1 ? ` ${i + 1}/${n}` : ''}</b><span class="zv-name">${esc(p.name || '')}</span>
+  root.innerHTML = `<div class="zv" role="dialog" aria-modal="true" aria-label="${esc(sys.name || '')}: ${esc(what)}">
+    <div class="zv-top"><b>${esc(sys.name || 'Система')} · ${esc(what)}${n > 1 ? ` ${i + 1}/${n}` : ''}</b><span class="zv-name">${esc(p.name || '')}</span>
       <button class="btn sm" data-act="ov-close">Закрыть</button></div>
-    <div class="zv-stage" id="zv-stage"><img id="zv-img" src="${esc(photoSrc(p))}" alt="Схема ${esc(sys.name || '')}" draggable="false"></div>
+    <div class="zv-stage" id="zv-stage"><img id="zv-img" src="${esc(photoSrc(p))}" alt="${esc(what)} ${esc(sys.name || '')}" draggable="false"></div>
     <div class="zv-bot">
-      ${n > 1 ? `<button class="btn sm" data-act="scheme-view" data-i="${prev}" aria-label="Предыдущий лист">‹</button>` : ''}
+      ${n > 1 ? `<button class="btn sm" data-act="scheme-view" data-slot="${esc(slot)}" data-i="${prev}" aria-label="Предыдущий">‹</button>` : ''}
       <button class="btn sm" data-act="zv-zoom" data-k="0.6" aria-label="Уменьшить">−</button>
       <button class="btn sm" data-act="zv-fit">Вписать</button>
-      <button class="btn sm" data-act="ann-vent" data-slot="scheme" data-i="${i}">✎ Пометки</button>
+      <button class="btn sm" data-act="ann-vent" data-slot="${esc(slot)}" data-i="${i}">✎ Пометки</button>
       <button class="btn sm" data-act="zv-zoom" data-k="1.6" aria-label="Увеличить">+</button>
-      ${n > 1 ? `<button class="btn sm" data-act="scheme-view" data-i="${next}" aria-label="Следующий лист">›</button>` : ''}
-      <button class="btn sm danger${armed ? ' armed' : ''}" data-act="photo-del" data-slot="scheme" data-i="${i}">${armed ? 'Ещё раз — удалить' : 'Удалить'}</button>
+      ${n > 1 ? `<button class="btn sm" data-act="scheme-view" data-slot="${esc(slot)}" data-i="${next}" aria-label="Следующий">›</button>` : ''}
+      <button class="btn sm danger${armed ? ' armed' : ''}" data-act="photo-del" data-slot="${esc(slot)}" data-i="${i}">${armed ? 'Ещё раз — удалить' : 'Удалить'}</button>
     </div></div>`;
   zoomInit();
 }
@@ -4029,7 +4031,7 @@ document.addEventListener('click', (e) => {
     case 'export-object': if (d.o) exportObject(d.o); break;
     case 'photo-add': { const inp = document.getElementById('pf-' + a.dataset.slot); if (inp) inp.click(); break; }
     case 'photo-view': { if (!d.s) break; UI.armedPhoto = null; showPhoto(d.s, a.dataset.slot, Number(a.dataset.i)); break; }
-    case 'scheme-view': { if (!d.s) break; UI.armedPhoto = null; showScheme(d.s, Number(a.dataset.i)); break; }
+    case 'scheme-view': { if (!d.s) break; UI.armedPhoto = null; showScheme(d.s, Number(a.dataset.i), a.dataset.slot || 'scheme'); break; }
     case 'zv-zoom': { const st = $('#zv-stage'); if (st && st._zv) st._zv.zoom(Number(a.dataset.k)); break; }
     case 'zv-fit': { const st = $('#zv-stage'); if (st && st._zv) st._zv.fit(); break; }
     case 'ann-vent': { if (d.s) annotateVent(d.s, a.dataset.slot, Number(a.dataset.i)); break; }
@@ -4520,9 +4522,8 @@ body.pdv-on .ann-b:disabled{opacity:.4}
 body.pdv-on .ann-c{width:34px;height:34px;border-radius:50%;border:3px solid #fff3;background:var(--c);cursor:pointer}
 body.pdv-on .ann-c.on{border-color:#fff;box-shadow:0 0 0 2px var(--c)}
 body.pdv-on .ann-txt input{width:100%;min-height:42px;padding:6px 10px;border-radius:8px;border:1.5px solid #3A4650;background:#fff;color:#111;font-size:16px}
-body.pdv-on .ann-wrap{flex:1;overflow:auto;padding:8px;-webkit-overflow-scrolling:touch}
-body.pdv-on .ann-wrap canvas{display:block;margin:0 auto;background:#fff;touch-action:none;max-width:none}
-body.pdv-on .ann-wrap.pan canvas{touch-action:auto}
+body.pdv-on .ann-stage{flex:1;position:relative;overflow:hidden;touch-action:none;background:#2A333B}
+body.pdv-on .ann-stage canvas{position:absolute;left:0;top:0;transform-origin:0 0;background:#fff;max-width:none;box-shadow:0 2px 16px rgba(0,0,0,.35)}
 body.pdv-on .ann-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:#151B20}
 body.pdv-on .ann-foot .muted{color:#B8C2CA}
 body.pdv-on .pdf-fig{display:flex;flex-direction:column;gap:4px}
@@ -4548,6 +4549,7 @@ body.pdv-on .norms .tbl-wrap tr:last-child{border-bottom:0}
 body.pdv-on .norms .tbl-wrap td{padding:0;border:0}
 body.pdv-on .norms .tbl-wrap td:first-child{font-weight:600}
 body.pdv-on .norms .tbl-wrap td:nth-child(2){color:var(--ink-2);margin-top:2px}}
+body.pdv-on .fgrid input[data-path$=".type"],body.pdv-on .fgrid input[data-path$=".typeF"]{text-align:left;font-size:13px;padding-left:6px;padding-right:4px}
 /* редактор пометок — общий для обоих разделов */
 .toast{z-index:60}
 .ann{position:fixed;inset:0;z-index:55;background:#1E252B;display:flex;flex-direction:column;color:#fff;padding-top:env(safe-area-inset-top,0px)}
@@ -4560,9 +4562,8 @@ body.pdv-on .norms .tbl-wrap td:nth-child(2){color:var(--ink-2);margin-top:2px}}
 .ann-c{width:34px;height:34px;border-radius:50%;border:3px solid #fff3;background:var(--c);cursor:pointer}
 .ann-c.on{border-color:#fff;box-shadow:0 0 0 2px var(--c)}
 .ann-txt input{width:100%;min-height:42px;padding:6px 10px;border-radius:8px;border:1.5px solid #3A4650;background:#fff;color:#111;font-size:16px}
-.ann-wrap{flex:1;overflow:auto;padding:8px;-webkit-overflow-scrolling:touch}
-.ann-wrap canvas{display:block;margin:0 auto;background:#fff;touch-action:none;max-width:none}
-.ann-wrap.pan canvas{touch-action:auto}
+.ann-stage{flex:1;position:relative;overflow:hidden;touch-action:none;background:#2A333B}
+.ann-stage canvas{position:absolute;left:0;top:0;transform-origin:0 0;background:#fff;max-width:none;box-shadow:0 2px 16px rgba(0,0,0,.35)}
 .ann-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:#151B20}
 .ann-foot .muted{color:#B8C2CA}
 .ph.mk{position:relative}
@@ -4893,7 +4894,7 @@ function regParse(v) {
   if (m) return { k: 'sp', n: m[1], t: `регулятор скорости: ${m[1]}-я ск.`, cell: `${m[1]} ск.`, tile: ['Скорость', `${m[1]}-я`, ''] };
   m = /(\d+(?:[.,]\d+)?)\s*(?:гц|hz)/i.exec(t);
   if (m) return hz(m[1]);
-  return { k: 'text', t: `регулятор: ${t}`, cell: t, tile: ['Регулятор', t, ''] };
+  return { k: 'text', t: `частотник: ${t}`, cell: t, tile: ['Частотник', t, ''] };
 }
 function vfdHz(o, n) {
   const f = sysInfo(o, n).fan || {}, x = String(f.vfd || f.vfdP || '').trim();
@@ -5097,17 +5098,24 @@ function viewSystem(o, name) {
       const mo = i.motor || {}, cc = curCheck(i);
       const tl = (l, v, u, c = '') => (String(v ?? '').trim() ? `<span><small>${l}</small><b class="${c}">${esc(String(v).trim().replace('.', ','))} <i>${u}</i></b></span>` : '');
       const kp = N(mo.kW), kf = N(mo.kWf), kBad = OK(kp) && OK(kf) && kp !== kf;
-      const t = tl('Ток номин.', mo.Ip, 'А') + tl('Ток факт', mo.If, 'А', cc.st === 'bad' ? 'bad-t' : cc.st === 'ok' ? 'ok-t' : '') + (kBad ? tl('Мощность ≠ проекту', `${fmtN(kf, 2)} вместо ${fmtN(kp, 2)}`, 'кВт', 'bad-t') : '');
-      const sum = t ? `<span class="fsum">${t}</span>` : 'не заполнен';
+      const t = tl('Ток номин.', mo.Ip, 'А') + tl('Ток факт', mo.If, 'А', cc.st === 'bad' ? 'bad-t' : cc.st === 'ok' ? 'ok-t' : '') + tl('Обороты', String(mo.nf ?? '').trim() ? mo.nf : mo.np, 'мин⁻¹') + (kBad ? tl('Мощность ≠ проекту', `${fmtN(kf, 2)} вместо ${fmtN(kp, 2)}`, 'кВт', 'bad-t') : '');
+      const mx = esc([photoCount((i.motPh || []).length), String(i.motNote || '').trim() ? 'есть примечание' : ''].filter(Boolean).join(' · '));
+      const sum = (t ? `<span class="fsum">${t}</span>` : 'не заполнен') + (mx ? `<span class="fsum-x">${mx}</span>` : '');
       return modCard('sys.motor', 'c-motor', 'Электродвигатель', sum, `<div class="fgrid">
         <span></span><span class="fg-h">Проект</span><span class="fg-h">Факт</span>
+        <span class="fg-l">Тип</span>${mini(o, `${k}.motor.type`, 'Тип двигателя по проекту', '', 'text')}${mini(o, `${k}.motor.typeF`, 'Тип двигателя факт', '', 'text')}
         <span class="fg-l">Мощность <span class="u">кВт</span></span>${mini(o, `${k}.motor.kW`, 'Мощность двигателя по проекту')}${mini(o, `${k}.motor.kWf`, 'Мощность двигателя факт')}
+        <span class="fg-l">Фазность</span>${mini(o, `${k}.motor.ph`, 'Фазность по проекту: 1 или 3', '', 'numeric')}${mini(o, `${k}.motor.phF`, 'Фазность факт: 1 или 3', '', 'numeric')}
         <span class="fg-l">Ток <span class="u">А</span></span>${mini(o, `${k}.motor.Ip`, 'Ток номинальный (шильдик)')}${mini(o, `${k}.motor.If`, 'Ток факт по фазам через /', '', 'text')}
-        <span class="fg-l">Регулятор</span>${mini(o, `${k}.fan.vfdP`, 'Регулятор по проекту: частота, Гц, или скорость', '', 'text')}${mini(o, `${k}.fan.vfd`, 'Регулятор факт: частота, Гц, или скорость', '', 'text')}
+        <span class="fg-l">Обороты <span class="u">об/мин</span></span>${mini(o, `${k}.motor.np`, 'Частота вращения двигателя по проекту (шильдик)')}${mini(o, `${k}.motor.nf`, 'Частота вращения двигателя факт')}
+        <span class="fg-l">Частотник <span class="u">Гц</span></span>${mini(o, `${k}.fan.vfdP`, 'Частотник по проекту: частота, Гц, или «да»', '', 'text')}${mini(o, `${k}.fan.vfd`, 'Частотник факт: частота, Гц', '', 'text')}
       </div>
-      <p class="hint">Ток: проект — номинальный с шильдика, факт — по фазам через «/». Регулятор: частотник — частота в Гц («48»), регулятор скорости — скорость («4 ск»).</p>
+      <p class="hint">Ток: проект — номинальный с шильдика, факт — по фазам через «/». Частотник: частота в Гц («48»); если его нет — оставьте пустым.</p>
       <p class="fanres" id="fan-cur">${cc.txt}</p>
-      ${kBad ? `<p class="fanres"><span class="bad-t">⚠ Мощность двигателя ${fmtN(kf, 2)} кВт ${kf < kp ? 'меньше' : 'больше'} проектной ${fmtN(kp, 2)} кВт</span></p>` : ''}`);
+      ${kBad ? `<p class="fanres"><span class="bad-t">⚠ Мощность двигателя ${fmtN(kf, 2)} кВт ${kf < kp ? 'меньше' : 'больше'} проектной ${fmtN(kp, 2)} кВт</span></p>` : ''}
+      ${field(o, `${k}.motNote`, 'Примечание', { area: true, ph: 'перегрев, вибрация, подшипники, ремень…' })}
+      <div class="lbl" style="margin-top:10px">Фото</div>
+      ${photoGrid(o, 'mot:' + keyEnc(name), 'шильдик двигателя')}`);
     })()}
     ${modCard('sys.pts', 'c-list pts2', 'Точки замера', esc(pts.length ? `${pts.length} ${plural(pts.length, 'точка', 'точки', 'точек')}${c.bad ? ` · ✕ ${c.bad}` : ''}` : 'нет точек'), `
       <p class="pts-sum" id="sumline">${pts.length ? statLine(c) : 'нет точек'}</p>
@@ -6277,7 +6285,7 @@ async function importPassports(file, xlLines) {
     put(si, 'serves', p.zone); put(si, 'loc', lc.loc); put(si, 'cab', lc.cab);
     const f = si.fan || (si.fan = {}), mo = si.motor || (si.motor = {});
     Object.entries(p.fan).forEach(([k, v]) => put(f, k, v)); Object.entries(p.motor).forEach(([k, v]) => put(mo, k, v));
-    if (p.motorX) { put(f, 'vfdP', p.motorX.vfdP); put(f, 'vfd', p.motorX.vfd); }
+    if (p.motorX) { put(f, 'vfdP', p.motorX.vfdP); put(f, 'vfd', p.motorX.vfd); ['ph', 'phF', 'np', 'nf'].forEach((k) => put(mo, k, p.motorX[k])); }
     p.rows.forEach((row) => {
       /* «Lвент.» — замер у вентилятора */
       const isFan = /^[lл]\s*вен/i.test(row.room), place = isFan ? 'Вентилятор' : row.room;
@@ -6387,7 +6395,7 @@ async function passportSchemes(o, list, pager, findName) {
 }
 
 
-/* ===== фото и PDF: точки (r.photos), вентилятор (sys.fanPh), схема системы (sys.schPh) ===== */
+/* ===== фото и PDF: точки (r.photos), вентилятор (sys.fanPh), двигатель (sys.motPh), схема системы (sys.schPh) ===== */
 const Photos = {
   state: 'local', assets: null, urls: CORE.Photos.urls, syncing: false, inited: false,
   async init() {
@@ -6422,11 +6430,12 @@ const Photos = {
   },
 };
 function allPhotosOf(o) {
-  return [].concat(...rowsOf(o).map((r) => r.photos || []), ...Object.values(o.sys || {}).map((i) => (i.fanPh || []).concat(i.schPh || [])));
+  return [].concat(...rowsOf(o).map((r) => r.photos || []), ...Object.values(o.sys || {}).map((i) => (i.fanPh || []).concat(i.motPh || [], i.schPh || [])));
 }
 function phList(o, slot, create) {
   if (slot.startsWith('pt:')) { const r = rowById(o, slot.slice(3)); if (!r) return []; if (create && !r.photos) r.photos = []; return r.photos || []; }
   if (slot.startsWith('sch:')) { const i = sysMap(o)[keyDec(slot.slice(4))]; if (!i) return []; if (create && !i.schPh) i.schPh = []; return i.schPh || []; }
+  if (slot.startsWith('mot:')) { const i = sysMap(o)[keyDec(slot.slice(4))]; if (!i) return []; if (create && !i.motPh) i.motPh = []; return i.motPh || []; }
   if (slot.startsWith('fan:')) { const i = sysMap(o)[keyDec(slot.slice(4))]; if (!i) return []; if (create && !i.fanPh) i.fanPh = []; return i.fanPh || []; }
   return [];
 }
@@ -6516,16 +6525,81 @@ function photoGrid(o, slot, what, opt = {}) {
 }
 function photoRoot() { let r = document.getElementById('photo-root'); if (!r) { r = document.createElement('div'); r.id = 'photo-root'; document.body.appendChild(r); } return r; }
 function showPhoto(o, slot, i) {
-  const p = phList(o, slot)[i]; if (!p) { photoRoot().innerHTML = ''; return; }
+  const list = phList(o, slot), p = list[i]; if (!p) { photoRoot().innerHTML = ''; return; }
   const armed = UI.armed === `ph:${slot}:${i}`;
   const pdf = p.kind === 'pdf';
-  photoRoot().innerHTML = `<div class="overlay ph-ov" role="dialog" aria-modal="true" aria-label="${pdf ? 'PDF' : 'Фото'}"><div class="sheet">
-    <div class="card-head" style="margin:0"><h2>${pdf || p.mark ? esc(p.name || 'PDF') : `Фото ${i + 1}`}</h2><div class="head-actions">
-      ${pdf ? `<button class="btn" data-act="file-dl" data-slot="${esc(slot)}" data-i="${i}">Скачать</button>` : `<button class="btn" data-act="ann-open" data-slot="${esc(slot)}" data-i="${i}">✎ Пометки</button>`}
-      <button class="btn danger${armed ? ' armed' : ''}" data-act="photo-del" data-slot="${esc(slot)}" data-i="${i}">${armed ? 'Нажмите ещё раз — удалить' : (pdf ? 'Удалить файл' : 'Удалить фото')}</button>
+  if (!pdf) {
+    /* фото — на весь экран: два пальца — масштаб, один — сдвиг, двойное касание — приблизить / вписать */
+    const n = list.length, prev = (i - 1 + n) % n, next = (i + 1) % n;
+    const ttl = p.mark ? (p.name || 'Пометки') : `Фото ${i + 1}${n > 1 ? ` из ${n}` : ''}`;
+    photoRoot().innerHTML = `<div class="zv" role="dialog" aria-modal="true" aria-label="${esc(ttl)}">
+    <div class="zv-top"><b>${esc(ttl)}</b><span class="zv-name">${p.mark ? '' : esc(p.name || '')}</span>
+      <button class="btn sm" data-act="photo-close">Закрыть</button></div>
+    <div class="zv-stage" id="pz-stage"><img id="pz-img" src="${esc(photoSrc(p))}" alt="${esc(ttl)}" draggable="false"></div>
+    <div class="zv-bot">
+      ${n > 1 ? `<button class="btn sm" data-act="photo-view" data-slot="${esc(slot)}" data-i="${prev}" aria-label="Предыдущее фото">‹</button>` : ''}
+      <button class="btn sm" data-act="pz-zoom" data-k="0.6" aria-label="Уменьшить">−</button>
+      <button class="btn sm" data-act="pz-fit">Вписать</button>
+      <button class="btn sm" data-act="pz-zoom" data-k="1.6" aria-label="Увеличить">+</button>
+      ${n > 1 ? `<button class="btn sm" data-act="photo-view" data-slot="${esc(slot)}" data-i="${next}" aria-label="Следующее фото">›</button>` : ''}
+      <button class="btn sm" data-act="ann-open" data-slot="${esc(slot)}" data-i="${i}">✎ Пометки</button>
+      <button class="btn sm danger${armed ? ' armed' : ''}" data-act="photo-del" data-slot="${esc(slot)}" data-i="${i}">${armed ? 'Ещё раз — удалить' : 'Удалить'}</button>
+    </div></div>`;
+    pzInit();
+    return;
+  }
+  photoRoot().innerHTML = `<div class="overlay ph-ov" role="dialog" aria-modal="true" aria-label="PDF"><div class="sheet">
+    <div class="card-head" style="margin:0"><h2>${esc(p.name || 'PDF')}</h2><div class="head-actions">
+      <button class="btn" data-act="file-dl" data-slot="${esc(slot)}" data-i="${i}">Скачать</button>
+      <button class="btn danger${armed ? ' armed' : ''}" data-act="photo-del" data-slot="${esc(slot)}" data-i="${i}">${armed ? 'Нажмите ещё раз — удалить' : 'Удалить файл'}</button>
       <button class="btn primary" data-act="photo-close">Закрыть</button></div></div>
-    ${pdf ? '<div class="pdf-pages" id="pdf-pages"><p class="muted">Открываю PDF…</p></div>' : `<img class="ph-full" src="${esc(photoSrc(p))}" alt="">`}</div></div>`;
-  if (pdf) renderPdfPages(p, slot, i);
+    <div class="pdf-pages" id="pdf-pages"><p class="muted">Открываю PDF…</p></div></div></div>`;
+  renderPdfPages(p, slot, i);
+}
+/* масштаб пальцами в просмотре фото */
+function pzInit() {
+  const st = document.getElementById('pz-stage'), img = document.getElementById('pz-img');
+  if (!st || !img) return;
+  const z = { s: 1, x: 0, y: 0, fit: 1 };
+  const apply = () => { img.style.transform = `translate(${z.x}px,${z.y}px) scale(${z.s})`; };
+  const fit = () => {
+    const W = st.clientWidth, H = st.clientHeight, w = img.naturalWidth || 1, h = img.naturalHeight || 1;
+    z.fit = Math.min(W / w, H / h); z.s = z.fit; z.x = (W - w * z.s) / 2; z.y = (H - h * z.s) / 2; apply();
+  };
+  const zoomAt = (k, cx, cy) => {
+    const ns = Math.min(Math.max(z.fit * 10, 3), Math.max(z.fit * 0.7, z.s * k)), r = ns / z.s;
+    z.x = cx - (cx - z.x) * r; z.y = cy - (cy - z.y) * r; z.s = ns; apply();
+  };
+  if (img.complete && img.naturalWidth) fit(); else img.addEventListener('load', fit, { once: true });
+  const pts = new Map();
+  let pinch = null, tap = null, lastTap = 0;
+  const local = (e) => { const r = st.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  st.addEventListener('pointerdown', (e) => {
+    try { st.setPointerCapture(e.pointerId); } catch (err) { /* нет */ }
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); pinch = null;
+    tap = pts.size === 1 ? { x: e.clientX, y: e.clientY, moved: false } : null;
+  });
+  st.addEventListener('pointermove', (e) => {
+    const prev = pts.get(e.pointerId); if (!prev) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (tap && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) > 8) tap.moved = true;
+    if (pts.size === 1) { z.x += e.clientX - prev.x; z.y += e.clientY - prev.y; apply(); return; }
+    const [a, b] = [...pts.values()], r = st.getBoundingClientRect();
+    const d = Math.hypot(a.x - b.x, a.y - b.y), cx = (a.x + b.x) / 2 - r.left, cy = (a.y + b.y) / 2 - r.top;
+    if (pinch && pinch.d > 0) { zoomAt(d / pinch.d, cx, cy); z.x += cx - pinch.cx; z.y += cy - pinch.cy; apply(); }
+    pinch = { d, cx, cy };
+  });
+  const up = (e) => {
+    pts.delete(e.pointerId); pinch = null;
+    if (e.type === 'pointerup' && tap && !tap.moved && !pts.size) {
+      const t = Date.now();
+      if (t - lastTap < 320) { const [cx, cy] = local(e); if (z.s > z.fit * 1.4) fit(); else zoomAt(2.5, cx, cy); lastTap = 0; } else lastTap = t;
+    }
+    if (!pts.size) tap = null;
+  };
+  st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+  st.addEventListener('wheel', (e) => { e.preventDefault(); const [cx, cy] = local(e); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, cx, cy); }, { passive: false });
+  st._pz = { fit, zoom: (k) => zoomAt(k, st.clientWidth / 2, st.clientHeight / 2) };
 }
 async function fileBlob(p) {
   if (p.local && Local.ok) { const b = await Local.getBlob(p.local); if (b) return b; }
@@ -6643,46 +6717,86 @@ function annPaint() {
 const ANN_TOOLS = [['pan', '✋', 'Двигать'], ['pen', '✎', 'Перо'], ['arrow', '➜', 'Стрелка'], ['circle', '◯', 'Круг'], ['text', 'T', 'Текст']];
 function annRender() {
   const st = Ann.st; if (!st) { annRoot().innerHTML = ''; return; }
-  const fitW = Math.min(window.innerWidth - 16, 1400);
   annRoot().innerHTML = `<div class="ann" role="dialog" aria-modal="true" aria-label="Пометки">
     <div class="ann-bar">
       <div class="ann-tools" role="group" aria-label="Инструмент">${ANN_TOOLS.map(([k, ic, t]) => `<button type="button" class="ann-b${st.tool === k ? ' on' : ''}" data-act="ann-tool" data-v="${k}" aria-pressed="${st.tool === k}" title="${t}"><b>${ic}</b><small>${t}</small></button>`).join('')}</div>
       <div class="ann-tools" role="group" aria-label="Цвет">${ANN_COLORS.map(([c, t]) => `<button type="button" class="ann-c${st.color === c ? ' on' : ''}" data-act="ann-color" data-v="${c}" style="--c:${c}" aria-label="${t}" aria-pressed="${st.color === c}"></button>`).join('')}
-        <button type="button" class="ann-b" data-act="ann-zoom" data-v="-1" aria-label="Уменьшить"><b>−</b></button><button type="button" class="ann-b" data-act="ann-zoom" data-v="1" aria-label="Увеличить"><b>+</b></button>
+        <button type="button" class="ann-b" data-act="ann-zoom" data-v="0" aria-label="Вписать целиком"><b>⤢</b><small>Вписать</small></button>
         <button type="button" class="ann-b" data-act="ann-undo" ${st.shapes.length ? '' : 'disabled'}><b>↶</b><small>Отменить</small></button></div>
       ${st.tool === 'text' ? `<div class="ann-txt"><input type="text" id="ann-text" value="${esc(st.text)}" placeholder="Напишите текст, потом нажмите на схему" autocomplete="off"></div>` : ''}
     </div>
-    <div class="ann-wrap${st.tool === 'pan' ? ' pan' : ''}" id="ann-wrap"><canvas id="ann-cv" width="${st.base.width}" height="${st.base.height}" style="width:${Math.round(fitW * st.zoom)}px"></canvas></div>
-    <div class="ann-foot"><button class="btn" data-act="ann-close">Отмена</button><span class="muted small">${st.shapes.length ? `Пометок: ${st.shapes.length}` : (st.tool === 'pan' ? 'Двигайте и увеличивайте пальцами' : 'Рисуйте пальцем по схеме')}</span><button class="btn primary" data-act="ann-save" ${st.shapes.length ? '' : 'disabled'}>Сохранить</button></div>
+    <div class="ann-stage" id="ann-wrap"><canvas id="ann-cv" width="${st.base.width}" height="${st.base.height}"></canvas></div>
+    <div class="ann-foot"><button class="btn" data-act="ann-close">Отмена</button><span class="muted small">${st.shapes.length ? `Пометок: ${st.shapes.length}` : (st.tool === 'pan' ? 'Двигайте одним пальцем' : 'Рисуйте одним пальцем, двумя — приближайте')}</span><button class="btn primary" data-act="ann-save" ${st.shapes.length ? '' : 'disabled'}>Сохранить</button></div>
   </div>`;
   annPaint();
-  const cv = document.getElementById('ann-cv');
-  cv.addEventListener('pointerdown', annDown); cv.addEventListener('pointermove', annMove); cv.addEventListener('pointerup', annUp); cv.addEventListener('pointercancel', annUp);
+  annView();
+  const wr = document.getElementById('ann-wrap');
+  wr.addEventListener('pointerdown', annDown); wr.addEventListener('pointermove', annMove); wr.addEventListener('pointerup', annUp); wr.addEventListener('pointercancel', annUp);
+  wr.addEventListener('wheel', (e) => { e.preventDefault(); const r = wr.getBoundingClientRect(); annZoomAt(e.deltaY < 0 ? 1.25 : 0.8, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
   const ti = document.getElementById('ann-text'); if (ti) ti.addEventListener('input', () => { st.text = ti.value; });
 }
-function annXY(e) { const cv = e.target, r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; }
+/* вид: масштаб и сдвиг холста внутри сцены (сохраняются между перерисовками) */
+function annView() {
+  const st = Ann.st, wr = document.getElementById('ann-wrap'), cv = document.getElementById('ann-cv'); if (!st || !wr || !cv) return;
+  const W = wr.clientWidth, H = wr.clientHeight, w = st.base.width, h = st.base.height;
+  const fit = Math.min((W - 12) / w, (H - 12) / h);
+  if (!st.view || Math.abs(st.view.fit - fit) > 1e-6 && !st.view.touched) st.view = { s: fit, x: (W - w * fit) / 2, y: (H - h * fit) / 2, fit };
+  st.view.fit = fit;
+  cv.style.transform = `translate(${st.view.x}px,${st.view.y}px) scale(${st.view.s})`;
+}
+function annZoomAt(k, cx, cy) {
+  const v = Ann.st && Ann.st.view; if (!v) return;
+  const ns = Math.min(Math.max(v.fit * 10, 3), Math.max(v.fit * 0.8, v.s * k)), r = ns / v.s;
+  v.x = cx - (cx - v.x) * r; v.y = cy - (cy - v.y) * r; v.s = ns; v.touched = true; annView();
+}
+function annFit() { const st = Ann.st; if (!st) return; st.view = null; annView(); }
+function annXY(e) { const cv = document.getElementById('ann-cv'), r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; }
 let annRAF = 0;
+const annPts = new Map();
+let annPinch = null, annTap = null;
 function annDown(e) {
-  const st = Ann.st; if (!st || st.tool === 'pan') return;
+  const st = Ann.st; if (!st) return;
   e.preventDefault();
+  try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* нет */ }
+  annPts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (annPts.size >= 2) { st.cur = null; annTap = null; annPinch = null; annPaint(); return; } /* второй палец — масштаб, штрих отменяем */
+  annTap = { x: e.clientX, y: e.clientY, moved: false, id: e.pointerId };
+  if (st.tool === 'pan' || st.tool === 'text') return;
   const [x, y] = annXY(e), w = annLW();
-  if (st.tool === 'text') {
-    const t = String(st.text || '').trim(); if (!t) { toast('Сначала напишите текст в строке сверху.'); return; }
-    st.shapes.push({ t: 'text', c: st.color, w, text: t, x, y, size: Math.round(w * 7) }); annRender(); return;
-  }
-  e.target.setPointerCapture(e.pointerId);
   st.cur = st.tool === 'pen' ? { t: 'pen', c: st.color, w, pts: [[x, y]] } : { t: st.tool, c: st.color, w, x1: x, y1: y, x2: x, y2: y };
   annPaint();
 }
 function annMove(e) {
-  const st = Ann.st; if (!st || !st.cur) return;
+  const st = Ann.st; if (!st) return;
+  const prev = annPts.get(e.pointerId); if (!prev) return;
   e.preventDefault();
+  annPts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (annTap && Math.hypot(e.clientX - annTap.x, e.clientY - annTap.y) > 8) annTap.moved = true;
+  if (annPts.size >= 2) {
+    const [a, b] = [...annPts.values()], r = document.getElementById('ann-wrap').getBoundingClientRect();
+    const d = Math.hypot(a.x - b.x, a.y - b.y), cx = (a.x + b.x) / 2 - r.left, cy = (a.y + b.y) / 2 - r.top;
+    if (annPinch && annPinch.d > 0) { annZoomAt(d / annPinch.d, cx, cy); st.view.x += cx - annPinch.cx; st.view.y += cy - annPinch.cy; annView(); }
+    annPinch = { d, cx, cy };
+    return;
+  }
+  if (st.tool === 'pan' || st.tool === 'text') { if (st.view) { st.view.x += e.clientX - prev.x; st.view.y += e.clientY - prev.y; st.view.touched = true; annView(); } return; }
+  if (!st.cur) return;
   const [x, y] = annXY(e);
   if (st.cur.t === 'pen') st.cur.pts.push([x, y]); else { st.cur.x2 = x; st.cur.y2 = y; }
   if (!annRAF) annRAF = requestAnimationFrame(() => { annRAF = 0; annPaint(); });
 }
-function annUp() {
-  const st = Ann.st; if (!st || !st.cur) return;
+function annUp(e) {
+  const st = Ann.st; if (!st) return;
+  const wasMulti = annPts.size >= 2;
+  annPts.delete(e.pointerId); annPinch = null;
+  if (wasMulti) return; /* палец отпущен после масштаба — ничего не рисуем */
+  const tap = annTap; annTap = null;
+  if (st.tool === 'text' && e.type === 'pointerup' && tap && !tap.moved) {
+    const t = String(st.text || '').trim(); if (!t) { toast('Сначала напишите текст в строке сверху.'); return; }
+    const [x, y] = annXY(e), w = annLW();
+    st.shapes.push({ t: 'text', c: st.color, w, text: t, x, y, size: Math.round(w * 7) }); annRender(); return;
+  }
+  if (!st.cur) return;
   const c = st.cur; st.cur = null;
   const tiny = c.t !== 'pen' && Math.hypot(c.x2 - c.x1, c.y2 - c.y1) < c.w * 2;
   if (!tiny) st.shapes.push(c);
@@ -6724,7 +6838,7 @@ function annAct(act, a) {
   const st = Ann.st; if (!st) return false;
   if (act === 'ann-tool') { st.tool = a.dataset.v; annRender(); if (st.tool === 'text') { const t = document.getElementById('ann-text'); if (t) t.focus(); } return true; }
   if (act === 'ann-color') { st.color = a.dataset.v; annRender(); return true; }
-  if (act === 'ann-zoom') { st.zoom = Math.max(1, Math.min(4, st.zoom * (a.dataset.v === '1' ? 1.5 : 1 / 1.5))); annRender(); return true; }
+  if (act === 'ann-zoom') { const wr = document.getElementById('ann-wrap'); if (a.dataset.v === '0') annFit(); else if (wr) annZoomAt(a.dataset.v === '1' ? 1.5 : 1 / 1.5, wr.clientWidth / 2, wr.clientHeight / 2); return true; }
   if (act === 'ann-undo') { st.shapes.pop(); annRender(); return true; }
   if (act === 'ann-close') { Ann.st = null; annRoot().innerHTML = ''; return true; }
   if (act === 'ann-save') { annSave(); return true; }
@@ -7559,6 +7673,8 @@ document.addEventListener('click', (e) => {
     case 'photo-add': { const inp = document.getElementById(a.dataset.for); if (inp) inp.click(); break; }
     case 'photo-view': if (o) showPhoto(o, a.dataset.slot, Number(a.dataset.i)); break;
     case 'photo-close': UI.armed = null; photoRoot().innerHTML = ''; break;
+    case 'pz-zoom': { const st = document.getElementById('pz-stage'); if (st && st._pz) st._pz.zoom(Number(a.dataset.k)); break; }
+    case 'pz-fit': { const st = document.getElementById('pz-stage'); if (st && st._pz) st._pz.fit(); break; }
     case 'ann-open': if (o) annOpen(o, a.dataset.slot, Number(a.dataset.i), Number(a.dataset.pg) || 0); break;
     case 'ann-tool': case 'ann-color': case 'ann-zoom': case 'ann-undo': case 'ann-close': case 'ann-save': annAct(act, a); break;
     case 'file-dl': if (o) downloadFile(o, a.dataset.slot, Number(a.dataset.i)); break;
