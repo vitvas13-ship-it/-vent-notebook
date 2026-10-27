@@ -625,6 +625,35 @@ html,body{background-color:var(--paper)}
 :root[data-app-theme="dark"] .tab[aria-selected="true"]{color:var(--signal-ink)}
 :root[data-app-theme="dark"] .num-in.auto{background:var(--t-meas)}
 :root[data-app-theme="dark"] img{opacity:.96}
+/* ===== общеобменная — как противодымная ===== */
+.crumbs.scr{flex-wrap:nowrap;min-width:0}
+.crumbs.scr > *{flex:none}
+body .crumbs.scr > .scr-o{flex:0 1 auto !important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pts-sum{margin:0 0 8px;font-size:15px}
+@media (max-width:480px){
+  .c-list .tbl-wrap:has(.systbl){margin-left:-8px;margin-right:-8px}
+  .systbl td.loc{font-size:11.5px;hyphens:auto;-webkit-hyphens:auto}
+  .systbl th,.systbl td{padding:5px 2px}
+}
+
+/* из раздела ПДВ: шапка системы, нижняя панель, карандаш */
+.obar.sbar{flex-wrap:nowrap}
+.sbar .btn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;text-align:center}
+.sbar .btn.sm{flex:0 1 auto;max-width:34%;min-height:46px;font-size:14px;padding:9px 10px}
+.sbar .btn.primary{flex:1 1 auto}
+.obar{position:sticky;bottom:0;z-index:5;display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));background:var(--paper);border-top:1.5px solid var(--rule)}
+.obar .btn.primary{flex:1 1 140px}
+@media (max-width:480px){.obar:not(.sbar) > .btn{flex:1 1 auto;padding:9px 10px}.sbar .btn.sm{font-size:13px;padding:9px 4px}}
+.sh2-dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0;margin:0;border-top:1px solid var(--grid)}
+.sh2-dl dt,.sh2-dl dd{margin:0;padding:7px 0;border-bottom:1px solid var(--grid);font-size:15.5px;line-height:1.3}
+.sh2-dl dt{color:var(--ink-2);padding-right:14px;white-space:nowrap}
+.sh2-dl dd{font-weight:600;min-width:0;overflow-wrap:anywhere}
+@media (max-width:480px){.sh2-top h1{font-size:26px}.sh2-dl dt,.sh2-dl dd{font-size:14.5px}.sh2-dl dt{padding-right:10px}}
+.sh2-dl{grid-template-columns:1fr}
+.sh2-dl dt{padding:8px 0 0;border-bottom:0;font-size:13px}
+.sh2-dl dd{padding:0 0 8px;font-size:16px}
+.ed-pen{flex:none;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);color:var(--ink-2);min-width:40px;min-height:36px;font-size:17px;line-height:1;cursor:pointer;padding:0 8px}
+.sys-head .mod-tt{font-size:26px;color:var(--ink)}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -666,6 +695,13 @@ html,body{background-color:var(--paper)}
 .sect-sw button[aria-pressed="true"] .sect-n{background:rgba(255,255,255,.25)}
 @media (max-width:720px){.tab{font-size:14px;padding:6px 2px}}
 body .crumbs > span:last-child{flex:1 1 0 !important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* объект: полное название в «крошках» (переносится), рядом ✎ */
+body .crumbs.ocrumbs{flex-wrap:nowrap;align-items:flex-start}
+body .crumbs.ocrumbs > .ocr-n{flex:1 1 0 !important;min-width:0;white-space:normal;overflow:visible;text-overflow:clip;color:var(--ink);font-weight:600;line-height:1.3}
+body .crumbs.ocrumbs > .ocr-e,.oc-e{flex:none;text-decoration:none;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);color:var(--ink-2);min-width:36px;min-height:32px;font-size:16px;line-height:1;cursor:pointer;padding:0 8px}
+.oc-e{align-self:center;margin-right:2px}
+#oedit-root .overlay{z-index:60}
+#oedit-root .f input{width:100%}
 </style>
 
 <header class="bar">
@@ -1332,7 +1368,10 @@ function shareBox(filename, data, save) {
   document.body.appendChild(box);
 }
 async function offerFile(filename, data, fallback) {
-  if (window.__shareNext) { window.__shareNext = false; shareBox(filename, data, () => offerFile(filename, data, fallback)); return; }
+  window.__shareNext = false;
+  shareBox(filename, data, () => saveFileDirect(filename, data, fallback));
+}
+async function saveFileDirect(filename, data, fallback) {
   if (window.AndroidBridge && typeof window.AndroidBridge.saveFile === 'function') {
     try { const ext = String(filename).split('.').pop(); window.AndroidBridge.saveFile(filename, await toBase64(data), MIME[ext] || 'application/octet-stream'); return; }
     catch (e) { fallback(); return; }
@@ -1794,6 +1833,8 @@ const SYS_TYPES = [
   ['smoke_out', 'Противодымная: дымоудаление'], ['smoke_comp', 'Противодымная: компенсация дымоудаления'], ['natural', 'Естественная'],
 ];
 const sysTypeName = (k) => (SYS_TYPES.find((x) => x[0] === k) || [0, ''])[1];
+/* для выбора — без противодымных (у них свой раздел); старые записи с таким типом показываются как есть */
+const SYS_TYPES_VENT = SYS_TYPES.filter(([k]) => !/^smoke/.test(k));
 
 
 const UI = { tab: 'journal', route: { name: 'objects' }, armed: null, pendingRender: false };
@@ -1870,7 +1911,7 @@ function delBtn(key, text = 'Удалить') {
 }
 /* ===== Модули: сворачиваются по нажатию на заголовок, «булавка» — держать открытым ===== */
 const LS_MODS = 'vnb.mods.v1';
-const MOD_PIN_DEFAULT = { 'sys.head': true, 'sys.points': true, 'pt.point': true, 'pt.meas': true, 'calc.sect': true };
+const MOD_PIN_DEFAULT = { 'sys.head': false, 'sys.points': true, 'pt.point': true, 'pt.meas': true, 'calc.sect': true };
 const modPins = Object.assign({}, MOD_PIN_DEFAULT, lsGet(LS_MODS) || {});
 UI.modOpen = {};
 function modPinned(k) { return !!modPins[k]; }
@@ -1892,7 +1933,7 @@ const photoCount = (n) => (n ? `${n} фото` : '');
 function pill(status, text) { return `<span class="pill ${status === 'none' ? '' : status}">${esc(text)}</span>`; }
 function tolText(tol) { if (tol[1] >= 999) return `не ниже ${tol[0]} %`; return tol[0] === -tol[1] ? `±${tol[1]} %` : `${tol[0] === 0 ? '0' : tol[0]}…+${tol[1]} %`; }
 function crumbs(items) {
-  return `<nav class="crumbs" aria-label="Путь">` + items.map((it, i) => (i ? '<span class="sep">/</span>' : '') +
+  return `<nav class="crumbs" aria-label="Путь">` + items.map((it, i) => (i ? '<span class="sep">›</span>' : '') +
     (it.go ? `<button data-act="go" data-go='${esc(JSON.stringify(it.go))}'>${esc(it.t)}</button>` : `<span>${esc(it.t)}</span>`)).join('') + `</nav>`;
 }
 
@@ -1913,6 +1954,7 @@ function objCard(o) {
     return `<div class="ocard oc st-${anyBad ? 'bad' : (anyOk ? 'ok' : 'none')}${open ? '' : ' closed'}">
       <div class="oc-h"><button class="oc-t" data-act="obj-toggle" data-oid="${o.id}" aria-expanded="${open}" aria-label="${open ? 'Свернуть' : 'Развернуть'}: ${nm}"><span class="chev" aria-hidden="true"></span></button>
         <button class="oc-n" data-act="go" data-go='${go}'><h3>${nm}</h3>${open ? '' : `<span class="meta">${esc([o.address, fmtDate(o.date || '')].filter(Boolean).join(' · '))}</span>`}</button>
+        <button class="oc-e" data-act="oedit-open" data-oid="${o.id}" aria-label="Изменить данные объекта: ${nm}" title="Название, адрес, дата">✎</button>
         <button class="mod-pin" data-act="obj-pin" data-oid="${o.id}" aria-pressed="${pin}" aria-label="${pin ? 'Открепить' : 'Закрепить сверху'}: ${nm}" title="${pin ? 'Закреплён — сверху и открыт' : 'Закрепить сверху'}">${PIN_SVG}</button></div>
       ${open ? `<button class="oc-b" data-act="go" data-go='${go}'>
       <div class="row">${o.example ? '<span class="ref">Пример</span>' : ''}<span class="meta">${esc(fmtDate(o.date || ''))}</span></div>
@@ -2005,24 +2047,21 @@ function viewObject(o) {
       <td class="r num">${F(Lp)}</td><td class="r num">${F(Lf)}</td><td class="r num">${devCell}</td><td class="r num">${esc(hz) || '—'}</td></tr>`;
   }).join('');
   return `<div class="stack">
-    ${crumbs([{ t: 'Объекты', go: { name: 'objects' } }, { t: o.name || 'Объект' }])}
+    ${objCrumbs(o)}
     ${sectSwitch(o, 'vent')}
-    <div class="stamp">
-      ${stampCell(o, 'name', 'Объект', 'title s4')}
-      ${stampCell(o, 'date', 'Дата начала работ', 's2', { type: 'date' })}
-      ${stampCell(o, 'address', 'Адрес', 's6')}
-    </div>
     <section class="card c-list">
       <div class="card-head"><h2>Системы</h2><button class="btn primary" data-act="add-system">+ Система</button></div>
-      ${syss.length ? `<div class="tbl-wrap"><table class="systbl"><thead>
-          <tr><th rowspan="2">№ п/п</th><th rowspan="2">Система</th><th rowspan="2" class="loc">Место&shy;нахождение обору&shy;дования</th><th colspan="2" class="cc">Расход вентилятора, м³/ч</th><th rowspan="2" class="r">Невязка, %</th><th rowspan="2" class="r">ПЧ, Гц / ск.</th></tr>
+      ${syss.length ? (() => { let np = 0, ok = 0, bad = 0; syss.forEach((s) => { const r = M.system(s); np += r.count; ok += r.okN; bad += r.badN; });
+        return `<p class="pts-sum"><b>${syss.length} ${plural(syss.length, 'система', 'системы', 'систем')}</b> · ${np} ${plural(np, 'точка', 'точки', 'точек')}${ok ? ` · <span class="ok-t">✓ ${ok}</span>` : ''}${bad ? ` · <span class="bad-t">✕ ${bad}</span>` : ''}</p>`; })() : ''}
+      ${syss.length ? `<div class="tbl-wrap"><table class="systbl" lang="ru"><thead>
+          <tr><th rowspan="2">№ п/п</th><th rowspan="2">Система</th><th rowspan="2" class="loc">Место&shy;нахож&shy;дение</th><th colspan="2" class="cc">Расход вентилятора, м³/ч</th><th rowspan="2" class="r">Невяз&shy;ка, %</th><th rowspan="2" class="r">ПЧ, Гц / ск.</th></tr>
           <tr><th class="r">проект</th><th class="r">факт</th></tr></thead><tbody>${rows}</tbody></table></div>
         <p class="hint" style="margin-top:8px">Расход вентилятора — среднее по точкам «Вент. всас» и «Вент. нагнет» (или одна из них). Брак — только недобор больше 5 % от проекта; превышение проекта допускается.</p>`
         : `<p class="muted">Систем пока нет. Добавьте первую — например, П1 или В1, или заполните объект из паспортов PDF на главном экране.</p>`}
     </section>
     <section class="card c-send"><div class="card-head"><h2>Отправить заказчику</h2></div>
-      <p class="muted small" style="margin-bottom:10px">PDF — готовый отчёт: таблицы, заметки, схема и фото. Excel — все системы и точки с фильтрами для сортировки.</p>
-      <div class="head-actions"><button class="btn primary" data-act="export-pdf">PDF</button><button class="btn" data-act="export-pass">Паспорта систем</button><button class="btn" data-act="export-xlsx">Таблица Excel</button></div></section>
+      <p class="muted small" style="margin-bottom:10px">Отчёт PDF — таблицы, заметки, схема и фото. Паспорта — по форме СП 73. Excel — все системы и точки с фильтрами.</p>
+      <div class="head-actions"><button class="btn primary" data-act="export-pdf">Отчёт PDF</button><button class="btn" data-act="export-pass">Паспорта систем</button><button class="btn" data-act="export-xlsx">Таблица Excel</button></div></section>
     <section class="card c-point"><div class="card-head"><h2>Обмен с напарником</h2></div>
       <p class="muted small" style="margin-bottom:10px">Файл только этого объекта: системы, точки, фото, схема. Напарник загружает его кнопкой «Загрузить файл» — данные сливаются: по каждой точке остаётся более свежая запись, удалённое удаляется и у него.</p>
       <div class="head-actions"><button class="btn primary" data-act="export-object">Отправить объект</button><button class="btn" data-act="import">Загрузить файл</button></div></section>
@@ -2045,26 +2084,31 @@ function viewSystem(sys) {
   const stamp = `<div class="stamp">
       ${stampCell(sys, 'name', 'Система, установка', 'title s2')}
       ${stampCell(sys, 'location', 'Местонахождение оборудования', 's4')}
-      <div class="c s3 half"><label for="${fid(sys, 'type')}">Тип</label><select id="${fid(sys, 'type')}" data-doc="${sys.id}" data-path="type">${SYS_TYPES.map(([v, t]) => `<option value="${v}"${sys.type === v ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div class="c s3 half"><label for="${fid(sys, 'type')}">Тип</label><select id="${fid(sys, 'type')}" data-doc="${sys.id}" data-path="type">${(SYS_TYPES_VENT.some(([v]) => v === sys.type) || !sys.type ? SYS_TYPES_VENT : SYS_TYPES_VENT.concat(SYS_TYPES.filter(([v]) => v === sys.type))).map(([v, t]) => `<option value="${v}"${sys.type === v ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
       ${stampCell(sys, 'date', 'Дата испытаний', 's3 half', { type: 'date' })}
     </div>`;
-  const headSum = esc([sys.name, sysTypeName(sys.type), sys.location].filter(Boolean).join(' · '));
+  const headSum = esc([sysTypeName(sys.type), sys.location].filter(Boolean).join(' · '));
+  const headDl = `<dl class="sh2-dl">${[['Тип', sysTypeName(sys.type)], ['Местонахождение оборудования', sys.location], ['Дата испытаний', sys.date ? fmtDate(sys.date) : '']].filter(([, v]) => String(v || '').trim()).map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('') || '<dd class="muted">Нажмите ✎, чтобы вписать тип и местонахождение.</dd>'}</dl>`;
   const table = res.count ? `<div class="tbl-wrap"><table class="sectbl"><thead><tr><th>№</th><th>Помещение, место</th><th class="hm">Тип</th><th class="sz">Размер, мм</th><th class="r">L проект</th><th class="r">L факт</th><th class="r">Δ, %</th><th class="hm">Статус</th></tr></thead><tbody>${rows}</tbody></table></div>`
     : `<p class="muted">Добавьте первую точку замера: у вентилятора, на магистрали или у воздухораспределителя.</p>`;
   const eq = equipCards(sys, res);
   const ptsSum = res.count ? `${res.count} ${plural(res.count, 'точка', 'точки', 'точек')}${res.badN ? ` · <span class="bad-t">${res.badN} вне допуска</span>` : ''}` : 'нет точек';
   return `<div class="stack">
-    ${crumbs([{ t: 'Объекты', go: { name: 'objects' } }, { t: (o && o.name) || 'Объект', go: { name: 'object', oid: sys.objectId } }, { t: sys.name || 'Система' }])}
-    ${modCard('sys.head', 'c-note', 'Система', headSum, stamp)}
+    <nav class="crumbs scr" aria-label="Путь"><button data-act="go" data-go='{"name":"objects"}'>Объекты</button><span class="sep">›</span><button class="scr-o" data-act="go" data-go='${esc(JSON.stringify({ name: 'object', oid: sys.objectId }))}'>${esc((o && o.name) || 'Объект')}</button></nav>
+    ${modCard('sys.head', 'c-note sys-head', esc(sys.name || 'Система'), headSum, headDl, '<button class="ed-pen" data-act="sedit-open" data-sid="' + sys.id + '" aria-label="Изменить систему" title="Изменить систему">✎</button>')}
     ${eq[0]}
-    ${modCard('sys.points', 'c-list', 'Точки замера', ptsSum, table, '<button class="btn primary sm" data-act="add-section">+ Точка</button>')}
+    ${modCard('sys.points', 'c-list', 'Точки замера', ptsSum, table)}
     ${roomsCard(res)}
     ${schemeCard(sys)}
     ${eq[1]}
     <section class="card c-send sys-share"><div class="card-head"><h2>Отправить систему</h2></div>
       <p class="small muted" style="margin:0 0 10px">Замеры только этой системы — в WhatsApp, Telegram или на почту.</p>
-      <div class="head-actions"><button class="btn" data-act="sys-share" data-fmt="pass">Паспорт</button><button class="btn" data-act="sys-share" data-fmt="pdf">PDF</button><button class="btn" data-act="sys-share" data-fmt="xlsx">Excel</button></div></section>
-    <div class="head-actions">${delBtn('sys:' + sys.id, 'Удалить систему')}</div>
+      <div class="head-actions"><button class="btn" data-act="sys-share" data-fmt="pass">Паспорт</button><button class="btn" data-act="sys-share" data-fmt="pdf">Отчёт</button><button class="btn" data-act="sys-share" data-fmt="xlsx">Excel</button></div></section>
+    ${(() => {
+      const ss = systemsOf(sys.objectId), at = ss.findIndex((x) => x.id === sys.id), pv = ss[at - 1], nx = ss[at + 1];
+      const nav = (x, t) => (x ? `<button class="btn sm" data-act="go" data-go='${esc(JSON.stringify({ name: 'system', sid: x.id }))}' aria-label="${t} система">${t === 'prev' ? '‹ ' + esc(x.name || '') : esc(x.name || '') + ' ›'}</button>` : '<span></span>');
+      return `<div class="obar sbar">${nav(pv, 'prev')}<button class="btn primary" data-act="add-section">+ Точка</button>${nav(nx, 'next')}</div>`;
+    })()}
   </div>`;
 }
 
@@ -3413,7 +3457,7 @@ const TPL_W = [22, 24, 9, 24, 22, 8, 16, 22, 16, 24, 15, 8, 8, 8, 10, 10, 14];
 const TPL_SHAPES = ['Круглое', 'Прямоугольное'];
 function templateSheets() {
   const lists = [
-    { ref: 'E2:E3000', items: SYS_TYPES.map(([, t]) => t) },
+    { ref: 'E2:E3000', items: SYS_TYPES_VENT.map(([, t]) => t) },
     { ref: 'I2:I3000', items: ROLE_CHIPS.map(([, t]) => t) },
     { ref: 'J2:J3000', items: METHOD_CHIPS.map(([, t]) => t) },
     { ref: 'K2:K3000', items: TPL_SHAPES },
@@ -3650,6 +3694,82 @@ async function importTemplate(file) {
   }
   render(); Store.kick();
 }
+
+/* ===== система (общеобменная): название, местонахождение, тип, дата — в отдельном окне ===== */
+function seditOpen(sid, armed) {
+  const sys = sysOf(sid); if (!sys) return;
+  const cur = (k) => { const el = $('#se-' + k); return el ? el.value : (sys[k] || ''); };
+  const types = SYS_TYPES_VENT.some(([v]) => v === sys.type) || !sys.type ? SYS_TYPES_VENT : SYS_TYPES_VENT.concat(SYS_TYPES.filter(([v]) => v === sys.type));
+  const tv = cur('type');
+  oeditRoot().innerHTML = `<div class="overlay oe-ov" role="dialog" aria-modal="true" aria-label="Система"><div class="sheet">
+    <div class="card-head" style="margin:0"><h2>Система</h2></div>
+    <div class="stack" style="gap:12px">
+      <div class="f"><label for="se-name">Система, установка</label><input type="text" id="se-name" value="${esc(cur('name'))}" placeholder="напр. П1" autocomplete="off"></div>
+      <div class="f"><label for="se-location">Местонахождение оборудования</label><input type="text" id="se-location" value="${esc(cur('location'))}" placeholder="напр. венткамера, пом. 015" autocomplete="off"></div>
+      <div class="f"><label for="se-type">Тип</label><select id="se-type">${types.map(([v, t]) => `<option value="${v}"${tv === v ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div class="f"><label for="se-date">Дата испытаний</label><input type="date" id="se-date" value="${esc(cur('date'))}"></div>
+    </div>
+    <div class="head-actions" style="justify-content:space-between;margin-top:14px">
+      <button class="btn danger${armed ? ' armed' : ''}" data-act="sedit-del" data-sid="${sys.id}">${armed ? 'Нажмите ещё раз — удалить' : 'Удалить систему'}</button>
+      <span class="head-actions"><button class="btn" data-act="sedit-close">Отмена</button><button class="btn primary" data-act="sedit-save" data-sid="${sys.id}">Сохранить</button></span></div>
+  </div></div>`;
+}
+function seditAct(a) {
+  const act = a.dataset.act, sys = a.dataset.sid ? sysOf(a.dataset.sid) : null;
+  if (act === 'sedit-open') { UI.seArm = null; seditOpen(a.dataset.sid); return; }
+  if (act === 'sedit-close') { UI.seArm = null; oeditRoot().innerHTML = ''; return; }
+  if (!sys) { oeditRoot().innerHTML = ''; return; }
+  if (act === 'sedit-save') {
+    const v = (k) => String(($('#se-' + k) || {}).value || '').trim();
+    if (!v('name')) { toast('Впишите название системы.'); const n = $('#se-name'); if (n) n.focus(); return; }
+    sys.name = v('name'); sys.location = v('location'); sys.type = v('type'); sys.date = v('date');
+    Store.save(sys); oeditRoot().innerHTML = '';
+    const y = window.scrollY; render(); window.scrollTo(0, y); toast('Система сохранена.');
+    return;
+  }
+  if (act === 'sedit-del') {
+    if (UI.seArm !== sys.id) { UI.seArm = sys.id; seditOpen(sys.id, true); return; }
+    UI.seArm = null; oeditRoot().innerHTML = '';
+    const id = sys.id; purgePhotos(allPhotos(sys));
+    const o = objOf(sys.objectId); if (o) { (o.delSys || (o.delSys = {}))[id] = Date.now(); Store.save(o); }
+    Store.remove(id); go({ name: 'object', oid: sys.objectId }); toast('Система удалена.');
+  }
+}
+
+/* ===== данные объекта: название, адрес, дата — правятся в отдельном окне ===== */
+function objCrumbs(o) {
+  return `<nav class="crumbs ocrumbs" aria-label="Путь"><button data-act="go" data-go='{"name":"objects"}'>Объекты</button><span class="sep">›</span><span class="ocr-n">${esc(o.name || 'Объект')}</span></nav>`;
+}
+function oeditRoot() { let r = document.getElementById('oedit-root'); if (!r) { r = document.createElement('div'); r.id = 'oedit-root'; document.body.appendChild(r); } return r; }
+function oeditOpen(oid) {
+  const o = Store.get(oid); if (!o) return;
+  const f = (k, l, t = 'text', ph = '') => `<div class="f"><label for="oe-${k}">${l}</label><input type="${t}" id="oe-${k}" value="${esc(o[k] || '')}" placeholder="${esc(ph)}" autocomplete="off"></div>`;
+  oeditRoot().innerHTML = `<div class="overlay oe-ov" role="dialog" aria-modal="true" aria-label="Данные объекта"><div class="sheet">
+    <div class="card-head" style="margin:0"><h2>Данные объекта</h2></div>
+    <div class="stack" style="gap:12px">${f('name', 'Название')}${f('address', 'Адрес', 'text', 'город, улица, дом')}${f('date', 'Дата начала работ', 'date')}
+      <p class="hint">Название и адрес попадают в паспорта, протоколы и имена файлов.</p></div>
+    <div class="head-actions" style="justify-content:flex-end;margin-top:12px"><button class="btn" data-act="oedit-close">Отмена</button><button class="btn primary" data-act="oedit-save" data-oid="${o.id}">Сохранить</button></div>
+  </div></div>`;
+}
+function oeditAct(a) {
+  const act = a.dataset.act;
+  if (act === 'oedit-open') { oeditOpen(a.dataset.oid); return; }
+  if (act === 'oedit-close') { oeditRoot().innerHTML = ''; return; }
+  if (act === 'oedit-save') {
+    const o = Store.get(a.dataset.oid); if (!o) { oeditRoot().innerHTML = ''; return; }
+    const v = (k) => String(($('#oe-' + k) || {}).value || '').trim();
+    const name = v('name');
+    if (!name) { toast('Впишите название объекта.'); const n = $('#oe-name'); if (n) n.focus(); return; }
+    o.name = name; o.address = v('address'); o.date = v('date');
+    Store.save(o);
+    oeditRoot().innerHTML = '';
+    const y = window.scrollY;
+    if (isPdv() && window.__pdv) window.__pdv.render(); else render();
+    window.scrollTo(0, y);
+    toast('Данные объекта сохранены.');
+  }
+}
+document.addEventListener('click', (e) => { const r = document.getElementById('oedit-root'); if (r && e.target.classList && e.target.classList.contains('oe-ov')) r.innerHTML = ''; });
 
 /* ===== пометки на схеме и фото (редактор общий с разделом ПДВ) ===== */
 async function annotateVent(sys, slot, i) {
@@ -3953,6 +4073,10 @@ document.addEventListener('click', (e) => {
   if (t) { e.__vnb = true; UI.tab = t.dataset.tab; UI.armed = null; render(); window.scrollTo(0, 0); return; }
   const sw = e.target.closest('[data-act="sect"]');
   if (sw) { e.__vnb = true; openSect(sw.dataset.oid, sw.dataset.v); return; }
+  const oe = e.target.closest('[data-act^="oedit-"]');
+  if (oe) { e.__vnb = true; oeditAct(oe); return; }
+  const se = e.target.closest('[data-act^="sedit-"]');
+  if (se) { e.__vnb = true; seditAct(se); return; }
   if (isPdv()) return;
   e.__vnb = true;
   const a = e.target.closest('[data-act]');
@@ -3964,14 +4088,14 @@ document.addEventListener('click', (e) => {
   switch (act) {
     case 'go': go(JSON.parse(a.dataset.go)); break;
     case 'jump': { const el = document.getElementById(a.dataset.id); if (el) el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); break; }
-    case 'add-object': { const o = newObject(); go({ name: 'object', oid: o.id }); setTimeout(() => { const f = document.getElementById(fid(o, 'name')); if (f) f.focus(); }, 0); break; }
+    case 'add-object': { const o = newObject(); go({ name: 'object', oid: o.id }); oeditOpen(o.id); setTimeout(() => { const f = $('#oe-name'); if (f) { f.focus(); f.select(); } }, 0); break; }
     case 'add-example': { const o = makeExample(); go({ name: 'object', oid: o.id }); toast('Пример создан. Его можно править и удалить.'); break; }
     case 'add-system': {
       if (!d.o) break;
       const s = newSystem(d.o.id, systemsOf(d.o.id).length + 1);
       go({ name: 'system', sid: s.id });
-      if (!modIsOpen('sys.head')) { UI.modOpen['sys.head'] = true; render(); }
-      setTimeout(() => { const f = document.getElementById(fid(s, 'name')); if (f) { f.focus(); f.select(); } }, 0);
+      seditOpen(s.id);
+      setTimeout(() => { const f = $('#se-name'); if (f) { f.focus(); f.select(); } }, 0);
       break;
     }
     case 'add-section': {
@@ -4093,7 +4217,7 @@ Store.on((first) => {
 });
 
 window.__core = {
-  Store, Local, Photos, toast, loadPdfJs, UI, go, render, isPdv, sectSwitch, deleteObject, exportObject, exportBackup, importBackup,
+  Store, Local, Photos, toast, loadPdfJs, UI, go, render, isPdv, sectSwitch, objCrumbs, deleteObject, exportObject, exportBackup, importBackup,
   offerFile: (n, d, fb) => offerFile(n, d, fb || (() => toast('Не удалось сохранить файл.'))),
 };
 render();
@@ -4550,6 +4674,7 @@ body.pdv-on .norms .tbl-wrap td{padding:0;border:0}
 body.pdv-on .norms .tbl-wrap td:first-child{font-weight:600}
 body.pdv-on .norms .tbl-wrap td:nth-child(2){color:var(--ink-2);margin-top:2px}}
 body.pdv-on .fgrid input[data-path$=".type"],body.pdv-on .fgrid input[data-path$=".typeF"]{text-align:left;font-size:13px;padding-left:6px;padding-right:4px}
+body.pdv-on .ed-pen{flex:none;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);color:var(--ink-2);min-width:40px;min-height:36px;font-size:17px;line-height:1;cursor:pointer;padding:0 8px}
 /* редактор пометок — общий для обоих разделов */
 .toast{z-index:60}
 .ann{position:fixed;inset:0;z-index:55;background:#1E252B;display:flex;flex-direction:column;color:#fff;padding-top:env(safe-area-inset-top,0px)}
@@ -4965,7 +5090,7 @@ function sysTable(o, names, opt = {}) {
     </tr>`;
   }).join('');
   return `<div class="gwrap"><table class="gtbl${z ? ' zt' : ''}">
-    <thead><tr><th rowspan="2" class="g-no">№ п/п</th><th rowspan="2">Система</th><th rowspan="2"><span class="h-l">Место&shy;нахождение обору&shy;дования</span><span class="h-s">Место&shy;нахож&shy;дение</span></th><th colspan="2">Расход вентилятора, м³/ч</th><th rowspan="2"><span class="h-l">Невязка, %</span><span class="h-s">Невяз., %</span></th><th rowspan="2" class="g-fr"><span class="h-l">Регулятор: Гц / ск.</span><span class="h-s">ПЧ, Гц / ск.</span></th>${z ? '<th rowspan="2">Работает</th>' : ''}</tr>
+    <thead><tr><th rowspan="2" class="g-no">№ п/п</th><th rowspan="2">Система</th><th rowspan="2"><span class="h-l">Место&shy;нахождение обору&shy;дования</span><span class="h-s">Место&shy;нахож&shy;дение</span></th><th colspan="2">Расход вентилятора, м³/ч</th><th rowspan="2"><span class="h-l">Невязка, %</span><span class="h-s">Невяз., %</span></th><th rowspan="2" class="g-fr"><span class="h-l">Регулятор: Гц / ск.</span><span class="h-s">ПЧ, Гц</span></th>${z ? '<th rowspan="2">Работает</th>' : ''}</tr>
     <tr><th>проект</th><th>факт</th></tr></thead>
     <tbody>${rows}</tbody></table></div>
     ${anyPts ? '<p class="hint">Серым — вентилятор не замерен, показан расход по точкам на этажах (от … до).</p>' : ''}`;
@@ -4981,9 +5106,8 @@ function viewObject(o) {
   const c = ptStats(rowsOf(o), o);
   const groups = sysTable(o, names);
   return `<div class="stack">
-    <nav class="crumbs" aria-label="Путь"><button data-act="go" data-go='{"name":"objects"}'>Объекты</button><span class="sep">›</span><span>${esc(o.name || 'Объект')}</span></nav>
+    ${CORE.objCrumbs(o)}
     ${CORE.sectSwitch(o, 'pdv')}
-    ${objHead(o)}
     ${names.length ? `<div class="sumline"><b>${names.length} ${plural(names.length, 'система', 'системы', 'систем')}</b>${statLine(c)}</div>
       ${groups}`
       : '<div class="empty"><h2>Систем пока нет</h2><p class="lead">Нажмите «+ Система» или заполните объект из паспортов PDF или таблицы Excel на главном экране.</p></div>'}
@@ -5069,7 +5193,7 @@ function viewSystem(o, name) {
         ['Компенсирует', i.pair || ''],
       ].filter(([, v]) => v);
       const sum = esc(rows.slice(0, 1).concat(rows.slice(2, 3)).map(([, v]) => v).join(' · '));
-      return modCard('sys.head', 'c-note sys-head', esc(name), sum, `<dl class="sh2-dl">${rows.map(([kk, v]) => `<dt>${kk}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`, '<button class="btn sm" data-act="sheet" data-v="sysedit">Изменить</button>');
+      return modCard('sys.head', 'c-note sys-head', esc(name), sum, `<dl class="sh2-dl">${rows.map(([kk, v]) => `<dt>${kk}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`, '<button class="ed-pen" data-act="sheet" data-v="sysedit" aria-label="Изменить систему" title="Изменить систему">✎</button>');
     })()}
     ${(() => {
       const fe = fanEval(o, name), f = i.fan || {};
@@ -5293,8 +5417,7 @@ function sheetProto(o) {
 }
 function sheetMore(o) {
   return sheetWrap('Ещё', `<div class="stack" style="gap:8px">
-      <button class="btn" data-act="export-xlsx">Таблица Excel (все точки, листы по этажам)</button>
-      <button class="btn" data-act="export-object">Отправить объект файлом (напарнику)</button>
+      <button class="btn" data-act="export-object">Отправить объект напарнику</button>
       ${delBtn('obj:' + o.id, 'Удалить объект')}</div>`, '<button class="btn" data-act="sheet-close">Закрыть</button>');
 }
 function renderSheet(o) {
@@ -7629,7 +7752,7 @@ document.addEventListener('click', (e) => {
       Promise.resolve(a.dataset.fmt === 'pass' ? exportPassports(o, [n]) : a.dataset.fmt === 'pdf' ? exportPDF(sub) : exportTable(sub)).finally(() => { window.__shareNext = false; });
       break;
     }
-    case 'export-object': if (o) exportObject(o); break;
+    case 'export-object': if (o) { if (UI.sheet && UI.sheet.type === 'more') closeSheet(); exportObject(o); } break;
     case 'ov-close': ovRoot.innerHTML = ''; break;
     case 'ov-copy': {
       const txt = ovRoot._copy || '';

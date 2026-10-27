@@ -183,6 +183,7 @@ class MainActivity : AppCompatActivity() {
 
     /** Мост для страницы: сохранить файл (таблица, сводка, копия) и предложить отправить. */
     inner class Bridge {
+        /** «Сохранить»: только в «Загрузки / Блокнот наладчика»; отправка — отдельной кнопкой «Отправить…» (shareFile). */
         @JavascriptInterface
         fun saveFile(name: String, base64: String, mime: String) {
             val bytes = try {
@@ -192,25 +193,11 @@ class MainActivity : AppCompatActivity() {
             }
             val safeName = name.replace(Regex("[\\\\/:*?\"<>|]"), "_")
             runOnUiThread {
-                val savedTo = saveToDownloads(safeName, bytes, mime)
-                val shareFile = File(File(cacheDir, "exports").apply { mkdirs() }, safeName)
-                try {
-                    shareFile.writeBytes(bytes)
-                } catch (e: Exception) {
-                    // файл для отправки не записан — останется копия в Загрузках
-                }
-                toast(if (savedTo) "Сохранено: Загрузки/$FOLDER/$safeName" else "Файл готов — выберите, куда отправить")
-                try {
-                    val uri = FileProvider.getUriForFile(this@MainActivity, "$packageName.files", shareFile)
-                    val send = Intent(Intent.ACTION_SEND).apply {
-                        type = mime
-                        putExtra(Intent.EXTRA_STREAM, uri)
-                        putExtra(Intent.EXTRA_SUBJECT, safeName)
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    }
-                    startActivity(Intent.createChooser(send, getString(R.string.send_file)))
-                } catch (e: Exception) {
-                    if (!savedTo) toast("Не удалось сохранить файл")
+                if (saveToDownloads(safeName, bytes, mime)) {
+                    toast("Сохранено: Загрузки/$FOLDER/$safeName")
+                } else {
+                    // старый Android (до 10): в «Загрузки» напрямую не записать — предлагаем отправить
+                    shareFile(name, base64, mime)
                 }
             }
         }
