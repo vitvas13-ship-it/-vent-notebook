@@ -590,7 +590,7 @@ html,body{background-color:var(--paper)}
 .tbl-wrap,.gwrap{background:var(--sheet)}
 .oc-q input,.sect-sw{box-shadow:var(--shadow)}
 .theme-sw{display:flex;gap:6px;flex-wrap:wrap}
-.theme-sw button{flex:1;min-width:96px}
+.theme-sw button{flex:1 1 auto;min-width:0;padding-left:8px;padding-right:8px;white-space:normal;line-height:1.15}
 .theme-sw button[aria-pressed="true"]{background:var(--seg-on);border-color:var(--seg-on);color:var(--seg-on-ink)}
 
 :root[data-app-theme="dark"],:root[data-app-theme="dark"] body,:root[data-app-theme="dark"] body.pdv-on{
@@ -670,6 +670,43 @@ body .crumbs.scr > .scr-o{flex:0 1 auto !important;min-width:0;overflow:hidden;t
 .exp-row .btn{width:100%;min-height:52px}
 .exp-row p{margin:0;font-size:13.5px;line-height:1.35;color:var(--ink-2)}
 .exp-row p b{color:var(--ink);font-weight:600}
+body .crumbs.scr > span:last-child{flex:none !important;overflow:visible;white-space:nowrap}
+/* главный экран: объяснение загрузки — под «Подробнее» */
+.imp-more{margin-top:10px}
+.imp-more summary{cursor:pointer;font-size:14px;color:var(--link,var(--ink-2));padding:4px 0;list-style:none}
+.imp-more summary::-webkit-details-marker{display:none}
+.imp-more summary::before{content:"▸ ";display:inline-block;width:1em}
+.imp-more[open] summary::before{content:"▾ "}
+.imp-more p{margin-top:6px}
+
+/* сдача систем */
+.hs{display:block;margin-top:3px;font-size:10.5px;white-space:nowrap;font-weight:700;line-height:1.15;border-radius:5px;padding:2px 4px;text-align:center}
+.hs.ready{background:color-mix(in srgb, var(--link) 16%, transparent);color:var(--link)}
+.hs.done{background:var(--ok-bg);color:var(--ok)}
+.hf-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.hf{border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:5px 11px;font:inherit;font-size:13.5px;cursor:pointer;min-height:34px}
+.hf b{font-family:var(--f-mono);font-weight:600;margin-left:2px}
+.hf[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--sheet)}
+.hf-mark{margin-left:auto}
+.hand-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hand-row .hr-l{font-weight:600;font-size:14px;color:var(--ink-2)}
+.hand-seg{display:inline-flex;flex:1 1 auto;min-width:0}
+.hand-seg button{flex:1 1 auto;min-height:38px;font-size:13.5px;padding:6px 8px;white-space:nowrap}
+.hand-seg button[data-v=""][aria-pressed="true"]{background:var(--rule);color:var(--ink);font-weight:600}
+.hand-seg button[data-v="ready"][aria-pressed="true"]{background:var(--link);color:var(--sheet)}
+.hand-seg button[data-v="done"][aria-pressed="true"]{background:var(--ok);color:var(--sheet)}
+.hand-list{display:flex;flex-direction:column}
+.hl-row{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid var(--grid,var(--rule))}
+.hl-n{display:flex;align-items:baseline;gap:8px;min-width:0}
+.hl-n b{font-size:16px}
+.hl-n small{color:var(--ink-2);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hand-date input{max-width:220px}
+.unittbl td:first-child{white-space:nowrap}
+.warn-t{color:var(--warn,#9A5B00);font-weight:600}
+/* расчёты: подсказка обычной строкой, формула переносится, «Очистить» неброская */
+.calc .calc-note{margin:0 0 10px;font-size:13px;color:var(--ink-2);line-height:1.4}
+.calc .formula{white-space:normal !important;overflow-wrap:anywhere;overflow-x:visible !important}
+.calc .btn.calc-clr{background:transparent;border-color:var(--rule);color:var(--ink-2);font-weight:500;min-height:30px;padding:4px 10px;font-size:12.5px}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -1975,7 +2012,7 @@ function objCard(o) {
       ${open ? `<button class="oc-b" data-act="go" data-go='${go}'>
       <div class="row">${o.example ? '<span class="ref">Пример</span>' : ''}<span class="meta">${esc(fmtDate(o.date || ''))}</span></div>
       <div class="meta">${esc(o.address || 'Адрес не указан')}</div>
-      <div class="osec">${osecLine('Общеобменная', syss.length, secN, badN ? ['bad', badN + ' вне допуска'] : okN ? ['ok', 'все в допуске'] : null, !syss.length && !!ps)}${ps ? osecLine('Противодымная', ps.sys, ps.pts, ps.bad ? ['bad', ps.bad + ' не соответств' + (ps.bad === 1 ? 'ует' : 'уют')] : ps.ok ? ['ok', 'соответствуют'] : null) : ''}</div>
+      <div class="osec">${osecLine('Общеобменная', syss.length, secN, badN ? ['bad', badN + ' вне допуска'] : okN ? ['ok', 'все в допуске'] : null, !syss.length && !!ps, { ready: syss.filter((s) => handOf(s) === 'ready').length, done: syss.filter((s) => handOf(s) === 'done').length })}${ps ? osecLine('Противодымная', ps.sys, ps.pts, ps.bad ? ['bad', ps.bad + ' не соответств' + (ps.bad === 1 ? 'ует' : 'уют')] : ps.ok ? ['ok', 'соответствуют'] : null, false, ps) : ''}</div>
     </button>` : ''}
     </div>`;
 }
@@ -2019,9 +2056,10 @@ function viewObjects() {
 }
 function plural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few; return many; }
 /* строка раздела в карточке объекта: название · системы и точки · итог */
-function osecLine(t, ns, np, st, hide) {
+function osecLine(t, ns, np, st, hide, hd) {
   if (hide) return '';
-  const cnt = ns ? `${ns} ${plural(ns, 'система', 'системы', 'систем')} · ${np} ${plural(np, 'точка', 'точки', 'точек')}` : 'систем нет';
+  const hx = hd && (hd.done || hd.ready) ? [hd.ready ? `налажено ${hd.ready}` : '', hd.done ? `предъявлено ${hd.done} из ${ns}` : ''].filter(Boolean).join(' · ') : '';
+  const cnt = (ns ? `${ns} ${plural(ns, 'система', 'системы', 'систем')} · ${np} ${plural(np, 'точка', 'точки', 'точек')}` : 'систем нет') + (hx ? `<br>${hx}` : '');
   return `<div class="osec-l"><div><b>${t}</b><small>${cnt}</small></div>${st ? `<span class="osec-s ${st[0]}">${esc(st[1])}</span>` : (ns ? '<span class="osec-s">нет замеров</span>' : '')}</div>`;
 }
 const LS_THEME = 'vnb.theme.v1';
@@ -2042,8 +2080,9 @@ function themeBlock() {
 }
 function backupBlock() {
   return `<section class="card c-point"><div class="card-head"><h2>Заполнить объект из файла</h2></div>
-    <p class="muted small" style="margin-bottom:10px"><b>Паспорта PDF</b> — технический отчёт: системы, вентилятор и двигатель, точки и схемы. Сюда же — <b>«Характеристика систем»</b> и <b>спецификация оборудования</b> из проекта (PDF с текстом; спецификацию можно и в Excel): проектные данные и марки вентиляторов и двигателей. <b>Шаблон Excel</b> — заполните на компьютере системы и точки (противодымные — на листе «ПДВ»); подойдёт и ваша таблица наладки ПДВ по этажам. Объект с тем же названием дополнится, уже вписанное не стирается. Противодымные системы сами уйдут в раздел «Противодымная».</p>
-    <div class="head-actions"><button class="btn primary" data-act="import-pdf">Из паспортов PDF</button><button class="btn" data-act="import-xlsx">Из шаблона Excel</button><button class="btn" data-act="template">Скачать шаблон</button></div></section>
+    <p class="muted small" style="margin:-4px 0 10px">Паспорта, «Характеристика систем», спецификация, шаблон или таблица наладки ПДВ.</p>
+    <div class="head-actions"><button class="btn primary" data-act="import-pdf">Из паспортов PDF</button><button class="btn" data-act="import-xlsx">Из шаблона Excel</button><button class="btn" data-act="template">Скачать шаблон</button></div>
+    <details class="imp-more"><summary>Подробнее, что можно загрузить</summary><p class="muted small"><b>Паспорта PDF</b> — технический отчёт: системы, вентилятор и двигатель, точки и схемы. Сюда же — <b>«Характеристика систем»</b> и <b>спецификация оборудования</b> из проекта (PDF с текстом; спецификацию можно и в Excel): проектные данные и марки вентиляторов и двигателей. <b>Шаблон Excel</b> — заполните на компьютере системы и точки (противодымные — на листе «ПДВ»); подойдёт и ваша таблица наладки ПДВ по этажам. Объект с тем же названием дополнится, уже вписанное не стирается. Противодымные системы сами уйдут в раздел «Противодымная».</p></details></section>
     <section class="card c-note"><div class="card-head"><h2>Резервная копия</h2><span class="ref">.json</span></div>
     <div class="head-actions"><button class="btn" data-act="backup">Сохранить копию</button><button class="btn" data-act="import">Загрузить из файла</button></div></section>${themeBlock()}`;
 }
@@ -2052,14 +2091,16 @@ function backupBlock() {
 function viewObject(o) {
   const syss = systemsOf(o.id);
   /* Расход вентилятора: проект — из табл. А.1.1; факт — из А.1.1 или по замерам у вентилятора */
+  if (UI.handObj !== o.id) { UI.handObj = o.id; UI.handF = 'all'; }
   const rows = syss.map((s, i) => {
+    if (UI.handF && UI.handF !== 'all' && handOf(s) !== UI.handF) return '';
     const fan = (s.pass && s.pass.fan) || {};
     const ff = fanFlow(s);
     const Lp = ff.proj, Lf = ff.fact, dev = ff.dev;
     const hz = regParse((fan.fact || {}).vfd).cell;
     const devCell = OK(dev) ? `<span class="dv ${dev >= -5 ? 'ok' : 'bad'}">${M.fmtSigned(dev, 1)}</span>` : '—';
     return `<tr class="click st-${OK(dev) ? (dev >= -5 ? 'ok' : 'bad') : 'none'}" data-act="go" data-go='${esc(JSON.stringify({ name: 'system', sid: s.id }))}'>
-      <td class="num">${i + 1}</td><td><b>${esc(s.name || '—')}</b></td><td class="loc">${esc(s.location || '—')}</td>
+      <td class="num">${i + 1}</td><td><b>${esc(s.name || '—')}</b>${handChip(s)}</td><td class="loc">${esc(s.location || '—')}</td>
       <td class="r num">${F(Lp)}</td><td class="r num">${F(Lf)}</td><td class="r num">${devCell}</td><td class="r num">${esc(hz) || '—'}</td></tr>`;
   }).join('');
   return `<div class="stack">
@@ -2068,10 +2109,10 @@ function viewObject(o) {
     <section class="card c-list">
       <div class="card-head"><h2>Системы</h2><button class="btn primary" data-act="add-system">+ Система</button></div>
       ${syss.length ? (() => { let np = 0, ok = 0, bad = 0; syss.forEach((s) => { const r = M.system(s); np += r.count; ok += r.okN; bad += r.badN; });
-        return `<p class="pts-sum"><b>${syss.length} ${plural(syss.length, 'система', 'системы', 'систем')}</b> · ${np} ${plural(np, 'точка', 'точки', 'точек')}${ok ? ` · <span class="ok-t">✓ ${ok}</span>` : ''}${bad ? ` · <span class="bad-t">✕ ${bad}</span>` : ''}</p>`; })() : ''}
+        return `<p class="pts-sum"><b>${syss.length} ${plural(syss.length, 'система', 'системы', 'систем')}</b> · ${np} ${plural(np, 'точка', 'точки', 'точек')}${ok ? ` · <span class="ok-t">✓ ${ok}</span>` : ''}${bad ? ` · <span class="bad-t">✕ ${bad}</span>` : ''}</p>${handFilterRow(syss)}`; })() : ''}
       ${syss.length ? `<div class="tbl-wrap"><table class="systbl" lang="ru"><thead>
           <tr><th rowspan="2">№ п/п</th><th rowspan="2">Система</th><th rowspan="2" class="loc">Место&shy;нахож&shy;дение</th><th colspan="2" class="cc">Расход вентилятора, м³/ч</th><th rowspan="2" class="r">Невяз&shy;ка, %</th><th rowspan="2" class="r">ПЧ, Гц / ск.</th></tr>
-          <tr><th class="r">проект</th><th class="r">факт</th></tr></thead><tbody>${rows}</tbody></table></div>
+          <tr><th class="r">проект</th><th class="r">факт</th></tr></thead><tbody>${rows || '<tr><td colspan="7" class="muted" style="text-align:center;padding:14px">Нет систем с такой отметкой.</td></tr>'}</tbody></table></div>
         <p class="hint" style="margin-top:8px">Расход вентилятора — среднее по точкам «Вент. всас» и «Вент. нагнет» (или одна из них). Брак — только недобор больше 5 % от проекта; превышение проекта допускается.</p>`
         : `<p class="muted">Систем пока нет. Добавьте первую — например, П1 или В1, или заполните объект из паспортов PDF на главном экране.</p>`}
     </section>
@@ -2109,6 +2150,7 @@ function viewSystem(sys) {
   return `<div class="stack">
     <nav class="crumbs scr" aria-label="Путь"><button data-act="go" data-go='{"name":"objects"}'>Объекты</button><span class="sep">›</span><button class="scr-o" data-act="go" data-go='${esc(JSON.stringify({ name: 'object', oid: sys.objectId }))}'>${esc((o && o.name) || 'Объект')}</button></nav>
     ${modCard('sys.head', 'c-note sys-head', esc(sys.name || 'Система'), headSum, headDl, '<button class="ed-pen" data-act="sedit-open" data-sid="' + sys.id + '" aria-label="Изменить систему" title="Изменить систему">✎</button>')}
+    ${handRow(sys)}
     ${eq[0]}
     ${modCard('sys.points', 'c-list', 'Точки замера', ptsSum, table)}
     ${roomsCard(res)}
@@ -2241,7 +2283,8 @@ function viewSection(sys, sec) {
     ? `<div class="f"><label for="${fid(sys, psPath)}">${lab('Pст, разрежение', 'Па')}</label><div class="pre"><span aria-hidden="true">−</span><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psPath)}" data-doc="${sys.id}" data-path="${psPath}" value="${psVal}" autocomplete="off"></div></div>`
     : `<div class="f"><label for="${fid(sys, psPath)}">${lab('Pст', 'Па')}</label><div class="pre"><button class="sgn" data-act="ps-sign" aria-label="Сменить знак, сейчас ${sec.psSign === '-' ? 'минус' : 'плюс'}">${sec.psSign === '-' ? '−' : '+'}</button><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psPath)}" data-doc="${sys.id}" data-path="${psPath}" value="${psVal}" autocomplete="off"></div></div>`;
   let meas;
-  if (!m) meas = '<p class="muted">Выберите выше, чем меряете, — появится поле для замера.</p>';
+  const fromPass = !m && sec.entry === 'L' && (String(oneVal(sec.total) || '').trim() || String(sec.Lp || '').trim());
+  if (!m && !fromPass) meas = '<p class="muted">Выберите выше, чем меряете, — появится поле для замера.</p>';
   else {
     const kf = m === 'kfactor';
     const factPath = byL ? P('total') : (kf ? P('dpK') : P('vAvg'));
@@ -2252,7 +2295,7 @@ function viewSection(sys, sec) {
         ${inNum(sys, P('Lp'), 'L проект', 'м³/ч', { cls: 'big' })}
         <div class="f big"><div class="lrow"><label for="${fid(sys, factPath)}">${factLbl}</label>${toggle}</div>${valInput(sys, factPath, byL ? 'L факт' : (kf ? 'Δp факт' : 'V факт'), factVal)}</div>
       </div>
-      <div id="sec-result">${resultHTML(r, sec)}</div>
+      <div id="sec-result">${resultHTML(r, sec)}</div>${fromPass ? '<p class="hint">Расход из паспорта. Будете перемерять — выберите выше, чем меряете.</p>' : ''}
       ${fan || duct ? `<div class="fields pres">${psField}${fan ? inNum(sys, P('t'), 'Температура t', '°C') : ''}</div>${fan ? '<p class="hint">Pст и t — для давления вентилятора.</p>' : ''}` : ''}`;
   }
   const measSum = OK(r.L) ? `L ${F(r.L)} / ${F(r.Lp)} м³/ч${OK(r.dev) ? ` · <span class="${r.status === 'bad' ? 'bad-t' : 'ok-t'}">${M.fmtSigned(r.dev, 1)} %</span>` : ''}` : 'нет замера';
@@ -2265,7 +2308,7 @@ function viewSection(sys, sec) {
       <div class="fields wide">${inText(sys, P('note'), 'Заметка', { cls: 'span2', ph: 'положение шибера, замечания' })}</div></div>`);
 
   return `<div class="stack sec-page">
-    ${crumbs([{ t: 'Объекты', go: { name: 'objects' } }, { t: (o && o.name) || 'Объект', go: { name: 'object', oid: sys.objectId } }, { t: sys.name || 'Система', go: { name: 'system', sid: sys.id } }, { t: 'Точка ' + (sec.no || '') }])}
+    <nav class="crumbs scr" aria-label="Путь"><button data-act="go" data-go='{"name":"objects"}'>Объекты</button><span class="sep">›</span><button class="scr-o" data-act="go" data-go='${esc(JSON.stringify({ name: 'object', oid: sys.objectId }))}'>${esc((o && o.name) || 'Объект')}</button><span class="sep">›</span><button data-act="go" data-go='${esc(JSON.stringify({ name: 'system', sid: sys.id }))}'>${esc(sys.name || 'Система')}</button><span class="sep">›</span><span>Точка ${esc(sec.no || '')}</span></nav>
     ${nav}${cardPt}${cardMeas}${cardNote}
     <div class="pact">
       <button class="btn primary wide" data-act="add-section">+ Новая точка</button>
@@ -2383,7 +2426,7 @@ function waterRho(t) {
 
 const CALCS = [
   {
-    id: 'sect', title: 'Мерное сечение и точки замера', sum: 'точки и глубина ввода зонда', ref: 'ГОСТ 12.3.018, р. 1, черт. 1–2',
+    id: 'sect', title: 'Мерное сечение и точки замера', sum: 'точки и глубина ввода зонда', ref: 'По ГОСТ 12.3.018, черт. 1–2.',
     fields: [
       { k: 'shape', l: 'Форма', t: 'sel', o: SHAPES, d: 'round' },
       { k: 'drill', l: 'Отверстия', t: 'sel', o: [['v', 'Сверху'], ['h', 'Сбоку']], d: 'v' },
@@ -2399,7 +2442,7 @@ const CALCS = [
       const vert = v.drill !== 'h';
       const round = v.shape === 'round';
       const w = round ? D : a;
-      const items = [kvI('Площадь F', F(g.F, 4), 'м²'), kvI('Прямой участок до / после', `${F(6 * g.Dh / 1000, 2)} / ${F(2 * g.Dh / 1000, 2)}`, 'м'),
+      const items = [kvI('Площадь F', F(g.F, 4), 'м²'), kvI('Прямо до сечения', `≥ ${F(6 * g.Dh / 1000, 2)}`, 'м'), kvI('Прямо после сечения', `≥ ${F(2 * g.Dh / 1000, 2)}`, 'м'),
         kvI('Зонд, Ø не более', F(0.08 * w, 0), 'мм'), kvI('Точек замера', P.z, '', true)];
       /* Таблица: блок «отверстие» (номер, где сверлить) отдельно от блока «глубины ввода» */
       const dcells = (arr) => arr.map((x, i) => `<td class="r num dp${i === 0 ? ' first' : ''}">${F(x, 0)}</td>`).join('');
@@ -2428,7 +2471,7 @@ const CALCS = [
     },
   },
   {
-    id: 'flow', title: 'Скорость и расход', sum: 'L = 3600 · V · F', ref: 'впишите скорость — посчитается расход, впишите расход — скорость',
+    id: 'flow', title: 'Скорость и расход', sum: 'L = 3600 · V · F', ref: 'Впишите скорость или расход — второе посчитается.',
     fields: [
       { k: 'shape', l: 'Форма', t: 'sel', o: SHAPES, d: 'round', w: 'span2' },
       { k: 'D', l: 'Диаметр D', u: 'мм', d: '', show: isRound },
@@ -2453,13 +2496,43 @@ const CALCS = [
       if (!OK(g.F)) return '<p class="muted">Введите размеры.</p>';
       const V = N(v.V), L = N(v.L);
       const items = [kvI('Площадь F', F(g.F, 4), 'м²')];
-      if (OK(L)) items.push(kvI('Расход', `${F(L / 3600, 4)} м³/с · ${F(L / 3.6, 1)}`, 'л/с'));
       if (OK(V)) items.push(kvI('Динамическое давление', F(1.2 * V * V / 2, 1), 'Па'));
       return kvBox(items);
     },
   },
   {
-    id: 'ach', title: 'Кратность воздухообмена', sum: 'n = L / Vпом', ref: 'впишите расход — посчитается кратность, впишите кратность — расход',
+    id: 'vfd', title: 'Подбор частоты', sum: 'частота и ток под нужный расход', ref: 'Нужны замер на текущей частоте и шильдик двигателя.',
+    fields: [
+      { k: 'f1', l: 'Частота сейчас', u: 'Гц', d: '50', w: 'span2' },
+      { k: 'L1', l: 'Расход сейчас', u: 'м³/ч', d: '', h: 'замер' },
+      { k: 'L2', l: 'Нужный расход', u: 'м³/ч', d: '', h: 'проект' },
+      { k: 'I1', l: 'Ток сейчас', u: 'А', d: '', h: 'замер клещами' },
+      { k: 'In', l: 'Ток по шильдику', u: 'А', d: '' },
+    ],
+    formula: 'f₂ = f₁ · L₂ / L₁',
+    calc(v) {
+      const f1 = N(v.f1), L1 = N(v.L1), L2 = N(v.L2), I1 = N(v.I1), In = N(v.In);
+      if (!OK(f1) || !OK(L1) || !OK(L2) || L1 <= 0 || f1 <= 0) return '<p class="muted">Введите частоту, расход сейчас и нужный расход.</p>';
+      const k = L2 / L1, f2 = f1 * k;
+      const items = [kvI('Поставить', F(f2, 1), 'Гц', true)];
+      if (!OK(I1)) return kvBox(items) + '<p class="hint">Впишите ток сейчас и ток по шильдику — покажет, хватит ли двигателя.</p>';
+      /* до 50 Гц напряжение растёт с частотой — ток ~ k², выше 50 Гц напряжение постоянное — ток ~ k³ */
+      const kI = f2 <= 50 && f1 <= 50 ? k * k : f1 >= 50 ? k * k * k : (50 / f1) ** 2 * (f2 / 50) ** 3;
+      const I2 = I1 * kI;
+      items.push(kvI('Ток станет', '≈ ' + F(I2, 1), 'А'));
+      let note = '';
+      if (OK(In) && In > 0) {
+        const load = I2 / In * 100;
+        items.push(kvI('От шильдика', F(load, 0), '%'));
+        note = load > 100 ? `<p class="bad-t">⚠ Больше номинала ${F(In, 1)} А — двигатель будет перегружен.</p>`
+          : load > 90 ? `<p class="warn-t">Почти на номинале — после перестройки замерьте ток клещами.</p>`
+          : `<p class="ok-t">✓ Запас по току ${F(100 - load, 0)} %.</p>`;
+      }
+      return kvBox(items) + note + '<p class="hint">Оценка. После перестройки замерьте ток.</p>';
+    },
+  },
+  {
+    id: 'ach', title: 'Кратность воздухообмена', sum: 'n = L / Vпом', ref: 'Впишите расход или кратность — второе посчитается.',
     fields: [
       { k: 'S', l: 'Площадь S', u: 'м²', d: '' },
       { k: 'h', l: 'Высота h', u: 'м', d: '' },
@@ -2486,7 +2559,7 @@ const CALCS = [
     },
   },
   {
-    id: 'heat', title: 'Мощность по разности температур', sum: 'Q = L · ρ · c · Δt', ref: 'воздухонагреватель, охладитель, теплоноситель',
+    id: 'heat', title: 'Мощность по разности температур', sum: 'Q = L · ρ · c · Δt', ref: '',
     fields: [
       { k: 'med', l: 'Среда', t: 'sel', o: [['air', 'Воздух'], ['water', 'Вода']], d: 'air' },
       { k: 'rhoAt', l: 'Расход измерен', t: 'sel', o: [['in', 'на входе'], ['out', 'на выходе']], d: 'in', show: (v) => v.med === 'air' },
@@ -2510,7 +2583,45 @@ const CALCS = [
     },
   },
   {
-    id: 'units', title: 'Перевод единиц', sum: 'расход, скорость, давление, мощность, температура', ref: 'значение — во все единицы группы',
+    id: 'leak', title: 'Допустимые утечки воздуховодов', sum: 'f = c · p⁰·⁶⁵', ref: 'Класс герметичности — по рабочей документации.',
+    fields: [
+      { k: 'cls', l: 'Класс герметичности', t: 'sel', o: [['A', 'A'], ['B', 'B'], ['C', 'C'], ['D', 'D']], d: 'B' },
+      { k: 'p', l: 'Давление испытания', u: 'Па', d: '400' },
+      { k: 'shape', l: 'Форма', t: 'sel', o: SHAPES, d: 'rect' },
+      { k: 'D', l: 'Диаметр D', u: 'мм', d: '', show: isRound },
+      { k: 'a', l: 'Ширина a', u: 'мм', d: '', show: (v) => !isRound(v) },
+      { k: 'b', l: 'Высота b', u: 'мм', d: '', show: (v) => !isRound(v) },
+      { k: 'len', l: 'Длина участка', u: 'м', d: '' },
+      { k: 'S', l: 'или площадь поверхности', u: 'м²', d: '', h: 'если вписана — размеры и длина не нужны' },
+      { k: 'Q', l: 'Утечка по прибору', u: 'м³/ч', d: '', h: 'для проверки участка' },
+    ],
+    formula: 'fmax = c · p^0,65, л/(с·м²);  c: A — 0,027; B — 0,009; C — 0,003; D — 0,001;  S = периметр · длина',
+    calc(v) {
+      const C = { A: 0.027, B: 0.009, C: 0.003, D: 0.001 }, cls = C[v.cls] ? v.cls : 'B', p = N(v.p);
+      if (!OK(p) || p <= 0) return '<p class="muted">Введите давление испытания.</p>';
+      let S = N(v.S);
+      if (!OK(S) || S <= 0) {
+        const len = N(v.len), per = v.shape === 'round' ? Math.PI * N(v.D) / 1000 : 2 * (N(v.a) + N(v.b)) / 1000;
+        S = OK(len) && OK(per) && per > 0 ? per * len : NaN;
+      }
+      const fl = (c) => c * Math.pow(p, 0.65);
+      if (!OK(S)) return '<p class="muted">Впишите размеры и длину участка или площадь поверхности.</p>';
+      const qmax = fl(C[cls]) * S;
+      const items = [kvI('Площадь поверхности', F(S, 2), 'м²'), kvI('Допустимая утечка', F(qmax * 3.6, 1), 'м³/ч', true)];
+      const Q = N(v.Q);
+      let res = '';
+      if (OK(Q)) {
+        const f = Q / 3.6 / S, ok = f <= fl(C[cls]) + 1e-12;
+        const best = ['D', 'C', 'B', 'A'].find((k) => f <= fl(C[k]) + 1e-12);
+        res = ok ? `<p class="ok-t">✓ Участок соответствует классу ${cls}${best && best !== cls ? ` (и даже ${best})` : ''}.</p>`
+          : `<p class="bad-t">✕ Утечка больше допустимой для класса ${cls} в ${F(f / fl(C[cls]), 1)} раза${best ? ` — участок тянет только на класс ${best}` : ' — хуже класса A'}.</p>`;
+      }
+      const tbl = `<div class="tbl-wrap"><table class="unittbl"><tbody>${Object.keys(C).map((k) => `<tr${k === cls ? ' class="cur"' : ''}><td>Класс ${k}</td><td class="r num">${F(fl(C[k]) * S * 3.6, 1)} м³/ч</td></tr>`).join('')}</tbody></table></div>`;
+      return kvBox(items) + res + tbl + '<p class="hint">Испытание — до изоляции и огнезащиты, давлением по рабочей документации (СП 73.13330, п. 7.6.3).</p>';
+    },
+  },
+  {
+    id: 'units', title: 'Перевод единиц', sum: 'расход, скорость, давление, мощность, температура', ref: 'Впишите значение — покажет во всех единицах.',
     fields: [
       { k: 'grp', l: 'Величина', t: 'sel', o: Object.entries(UNIT_GROUPS).map(([k, g]) => [k, g.t]), d: 'flow', w: 'span2' },
       { k: 'val', l: 'Значение', d: '1' },
@@ -2560,15 +2671,15 @@ function calcOut(c, v) { try { return c.calc(v); } catch (e) { return '<p class=
 function viewCalcs() {
   const cards = CALCS.map((c) => {
     const v = calcVals(c);
-    const body = `<span class="ref" style="display:inline-block;margin-bottom:12px">${esc(c.ref)}</span>
+    const body = `${c.ref ? `<p class="calc-note">${esc(c.ref)}</p>` : ''}
       ${c.id === 'sect' ? `<div id="calc-src-box">${calcSrcHTML()}</div>` : ''}<div class="fields" id="cf-${c.id}">${calcFieldsHTML(c, v)}</div>
       ${c.formula ? `<div class="formula">${esc(c.formula)}</div>` : ''}
       <div class="out" id="co-${c.id}">${calcOut(c, v)}</div>`;
-    return `<div id="calc-${c.id}" class="calc">${modCard('calc.' + c.id, 'c-' + (CALC_COLORS[c.id] || 'list'), esc(c.title), esc(c.sum || ''), body, modIsOpen('calc.' + c.id) ? `<button class="btn sm danger" data-act="calc-clear" data-id="${c.id}">Очистить</button>` : '')}</div>`;
+    return `<div id="calc-${c.id}" class="calc">${modCard('calc.' + c.id, 'c-' + (CALC_COLORS[c.id] || 'list'), esc(c.title), esc(c.sum || ''), body, modIsOpen('calc.' + c.id) ? `<button class="btn sm calc-clr" data-act="calc-clear" data-id="${c.id}">Очистить</button>` : '')}</div>`;
   }).join('');
   return `<div class="stack"><div class="head"><div><h1>Расчёты</h1><p class="lead">Нажмите на расчёт, чтобы открыть. Булавка — держать открытым.</p></div></div>${cards}</div>`;
 }
-const CALC_COLORS = { sect: 'geom', flow: 'point', ach: 'list', heat: 'motor', units: 'note' };
+const CALC_COLORS = { sect: 'geom', flow: 'point', ach: 'list', heat: 'motor', vfd: 'fan', leak: 'meas', units: 'note' };
 function clearCalc(id) {
   const c = CALCS.find((x) => x.id === id); if (!c) return;
   const st = calcState[c.id] || (calcState[c.id] = {});
@@ -2655,7 +2766,7 @@ const sizeOf = (s) => (s.method === 'hood' ? 'воронка' : s.method === 'kf
 function objectData(o, only) {
   const syss = only ? [only] : systemsOf(o.id);
   const sysRows = [['№ п/п', 'Система', 'Тип', 'Местонахождение', 'L вент. проект, м³/ч', 'L вент. факт, м³/ч', 'Невязка, %', 'Регулятор: ПЧ, Гц / скорость', 'Ток двиг., А', 'Точек', 'Вне допуска', 'Дата', 'Заметка',
-    'Pст всас., Па', 'Pст нагн., Па', 'Заметка: вентилятор', 'N двиг. проект, кВт', 'N двиг. факт, кВт', 'Фазы проект', 'Фазы факт', 'I проект, А', 'n проект, мин⁻¹', 'n факт, мин⁻¹', 'Заметка: двигатель']];
+    'Pст всас., Па', 'Pст нагн., Па', 'Заметка: вентилятор', 'N двиг. проект, кВт', 'N двиг. факт, кВт', 'Фазы проект', 'Фазы факт', 'I проект, А', 'n проект, мин⁻¹', 'n факт, мин⁻¹', 'Заметка: двигатель', 'Сдача']];
   const secRows = [['Система', '№ точки', 'Помещение, место', 'Тип', 'Метод', 'Размер, мм', 'K решётки', 'Pст, Па', 'L проект, м³/ч', 'L факт, м³/ч', 'Отклонение, %', 'Допуск', 'Оценка', 'Заметка']];
   const blocks = [];
   syss.forEach((sys, i) => {
@@ -2664,7 +2775,7 @@ function objectData(o, only) {
     const ampS = String((((sys.pass || {}).motor || {}).fact || {}).I ?? '').trim(), amp = curPh(ampS).length > 1 ? ampS : N(ampS);
     const e = equipData(sys);
     sysRows.push([i + 1, sys.name || '', sysTypeName(sys.type), sys.location || '', rnd(ff.proj), rnd(ff.fact), rnd(ff.dev, 1), typeof hz === 'string' ? hz : (OK(hz) ? hz : ''), (typeof amp === 'string' || OK(amp)) ? amp : '', res.count, res.badN, fmtDate(sys.date), sys.note || '',
-      OK(e.psIn) ? e.psIn : '', OK(e.psOut) ? e.psOut : '', e.fanNote, OK(e.N[0]) ? e.N[0] : '', OK(e.N[1]) ? e.N[1] : '', e.ph[0], e.ph[1], OK(e.I[0]) ? e.I[0] : '', OK(e.n[0]) ? e.n[0] : '', OK(e.n[1]) ? e.n[1] : '', e.motNote]);
+      OK(e.psIn) ? e.psIn : '', OK(e.psOut) ? e.psOut : '', e.fanNote, OK(e.N[0]) ? e.N[0] : '', OK(e.N[1]) ? e.N[1] : '', e.ph[0], e.ph[1], OK(e.I[0]) ? e.I[0] : '', OK(e.n[0]) ? e.n[0] : '', OK(e.n[1]) ? e.n[1] : '', e.motNote, handText(sys)]);
     res.secs.forEach(({ s, r }) => {
       const no = N(s.no);
       secRows.push([sys.name || '', OK(no) ? no : (s.no || ''), placeOf(s), (M.ROLES[s.role] || M.ROLES.terminal).name, M.METHODS[s.method] || '', sizeOf(s), kOf(s), rnd(r.ps), rnd(r.Lp), rnd(r.L), rnd(r.dev, 1), tolText(r.tol), statusRu(r), s.note || '']);
@@ -3707,6 +3818,35 @@ async function importTemplate(file) {
   render(); Store.kick();
 }
 
+/* ===== сдача систем: в работе → налажена → предъявлена (с датой); у системы sys.hand, sys.handD ===== */
+const HAND = [['', 'В работе'], ['ready', 'Налажена'], ['done', 'Предъявлена']];
+const handOf = (s) => (s && (s.hand === 'ready' || s.hand === 'done') ? s.hand : '');
+const hShort = (iso) => { const mm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return mm ? `${mm[3]}.${mm[2]}` : ''; };
+function handChip(s) { const h = handOf(s); return h === 'done' ? `<span class="hs done">предъявл.${s.handD ? `<br>${esc(hShort(s.handD))}` : ''}</span>` : h === 'ready' ? '<span class="hs ready">налажена</span>' : ''; }
+function handText(s) { const h = handOf(s); return h === 'done' ? `предъявлена${s.handD ? ' ' + fmtDate(s.handD) : ''}` : h === 'ready' ? 'налажена' : ''; }
+function setHand(s, v, d) { const now = Date.now(); s.hand = v; s.handD = v === 'done' ? (d || todayISO()) : ''; const ft = s.ft || (s.ft = {}); ft.hand = now; ft.handD = now; Store.save(s); }
+function handSeg(s) {
+  const h = handOf(s);
+  return `<div class="seg seg-sm hand-seg" role="group" aria-label="Сдача ${esc(s.name || '')}">${HAND.map(([v, t]) => `<button type="button" data-act="hand-set" data-sid="${s.id}" data-v="${v}" aria-pressed="${h === v}">${t}${v === 'done' && h === 'done' && s.handD ? ' ' + esc(hShort(s.handD)) : ''}</button>`).join('')}</div>`;
+}
+function handRow(s) { return `<div class="hand-row"><span class="hr-l">Сдача</span>${handSeg(s)}</div>`; }
+function handFilterRow(syss) {
+  const c = { all: syss.length, '': 0, ready: 0, done: 0 }; syss.forEach((s) => { c[handOf(s)]++; });
+  const cur = UI.handF || 'all';
+  const b = (v, t, k) => `<button type="button" class="hf" data-act="hand-filter" data-v="${v}" aria-pressed="${cur === v}">${t} <b>${k}</b></button>`;
+  return `<div class="hf-row" role="group" aria-label="Показать системы">${b('all', 'Все', c.all)}${b('', 'В работе', c[''])}${b('ready', 'Налажены', c.ready)}${b('done', 'Предъявлены', c.done)}<button type="button" class="btn sm hf-mark" data-act="hand-sheet" data-oid="${syss[0] ? syss[0].objectId : ''}">Отметить сдачу</button></div>`;
+}
+function handSheet(oid) {
+  const syss = systemsOf(oid), d = UI.handDate || todayISO();
+  const list = syss.map((s) => `<div class="hl-row"><div class="hl-n"><b>${esc(s.name || '—')}</b><small>${esc([sysTypeName(s.type), s.location].filter(Boolean).join(' · '))}</small></div>${handSeg(s)}</div>`).join('');
+  oeditRoot().innerHTML = `<div class="overlay oe-ov" role="dialog" aria-modal="true" aria-label="Сдача систем"><div class="sheet hand-sheet">
+    <div class="card-head" style="margin:0"><h2>Сдача систем</h2><button class="btn primary" data-act="hand-close">Готово</button></div>
+    <div class="f hand-date"><label for="hand-date">Дата предъявления</label><input type="date" id="hand-date" value="${esc(d)}"></div>
+    <p class="hint">«Налажена» — готова к показу. «Предъявлена» — показали заказчику; ставится дата из поля выше.</p>
+    <div class="hand-list">${list || '<p class="muted">Систем нет.</p>'}</div>
+  </div></div>`;
+}
+
 /* ===== система (общеобменная): название, местонахождение, тип, дата — в отдельном окне ===== */
 function seditOpen(sid, armed) {
   const sys = sysOf(sid); if (!sys) return;
@@ -3986,7 +4126,7 @@ function render() {
     if (UI.tab === 'ref') window.__pdv.renderRef(); else window.__pdv.render();
     UI.pendingRender = false; persistUI(); return;
   }
-  if (UI.tab === 'ref' || UI.route.name === 'pdv') { view.innerHTML = '<div class="stack"><div class="empty"><h2>Открываю…</h2></div></div>'; return; }
+  if (UI.tab === 'ref' || (UI.tab === 'journal' && UI.route.name === 'pdv')) { view.innerHTML = '<div class="stack"><div class="empty"><h2>Открываю…</h2></div></div>'; return; }
   const active = document.activeElement && view.contains(document.activeElement) ? document.activeElement.id : null;
   let html;
   if (UI.tab === 'calc') html = viewCalcs();
@@ -4178,6 +4318,18 @@ document.addEventListener('click', (e) => {
       if (UI.armedPhoto !== key) { UI.armedPhoto = key; showPhoto(d.s, a.dataset.slot, Number(a.dataset.i)); break; }
       UI.armedPhoto = null; deletePhoto(d.s, a.dataset.slot, Number(a.dataset.i)); break;
     }
+    case 'hand-set': {
+      const s = sysOf(a.dataset.sid); if (!s) break;
+      const dEl = $('#hand-date'); if (dEl && dEl.value) UI.handDate = dEl.value;
+      setHand(s, a.dataset.v, UI.handDate);
+      const box = document.querySelector('#oedit-root .overlay'), st = box ? box.scrollTop : 0;
+      if (box) { handSheet(s.objectId); const b2 = document.querySelector('#oedit-root .overlay'); if (b2) b2.scrollTop = st; }
+      const y = window.scrollY; render(); window.scrollTo(0, y);
+      break;
+    }
+    case 'hand-filter': { UI.handF = a.dataset.v; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'hand-sheet': handSheet(a.dataset.oid || (UI.route && UI.route.oid)); break;
+    case 'hand-close': oeditRoot().innerHTML = ''; break;
     case 'backup': exportBackup(); break;
     case 'template': exportTemplate(); break;
     case 'import': { const f = $('#import-file'); f.accept = '.json,application/json,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.pdf,application/pdf'; f.click(); break; }
@@ -4235,6 +4387,8 @@ window.__core = {
 render();
 /* Кнопка «Назад» в приложении Android: на уровень выше по журналу */
 window.__vnbBack = () => {
+  { const sb = document.querySelector('.sharebox'); if (sb) { sb.remove(); return true; } }
+  { const oe = document.getElementById('oedit-root'); if (oe && oe.innerHTML) { oe.innerHTML = ''; return true; } }
   if (UI.tab === 'ref') { UI.tab = 'journal'; render(); window.scrollTo(0, 0); return true; }
   if (isPdv() && window.__pdvBack) return window.__pdvBack();
   if (window.__pdv && window.__pdv.annClose()) return true;
@@ -4699,6 +4853,27 @@ body.pdv-on .exp-row:first-child{border-top:0}
 body.pdv-on .exp-row .btn{width:100%;min-height:52px}
 body.pdv-on .exp-row p{margin:0;font-size:13.5px;line-height:1.35;color:var(--ink-2)}
 body.pdv-on .exp-row p b{color:var(--ink);font-weight:600}
+body.pdv-on .hs{display:block;margin-top:3px;font-size:10.5px;white-space:nowrap;font-weight:700;line-height:1.15;border-radius:5px;padding:2px 4px;text-align:center}
+body.pdv-on .hs.ready{background:color-mix(in srgb, var(--link) 16%, transparent);color:var(--link)}
+body.pdv-on .hs.done{background:var(--ok-bg);color:var(--ok)}
+body.pdv-on .hf-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+body.pdv-on .hf{border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:5px 11px;font:inherit;font-size:13.5px;cursor:pointer;min-height:34px}
+body.pdv-on .hf b{font-family:var(--f-mono);font-weight:600;margin-left:2px}
+body.pdv-on .hf[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--sheet)}
+body.pdv-on .hf-mark{margin-left:auto}
+body.pdv-on .hand-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+body.pdv-on .hand-row .hr-l{font-weight:600;font-size:14px;color:var(--ink-2)}
+body.pdv-on .hand-seg{display:inline-flex;flex:1 1 auto;min-width:0}
+body.pdv-on .hand-seg button{flex:1 1 auto;min-height:38px;font-size:13.5px;padding:6px 8px;white-space:nowrap}
+body.pdv-on .hand-seg button[data-v=""][aria-pressed="true"]{background:var(--rule);color:var(--ink);font-weight:600}
+body.pdv-on .hand-seg button[data-v="ready"][aria-pressed="true"]{background:var(--link);color:var(--sheet)}
+body.pdv-on .hand-seg button[data-v="done"][aria-pressed="true"]{background:var(--ok);color:var(--sheet)}
+body.pdv-on .hand-list{display:flex;flex-direction:column}
+body.pdv-on .hl-row{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid var(--grid,var(--rule))}
+body.pdv-on .hl-n{display:flex;align-items:baseline;gap:8px;min-width:0}
+body.pdv-on .hl-n b{font-size:16px}
+body.pdv-on .hl-n small{color:var(--ink-2);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.pdv-on .hand-date input{max-width:220px}
 /* редактор пометок — общий для обоих разделов */
 .toast{z-index:60}
 .ann{position:fixed;inset:0;z-index:55;background:#1E252B;display:flex;flex-direction:column;color:#fff;padding-top:env(safe-area-inset-top,0px)}
@@ -5004,6 +5179,7 @@ function viewObjects() {
   }).join('');
   return `<div class="stack">
     <div class="head"><h1>Объекты</h1></div>
+    ${window.__core ? '' : `<div class="banner warn moved"><b>Этот блокнот больше не обновляется.</b> Противодымная вентиляция теперь — раздел «Противодымная» в общем «Блокноте наладчика» и в приложении. Чтобы перенести записи: внизу «Сохранить копию» → в общем блокноте на главном экране «Загрузить из файла». Объекты, точки и фото перейдут целиком.</div>`}
     ${localNote}
     <div class="head-actions"><button class="btn primary" data-act="add-object">+ Новый объект</button><button class="btn" data-act="import">Заполнить из Excel или паспортов PDF</button></div>
     ${objs.length ? `<div class="cards">${cards}</div>` : `<div class="empty"><h2>Объектов пока нет</h2><p class="lead">Объект — это список систем. У системы — вентилятор и точки замера. Создайте объект или загрузите свою таблицу Excel / паспорта систем.</p></div>`}
@@ -5103,8 +5279,8 @@ function sysTable(o, names, opt = {}) {
     const loc = locNo(i.loc), cab = locNo(i.cab).replace(/^пом\. /, '');
     const d = (x) => x || '—';
     return `<tr class="gr st-${st}" data-act="go" data-go='${esc(JSON.stringify(go))}'>
-      <td class="g-no">${k + 1}</td>
-      <td class="g-s"><b>${esc(n).replace(/\./g, '.<wbr>')}</b>${purposeShort(o, n) ? `<span class="pu">${esc(purposeShort(o, n))}</span>` : ''}</td>
+      <td class="g-no">${opt.idx ? opt.idx(n) : k + 1}</td>
+      <td class="g-s"><b>${esc(n).replace(/\./g, '.<wbr>')}</b>${purposeShort(o, n) ? `<span class="pu">${esc(purposeShort(o, n))}</span>` : ''}${z ? '' : handChip(o, n)}</td>
       <td class="g-loc">${esc(d(loc))}${cab ? `<span>шкаф ${esc(cab)}</span>` : ''}</td>
       <td class="g-n${c.byPts ? ' bypts' : ''}">${d(c.proj)}</td>
       <td class="g-n${c.byPts ? ' bypts' : ''}">${d(c.fact)}</td>
@@ -5128,11 +5304,13 @@ function objHead(o) {
 function viewObject(o) {
   const names = sysNames(o);
   const c = ptStats(rowsOf(o), o);
-  const groups = sysTable(o, names);
+  const shown = UI.handF && UI.handF !== 'all' ? names.filter((n) => handOf(o, n) === UI.handF) : names;
+  const groups = shown.length ? sysTable(o, shown, { idx: (n) => names.indexOf(n) + 1 }) : '<p class="muted">Нет систем с такой отметкой.</p>';
   return `<div class="stack">
     ${CORE.objCrumbs(o)}
     ${CORE.sectSwitch(o, 'pdv')}
     ${names.length ? `<div class="sumline"><b>${names.length} ${plural(names.length, 'система', 'системы', 'систем')}</b>${statLine(c)}</div>
+      ${handFilterRow(o, names)}
       ${groups}`
       : '<div class="empty"><h2>Систем пока нет</h2><p class="lead">Нажмите «+ Система» или заполните объект из паспортов PDF или таблицы Excel на главном экране.</p></div>'}
     <div class="obar">
@@ -5219,6 +5397,7 @@ function viewSystem(o, name) {
       const sum = esc(rows.slice(0, 1).concat(rows.slice(2, 3)).map(([, v]) => v).join(' · '));
       return modCard('sys.head', 'c-note sys-head', esc(name), sum, `<dl class="sh2-dl">${rows.map(([kk, v]) => `<dt>${kk}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`, '<button class="ed-pen" data-act="sheet" data-v="sysedit" aria-label="Изменить систему" title="Изменить систему">✎</button>');
     })()}
+    ${handRow(o, name)}
     ${(() => {
       const fe = fanEval(o, name), f = i.fan || {};
       const has = OK(N(f.Lp)) || OK(N(f.Lf));
@@ -5253,7 +5432,7 @@ function viewSystem(o, name) {
         <span></span><span class="fg-h">Проект</span><span class="fg-h">Факт</span>
         <span class="fg-l">Тип</span>${mini(o, `${k}.motor.type`, 'Тип двигателя по проекту', '', 'text')}${mini(o, `${k}.motor.typeF`, 'Тип двигателя факт', '', 'text')}
         <span class="fg-l">Мощность <span class="u">кВт</span></span>${mini(o, `${k}.motor.kW`, 'Мощность двигателя по проекту')}${mini(o, `${k}.motor.kWf`, 'Мощность двигателя факт')}
-        <span class="fg-l">Фазность</span>${mini(o, `${k}.motor.ph`, 'Фазность по проекту: 1 или 3', '', 'numeric')}${mini(o, `${k}.motor.phF`, 'Фазность факт: 1 или 3', '', 'numeric')}
+        <span class="fg-l">Фазность</span>${msel(o, `${k}.motor.ph`, 'Фазность по проекту')}${msel(o, `${k}.motor.phF`, 'Фазность факт')}
         <span class="fg-l">Ток <span class="u">А</span></span>${mini(o, `${k}.motor.Ip`, 'Ток номинальный (шильдик)')}${mini(o, `${k}.motor.If`, 'Ток факт по фазам через /', '', 'text')}
         <span class="fg-l">Обороты <span class="u">об/мин</span></span>${mini(o, `${k}.motor.np`, 'Частота вращения двигателя по проекту (шильдик)')}${mini(o, `${k}.motor.nf`, 'Частота вращения двигателя факт')}
         <span class="fg-l">Частотник <span class="u">Гц</span></span>${mini(o, `${k}.fan.vfdP`, 'Частотник по проекту: частота, Гц, или «да»', '', 'text')}${mini(o, `${k}.fan.vfd`, 'Частотник факт: частота, Гц', '', 'text')}
@@ -5280,6 +5459,13 @@ function viewSystem(o, name) {
       <div class="exp-list"><div class="exp-row"><button class="btn fmt-b" data-act="sys-share" data-fmt="pass"><span>Паспорт</span><small class="fmt-pdf">PDF</small></button><p><b>Для сдачи системы.</b> Паспорт по форме приложения Е СП 73.13330.2016: вентилятор и двигатель (проект / факт), расходы по точкам, выводы о соответствии, подписи, схема.</p></div><div class="exp-row"><button class="btn fmt-b" data-act="sys-share" data-fmt="pdf"><span>Протокол</span><small class="fmt-pdf">PDF</small></button><p><b>Протокол испытаний по ГОСТ Р 53300.</b> Расход и давление по точкам, норма, вывод «соответствует / не соответствует», приборы, подписи.</p></div><div class="exp-row"><button class="btn fmt-b" data-act="sys-share" data-fmt="xlsx"><span>Таблица</span><small class="fmt-excel">Excel</small></button><p><b>Точки системы таблицей</b> — для правки на компьютере.</p></div></div>`)}
     <div class="obar sbar">${nav(prev, 'Предыдущая')}<button class="btn primary" data-act="row-add">+ Точка</button>${nav(next, 'Следующая')}</div>
   </div>`;
+}
+/* фазность — выбор «1 ф / 3 ф», как в общеобменной; нестандартная запись из файла остаётся видна */
+function msel(o, path, label) {
+  const raw = String(getPath(o, path) ?? '').trim(), m = /^[^\d]*([13])(?!\d)/.exec(raw), cur = m ? m[1] : raw;
+  const opts = [['', '—'], ['1', '1 ф'], ['3', '3 ф']];
+  if (cur && !opts.some(([v]) => v === cur)) opts.push([cur, cur]);
+  return `<select class="ph-sel" id="${fid(o, path)}" data-doc="${o.id}" data-path="${path}" aria-label="${esc(label)}">${opts.map(([v, t]) => `<option value="${esc(v)}"${cur === v ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
 }
 function mini(o, path, label, ph = '', mode = 'decimal') {
   return `<input type="text" inputmode="${mode}" class="num-in" id="${fid(o, path)}" data-doc="${o.id}" data-path="${path}" value="${esc(getPath(o, path))}" placeholder="${esc(ph)}" aria-label="${esc(label)}" autocomplete="off">`;
@@ -5317,8 +5503,8 @@ function viewZone(o, z) {
   return `<div class="stack">
     <nav class="crumbs" aria-label="Путь"><button data-act="go" data-go='{"name":"objects"}'>Объекты</button><span class="sep">›</span><button data-act="go" data-go='${esc(JSON.stringify({ name: 'object', oid: o.id }))}'>${esc(o.name || 'Объект')}</button><span class="sep">›</span><button data-act="go" data-go='${esc(JSON.stringify({ name: 'zones', oid: o.id }))}'>Зоны</button></nav>
     <div class="shead"><div class="sh-t"><h1>${esc(z.name || 'Зона')}</h1><p>${pill(mem.length && dn === mem.length ? 'ok' : 'none', `работают ${dn} из ${mem.length}`)}</p></div>
-      <button class="btn sm" data-act="zone-edit" data-id="${z.id}">Изменить</button></div>
-    ${known.length ? `<div class="zbar2"><b class="zr-h">Куда идти</b><ul class="zroute">${rt}</ul></div>` : (mem.length ? '<p class="hint">Впишите у систем, где стоят вентиляторы («Изменить» в системе), — здесь появится маршрут по венткамерам.</p>' : '')}
+      <button class="ed-pen" data-act="zone-edit" data-id="${z.id}" aria-label="Изменить зону" title="Изменить зону">✎</button></div>
+    ${known.length ? `<div class="zbar2"><b class="zr-h">Куда идти</b><ul class="zroute">${rt}</ul></div>` : (mem.length ? '<p class="hint">Впишите у систем, где стоят вентиляторы (✎ в системе), — здесь появится маршрут по венткамерам.</p>' : '')}
     ${mem.length ? `${cards}<p class="hint">«?» — нажмите, когда система заработала при пожаре в этой зоне.</p>` : '<div class="empty"><p class="lead">В зоне нет систем — нажмите «Изменить» и отметьте их.</p></div>'}
   </div>`;
 }
@@ -5359,7 +5545,7 @@ function sheetRow(o, r) {
     <div class="lrow">${seg(o, `${p}.at`, [['fan', 'Вентилятор'], ['duct', 'Воздуховод'], ['grille', 'Решётка']], r.at || '', 'seg-sm seg-at')}</div>
     ${r.at === 'fan' ? `<div class="lrow pres">${seg(o, `${p}.side`, [['vs', 'Всас'], ['nag', 'Нагнетание']], fanSide(r), 'seg-sm')}</div>
     <p class="hint">Проект общий для всаса и нагнетания. Расход факт вентилятора — из точки, где вписан последний замер.</p>` : ''}
-    <div class="${r.at === 'grille' ? 'fields sec-k' : ''} pres">${field(o, `${p}.grille`, 'Сечение, мм', { ph: r.at === 'duct' ? 'Ø400 или 600х400' : r.at === 'fan' ? (fanSide(r) === 'vs' ? 'Ø500' : '500х400') : '600х500-2 шт.' })}${r.at === 'grille' ? `<div class="f"><label for="${fid(o, p + '.k')}">Коэф. К</label><input type="text" inputmode="decimal" class="num-in" id="${fid(o, p + '.k')}" data-doc="${o.id}" data-path="${p}.k" value="${esc(String(r.k ?? '').trim() || '1.00')}" autocomplete="off"></div>` : ''}</div>
+    <div class="${r.at === 'grille' ? 'fields sec-k' : ''} pres">${field(o, `${p}.grille`, 'Сечение, мм', { ph: r.at === 'duct' ? 'напр. Ø400 или 600х400' : r.at === 'fan' ? (fanSide(r) === 'vs' ? 'напр. Ø500' : 'напр. 500х400') : 'напр. 600х500-2 шт.' })}${r.at === 'grille' ? `<div class="f"><label for="${fid(o, p + '.k')}">Коэф. К</label><input type="text" inputmode="decimal" class="num-in" id="${fid(o, p + '.k')}" data-doc="${o.id}" data-path="${p}.k" value="${esc(String(r.k ?? '').trim() || '1.00')}" autocomplete="off"></div>` : ''}</div>
     ${r.at === 'fan' ? '' : `<div class="lrow pres">${seg(o, `${p}.m`, [['L', 'Только расход'], ['P', 'Расход + давление']], r.m || 'L', 'seg-sm')}</div>`}
     <div class="fields two pres">
       ${field(o, `${p}.proj`, 'Расход проект', { num: true, unit: 'м³/ч' })}
@@ -5451,6 +5637,7 @@ function renderSheet(o) {
   if (s.type === 'zone') { const z = zoneOf(o, s.id); return z ? sheetZone(o, z) : ''; }
   if (s.type === 'proto') return sheetProto(o);
   if (s.type === 'more') return sheetMore(o);
+  if (s.type === 'hand') return sheetHand(o);
   return '';
 }
 
@@ -5672,14 +5859,14 @@ function protoData(o) {
 /* ===== Excel: в том же виде, что таблица наладчика, плюс листы по этажам ===== */
 function fileSafe(s) { return String(s || '').replace(/[«»"“”„]+/g, '').replace(/[\\/:*?<>|]+/g, '-').replace(/\s+/g, ' ').trim().slice(0, 60) || 'объект'; }
 const rnd = (x, d = 0) => (OK(x) ? Math.round(x * Math.pow(10, d)) / Math.pow(10, d) : '');
-const XL_HEAD = ['№', 'Система', 'Обслуживаемое помещение', 'Этаж', 'Помещение (точка)', 'Фактический расход, м³/ч', 'Давление, Па', 'Дата замера', 'Ранее', 'Проектный расход, м³/ч', 'Разница с проектом, %', 'Частотник', 'Сечение решётки', 'Оценка', 'Замечания'];
-const XL_W = [5, 9, 40, 6, 24, 12, 10, 11, 22, 12, 12, 10, 16, 15, 30];
+const XL_HEAD = ['№', 'Система', 'Обслуживаемое помещение', 'Этаж', 'Помещение (точка)', 'Фактический расход, м³/ч', 'Давление, Па', 'Дата замера', 'Ранее', 'Проектный расход, м³/ч', 'Разница с проектом, %', 'Частотник', 'Сечение решётки', 'Оценка', 'Замечания', 'Сдача системы'];
+const XL_W = [5, 9, 40, 6, 24, 12, 10, 11, 22, 12, 12, 10, 16, 15, 30, 20];
 function xlRow(o, r, i) {
   const e = rowEval(o, r), P = hasP(r);
   const hist = (r.hist || []).filter((x) => OK(N(x.v))).map((x) => F(N(x.v)) + (x.d ? ` (${fmtDate(x.d)})` : '')).join('; ');
   const fl = N(r.floor);
   return [i, r.s || '', sysInfo(o, r.s).serves || '', OK(fl) ? fl : (r.floor || ''), r.place || '', rnd(N(r.fact)), P ? rnd(N(r.pa)) : '',
-    r.d ? fmtDate(r.d) : '', hist, rnd(N(r.proj)), rnd(e.pct, 1), ((sysInfo(o, r.s).fan || {}).vfd) || r.vfd || '', (r.grille || '') + (r.at === 'grille' && String(r.k ?? '').trim() && N(r.k) !== 1 ? ` (К=${String(r.k).replace('.', ',')})` : ''), ST_RU[e.st], r.note || ''];
+    r.d ? fmtDate(r.d) : '', hist, rnd(N(r.proj)), rnd(e.pct, 1), ((sysInfo(o, r.s).fan || {}).vfd) || r.vfd || '', (r.grille || '') + (r.at === 'grille' && String(r.k ?? '').trim() && N(r.k) !== 1 ? ` (К=${String(r.k).replace('.', ',')})` : ''), ST_RU[e.st], r.note || '', handText(o, r.s)];
 }
 function objectRows(o) {
   const all = [XL_HEAD], byFloor = new Map();
@@ -6433,7 +6620,7 @@ async function importPassports(file, xlLines) {
     put(si, 'serves', p.zone); put(si, 'loc', lc.loc); put(si, 'cab', lc.cab);
     const f = si.fan || (si.fan = {}), mo = si.motor || (si.motor = {});
     Object.entries(p.fan).forEach(([k, v]) => put(f, k, v)); Object.entries(p.motor).forEach(([k, v]) => put(mo, k, v));
-    if (p.motorX) { put(f, 'vfdP', p.motorX.vfdP); put(f, 'vfd', p.motorX.vfd); ['ph', 'phF', 'np', 'nf'].forEach((k) => put(mo, k, p.motorX[k])); }
+    if (p.motorX) { put(f, 'vfdP', p.motorX.vfdP); put(f, 'vfd', p.motorX.vfd); ['ph', 'phF'].forEach((k) => { const m = /([13])/.exec(String(p.motorX[k] || '')); put(mo, k, m ? m[1] : p.motorX[k]); }); ['np', 'nf'].forEach((k) => put(mo, k, p.motorX[k])); }
     p.rows.forEach((row) => {
       /* «Lвент.» — замер у вентилятора */
       const isFan = /^[lл]\s*вен/i.test(row.room), place = isFan ? 'Вентилятор' : row.room;
@@ -7599,6 +7786,36 @@ async function exportZones(o) {
   } catch (e) { toast('Не удалось сделать PDF. Попробуйте ещё раз.'); } finally { UI.pdfBusy = false; }
 }
 
+/* ===== сдача систем: в работе → налажена → предъявлена (с датой) =====
+   Хранится у системы: i.hand = '' | 'ready' | 'done', i.handD = дата предъявления (ISO). */
+const HAND = [['', 'В работе'], ['ready', 'Налажена'], ['done', 'Предъявлена']];
+function handOf(o, n) { const h = sysInfo(o, n).hand; return h === 'ready' || h === 'done' ? h : ''; }
+function hShort(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? `${m[3]}.${m[2]}` : ''; }
+function handChip(o, n) {
+  const h = handOf(o, n), d = sysInfo(o, n).handD;
+  return h === 'done' ? `<span class="hs done">предъявл.${d ? `<br>${esc(hShort(d))}` : ''}</span>` : h === 'ready' ? '<span class="hs ready">налажена</span>' : '';
+}
+function setHand(o, n, v, d) { const i = ensureSys(o, n); i.hand = v; i.handD = v === 'done' ? (d || todayISO()) : ''; Store.save(o); }
+function handSeg(o, n) {
+  const h = handOf(o, n), d = sysInfo(o, n).handD;
+  return `<div class="seg seg-sm hand-seg" role="group" aria-label="Сдача ${esc(n)}">${HAND.map(([v, t]) => `<button type="button" data-act="phand-set" data-name="${esc(n)}" data-v="${v}" aria-pressed="${h === v}">${t}${v === 'done' && h === 'done' && d ? ' ' + esc(hShort(d)) : ''}</button>`).join('')}</div>`;
+}
+function handRow(o, n) { return `<div class="hand-row"><span class="hr-l">Сдача</span>${handSeg(o, n)}</div>`; }
+function handCounts(o, names) { const c = { all: names.length, '': 0, ready: 0, done: 0 }; names.forEach((n) => { c[handOf(o, n)]++; }); return c; }
+function handFilterRow(o, names) {
+  const c = handCounts(o, names), cur = UI.handF || 'all';
+  const b = (v, t, k) => `<button type="button" class="hf" data-act="phand-filter" data-v="${v}" aria-pressed="${cur === v}">${t} <b>${k}</b></button>`;
+  return `<div class="hf-row" role="group" aria-label="Показать системы">${b('all', 'Все', c.all)}${b('', 'В работе', c[''])}${b('ready', 'Налажены', c.ready)}${b('done', 'Предъявлены', c.done)}<button type="button" class="btn sm hf-mark" data-act="sheet" data-v="hand">Отметить сдачу</button></div>`;
+}
+function sheetHand(o) {
+  const names = sysNames(o), d = UI.handDate || todayISO();
+  const list = names.map((n) => `<div class="hl-row"><div class="hl-n"><b>${esc(n)}</b><small>${esc(String(purposeShort(o, n) || '').replace(/­/g, ''))}</small></div>${handSeg(o, n)}</div>`).join('');
+  return sheetWrap('Сдача систем', `<div class="f hand-date"><label for="hand-date">Дата предъявления</label><input type="date" id="hand-date" value="${esc(d)}"></div>
+    <p class="hint">«Налажена» — готова к показу. «Предъявлена» — показали заказчику; ставится дата из поля выше.</p>
+    <div class="hand-list">${list || '<p class="muted">Систем нет.</p>'}</div>`, '<button class="btn primary" data-act="sheet-close">Готово</button>');
+}
+function handText(o, n) { const h = handOf(o, n), d = sysInfo(o, n).handD; return h === 'done' ? `предъявлена${d ? ' ' + fmtDate(d) : ''}` : h === 'ready' ? 'налажена' : ''; }
+
 
 /* ===== отрисовка: объекты → объект (системы) → система (вентилятор + точки); зоны отдельно ===== */
 function persistUI() { lsSet(LS_UI, { tab: UI.tab, route: UI.route, ov: UI.ov }); }
@@ -7892,6 +8109,14 @@ document.addEventListener('click', (e) => {
       Promise.resolve(a.dataset.fmt === 'pass' ? exportPassports(o, [n]) : a.dataset.fmt === 'pdf' ? exportPDF(sub) : exportTable(sub)).finally(() => { window.__shareNext = false; });
       break;
     }
+    case 'phand-set': if (o) {
+      const dEl = document.getElementById('hand-date'); if (dEl && dEl.value) UI.handDate = dEl.value;
+      const ov = ovRoot.querySelector('.overlay'), st = ov ? ov.scrollTop : 0;
+      setHand(o, a.dataset.name, a.dataset.v, UI.handDate);
+      rerender();
+      const ov2 = ovRoot.querySelector('.overlay'); if (ov2) ov2.scrollTop = st;
+    } break;
+    case 'phand-filter': UI.handF = a.dataset.v; rerender(); break;
     case 'zones-pdf': if (o) exportZones(o); break;
     case 'export-object': if (o) { if (UI.sheet && UI.sheet.type === 'more') closeSheet(); exportObject(o); } break;
     case 'ov-close': ovRoot.innerHTML = ''; break;
@@ -8246,11 +8471,12 @@ window.__pdv = {
     render();
   },
   renderRef() { UI.tab = 'ref'; UI.sheet = null; render(); },
-  open(oid) { if (UI.route.oid !== oid) UI.modOpen = {}; UI.route = { name: 'object', oid }; UI.sheet = null; },
+  open(oid) { if (UI.route.oid !== oid) { UI.modOpen = {}; UI.handF = 'all'; } UI.route = { name: 'object', oid }; UI.sheet = null; },
   stats(o) {
     const rows = Array.isArray(o.rows) ? o.rows : [];
     const c = ptStats(rows, o);
-    return { sys: Object.keys(o.sys || {}).length, pts: rows.length, ok: c.ok || 0, bad: c.bad || 0 };
+    const names = Object.keys(o.sys || {}), hc = handCounts(o, names);
+    return { sys: names.length, pts: rows.length, ok: c.ok || 0, bad: c.bad || 0, ready: hc.ready, done: hc.done };
   },
   photoArrays(o) { try { return allPhotosOf(o); } catch (e) { return []; } },
   annotate(blob, save) { return annOpenExt(blob, save); },
