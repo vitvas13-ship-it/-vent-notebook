@@ -707,6 +707,33 @@ body .crumbs.scr > span:last-child{flex:none !important;overflow:visible;white-s
 .calc .calc-note{margin:0 0 10px;font-size:13px;color:var(--ink-2);line-height:1.4}
 .calc .formula{white-space:normal !important;overflow-wrap:anywhere;overflow-x:visible !important}
 .calc .btn.calc-clr{background:transparent;border-color:var(--rule);color:var(--ink-2);font-weight:500;min-height:30px;padding:4px 10px;font-size:12.5px}
+/* статусы: в работе · замечание · налажена · предъявлена */
+.hs.work{background:color-mix(in srgb, var(--link) 16%, transparent);color:var(--link)}
+.hs.issue{background:var(--warn-bg);color:var(--warn)}
+.hs.ready{background:var(--ok-bg);color:var(--ok)}
+.hs.done{background:var(--ok);color:var(--sheet)}
+.hs-n{display:block;margin-top:2px;font-size:11px;font-weight:600;line-height:1.2;color:var(--warn);white-space:normal;overflow-wrap:anywhere}
+.hand-seg button{padding:6px 4px;font-size:13px}
+.hand-seg button[data-v="work"][aria-pressed="true"]{background:var(--link);color:var(--sheet)}
+.hand-seg button[data-v="issue"][aria-pressed="true"]{background:var(--warn);color:var(--sheet)}
+.hand-seg button[data-v="ready"][aria-pressed="true"]{background:var(--ok-bg);color:var(--ok);font-weight:700}
+.hand-seg button[data-v="done"][aria-pressed="true"]{background:var(--ok);color:var(--sheet)}
+.hand-row .hand-seg{flex-basis:100%}
+.hand-note{width:100%;box-sizing:border-box;margin-top:6px;border:1.5px solid var(--warn);border-radius:8px;padding:9px 10px;font:inherit;font-size:15px;background:var(--sheet);color:var(--ink)}
+.hand-row .hand-note{flex-basis:100%;margin-top:0}
+.hf-issue[aria-pressed="false"] b{color:var(--warn)}
+.hf-send{margin-top:8px}
+.hl-log{margin:6px 0 0;font-size:12.5px}
+/* замечания пунктами */
+.hi-list{display:flex;flex-direction:column;gap:6px;flex-basis:100%;margin-top:6px}
+.hi-row{display:flex;gap:6px;align-items:stretch}
+.hi-row .hand-note{flex:1 1 auto;min-width:0;margin-top:0}
+.hi-fix{flex:none;white-space:nowrap;background:var(--ok-bg);color:var(--ok);border-color:transparent;font-weight:600}
+.hi-add{align-self:flex-start;background:transparent;border-style:dashed;color:var(--ink-2)}
+.hi-sug{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--ink-2)}
+.hi-sug span{flex-basis:100%}
+.hi-sug button{border:1px solid var(--warn);background:var(--warn-bg);color:var(--warn);border-radius:999px;padding:5px 10px;font:inherit;font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;min-height:32px}
+.hs-n + .hs-n{margin-top:1px}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -2012,7 +2039,7 @@ function objCard(o) {
       ${open ? `<button class="oc-b" data-act="go" data-go='${go}'>
       <div class="row">${o.example ? '<span class="ref">Пример</span>' : ''}<span class="meta">${esc(fmtDate(o.date || ''))}</span></div>
       <div class="meta">${esc(o.address || 'Адрес не указан')}</div>
-      <div class="osec">${osecLine('Общеобменная', syss.length, secN, badN ? ['bad', badN + ' вне допуска'] : okN ? ['ok', 'все в допуске'] : null, !syss.length && !!ps, { ready: syss.filter((s) => handOf(s) === 'ready').length, done: syss.filter((s) => handOf(s) === 'done').length })}${ps ? osecLine('Противодымная', ps.sys, ps.pts, ps.bad ? ['bad', ps.bad + ' не соответств' + (ps.bad === 1 ? 'ует' : 'уют')] : ps.ok ? ['ok', 'соответствуют'] : null, false, ps) : ''}</div>
+      <div class="osec">${osecLine('Общеобменная', syss.length, secN, badN ? ['bad', badN + ' вне допуска'] : okN ? ['ok', 'все в допуске'] : null, !syss.length && !!ps, { work: syss.filter((s) => handOf(s) === 'work').length, issue: syss.filter((s) => handOf(s) === 'issue').length, ready: syss.filter((s) => handOf(s) === 'ready').length, done: syss.filter((s) => handOf(s) === 'done').length })}${ps ? osecLine('Противодымная', ps.sys, ps.pts, ps.bad ? ['bad', ps.bad + ' не соответств' + (ps.bad === 1 ? 'ует' : 'уют')] : ps.ok ? ['ok', 'соответствуют'] : null, false, ps) : ''}</div>
     </button>` : ''}
     </div>`;
 }
@@ -2022,7 +2049,49 @@ function objCards(objs) {
   list.sort((a, b) => objPinned(b.id) - objPinned(a.id));
   return list.length ? list.map(objCard).join('') : '<p class="muted small">Ничего не найдено.</p>';
 }
+/* пример для статусов: общеобменная и противодымная с отметками «в работе», «замечание», «налажена», «предъявлена» */
+const LS_DEMO_HAND = 'vnb.demo.hand1';
+function seedHandDemo() {
+  if (lsGet(LS_DEMO_HAND)) return;
+  if (!Store.all('object').length) return;
+  lsSet(LS_DEMO_HAND, 1);
+  const ago = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); };
+  const now = Date.now();
+  const o = { id: newId('o'), kind: 'object', example: true, name: 'Пример: статусы систем', address: 'Учебный пример — посмотреть отметки и замечания, потом можно удалить', date: todayISO(), createdAt: now,
+    testKind: 'accept', ta: '', inst: [], sys: {}, rows: [], zones: [] };
+  /* общеобменная */
+  const V = (name, type, loc, Lp, fact, st) => {
+    const s = Object.assign({ id: newId('s'), kind: 'system', objectId: o.id, name, location: loc, type, date: todayISO(), createdAt: now,
+      sections: [
+        { id: newId('c'), no: '1', place: 'Вентилятор, нагнетание', role: 'fan_out', method: 'anemo', entry: 'L', total: fact ? String(fact) : '', shape: 'round', D: '400', Lp: String(Lp), v2: 1 },
+        { id: newId('c'), no: '2', room: 'Офис 101', place: 'Р-1', role: 'terminal', method: 'hood', entry: 'L', total: fact ? String(Math.round(fact / 2)) : '', shape: 'rect', Lp: String(Lp / 2), v2: 1 },
+      ] }, st);
+    Store.save(s); return s;
+  };
+  V('П1', 'supply', 'Венткамера, пом. 012', 3600, 3640, { hand: 'done', handD: ago(2) });
+  V('П2', 'supply', 'Венткамера, пом. 012', 2400, 2450, { hand: 'ready', handLog: [`не подключён частотник: с ${ago(6).slice(8, 10)}.${ago(6).slice(5, 7)} → ${ago(3).slice(8, 10)}.${ago(3).slice(5, 7)}`] });
+  const p3 = V('П3', 'supply', 'Кровля', 5200, 0, { hand: 'issue', handI: [{ t: 'не расключён двигатель', d: ago(3) }, { t: 'нет доступа на кровлю', d: ago(1) }] });
+  p3.sections[1].note = 'решётка Р-1 не установлена'; Store.save(p3);
+  V('В1', 'exhaust', 'Венткамера, пом. 015', 3300, 0, { hand: 'work' });
+  V('В2', 'exhaust', 'Венткамера, пом. 015', 1800, 0, { hand: 'work' });
+  V('В3', 'exhaust', 'Кровля', 4100, 0, { hand: 'issue', handI: [{ t: 'нет клапана на 3 этаже', d: ago(2) }] });
+  V('В4', 'exhaust', 'Кровля', 900, 0, {});
+  /* противодымная */
+  const P = (name, role, serves, Lp, floors, st, facts) => {
+    o.sys[name] = Object.assign({ role, serves, loc: 'Кровля', cab: '', fan: { Lp: String(Lp), vfd: 'нет' } }, st);
+    floors.forEach((f, k) => o.rows.push({ id: newId('r'), s: name, floor: String(f), place: role === 'corr' ? 'коридор' : '', m: 'L', proj: String(Lp), fact: facts && facts[k] ? String(facts[k]) : '', d: facts && facts[k] ? ago(1) : '' }));
+  };
+  P('ДУ1', 'corr', 'Коридоры 1–4 эт.', 12300, [1, 2, 3, 4], { hand: 'done', handD: ago(1) }, [12500, 12400, 12600, 12350]);
+  P('ДУ2', 'corr', 'Коридоры 5–8 эт.', 11800, [5, 6, 7, 8], { hand: 'ready' }, [11900, 12000, 11850, 12100]);
+  P('ПД1', 'kdu', 'Коридоры 1–4 эт.', 9200, [1, 2, 3, 4], { hand: 'work' });
+  P('ПД2', 'kdu', 'Коридоры 5–8 эт.', 8800, [5, 6, 7, 8], { hand: 'issue', handI: [{ t: 'не расключён двигатель', d: ago(4) }, { t: '6 эт.: клапан не открывается', d: ago(2) }] });
+  P('ПД3', 'stair', 'Лестничная клетка Н2', 10100, [1], { hand: 'issue', handI: [{ t: 'нет сигнала от пожарной сигнализации', d: ago(1) }] });
+  P('ПД4', 'lift', 'Шахта лифта', 7600, [1], {});
+  o.rows.filter((r) => r.s === 'ПД4').forEach((r) => { r.note = 'дверь шахты не закрывается'; });
+  Store.save(o);
+}
 function viewObjects() {
+  seedHandDemo();
   const objs = Store.all('object').sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   const localNote = Store.mode === 'local' && Store.noCloud
     ? (window.AndroidBridge
@@ -2058,7 +2127,7 @@ function plural(n, one, few, many) { const m10 = n % 10, m100 = n % 100; if (m10
 /* строка раздела в карточке объекта: название · системы и точки · итог */
 function osecLine(t, ns, np, st, hide, hd) {
   if (hide) return '';
-  const hx = hd && (hd.done || hd.ready) ? [hd.ready ? `налажено ${hd.ready}` : '', hd.done ? `предъявлено ${hd.done} из ${ns}` : ''].filter(Boolean).join(' · ') : '';
+  const hx = hd ? [hd.work ? `в работе ${hd.work}` : '', hd.issue ? `<span class="warn-t">замечаний ${hd.issue}</span>` : '', hd.ready ? `налажено ${hd.ready}` : '', hd.done ? `предъявлено ${hd.done} из ${ns}` : ''].filter(Boolean).join(' · ') : '';
   const cnt = (ns ? `${ns} ${plural(ns, 'система', 'системы', 'систем')} · ${np} ${plural(np, 'точка', 'точки', 'точек')}` : 'систем нет') + (hx ? `<br>${hx}` : '');
   return `<div class="osec-l"><div><b>${t}</b><small>${cnt}</small></div>${st ? `<span class="osec-s ${st[0]}">${esc(st[1])}</span>` : (ns ? '<span class="osec-s">нет замеров</span>' : '')}</div>`;
 }
@@ -2091,7 +2160,7 @@ function backupBlock() {
 function viewObject(o) {
   const syss = systemsOf(o.id);
   /* Расход вентилятора: проект — из табл. А.1.1; факт — из А.1.1 или по замерам у вентилятора */
-  if (UI.handObj !== o.id) { UI.handObj = o.id; UI.handF = 'all'; }
+  if (UI.handObj !== o.id) { UI.handObj = o.id; UI.handF = handFLoad(o.id); }
   const rows = syss.map((s, i) => {
     if (UI.handF && UI.handF !== 'all' && handOf(s) !== UI.handF) return '';
     const fan = (s.pass && s.pass.fan) || {};
@@ -2766,7 +2835,7 @@ const sizeOf = (s) => (s.method === 'hood' ? 'воронка' : s.method === 'kf
 function objectData(o, only) {
   const syss = only ? [only] : systemsOf(o.id);
   const sysRows = [['№ п/п', 'Система', 'Тип', 'Местонахождение', 'L вент. проект, м³/ч', 'L вент. факт, м³/ч', 'Невязка, %', 'Регулятор: ПЧ, Гц / скорость', 'Ток двиг., А', 'Точек', 'Вне допуска', 'Дата', 'Заметка',
-    'Pст всас., Па', 'Pст нагн., Па', 'Заметка: вентилятор', 'N двиг. проект, кВт', 'N двиг. факт, кВт', 'Фазы проект', 'Фазы факт', 'I проект, А', 'n проект, мин⁻¹', 'n факт, мин⁻¹', 'Заметка: двигатель', 'Сдача']];
+    'Pст всас., Па', 'Pст нагн., Па', 'Заметка: вентилятор', 'N двиг. проект, кВт', 'N двиг. факт, кВт', 'Фазы проект', 'Фазы факт', 'I проект, А', 'n проект, мин⁻¹', 'n факт, мин⁻¹', 'Заметка: двигатель', 'Статус']];
   const secRows = [['Система', '№ точки', 'Помещение, место', 'Тип', 'Метод', 'Размер, мм', 'K решётки', 'Pст, Па', 'L проект, м³/ч', 'L факт, м³/ч', 'Отклонение, %', 'Допуск', 'Оценка', 'Заметка']];
   const blocks = [];
   syss.forEach((sys, i) => {
@@ -3819,33 +3888,114 @@ async function importTemplate(file) {
 }
 
 /* ===== сдача систем: в работе → налажена → предъявлена (с датой); у системы sys.hand, sys.handD ===== */
-const HAND = [['', 'В работе'], ['ready', 'Налажена'], ['done', 'Предъявлена']];
-const handOf = (s) => (s && (s.hand === 'ready' || s.hand === 'done') ? s.hand : '');
+const HAND = [['work', 'В работе'], ['issue', 'Замечание'], ['ready', 'Налажена'], ['done', 'Предъявлена']];
+const HAND_F = [['work', 'В работе'], ['issue', 'Замечания'], ['ready', 'Налажены'], ['done', 'Предъявлены']];
+const handOf = (s) => (s && HAND.some(([v]) => v === s.hand) ? s.hand : '');
 const hShort = (iso) => { const mm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return mm ? `${mm[3]}.${mm[2]}` : ''; };
-function handChip(s) { const h = handOf(s); return h === 'done' ? `<span class="hs done">предъявл.${s.handD ? `<br>${esc(hShort(s.handD))}` : ''}</span>` : h === 'ready' ? '<span class="hs ready">налажена</span>' : ''; }
-function handText(s) { const h = handOf(s); return h === 'done' ? `предъявлена${s.handD ? ' ' + fmtDate(s.handD) : ''}` : h === 'ready' ? 'налажена' : ''; }
-function setHand(s, v, d) { const now = Date.now(); s.hand = v; s.handD = v === 'done' ? (d || todayISO()) : ''; const ft = s.ft || (s.ft = {}); ft.hand = now; ft.handD = now; Store.save(s); }
+function handChip(s) {
+  const h = handOf(s);
+  if (h === 'done') return `<span class="hs done">предъявл.${s.handD ? `<br>${esc(hShort(s.handD))}` : ''}</span>`;
+  if (h === 'ready') return '<span class="hs ready">налажена</span>';
+  if (h === 'work') return '<span class="hs work">в работе</span>';
+  if (h === 'issue') {
+    const it = hItemsFilled(s);
+    return `<span class="hs issue">замечание</span>${it.slice(0, 2).map((x) => `<span class="hs-n">${esc(x.t)}</span>`).join('')}${it.length > 2 ? `<span class="hs-n">+ ещё ${it.length - 2}</span>` : ''}`;
+  }
+  return '';
+}
+/* пункты замечаний [{ t, d }]; старое одно поле handN читается как один пункт */
+function hItems(s) {
+  if (!Array.isArray(s.handI)) s.handI = String(s.handN || '').trim() ? [{ t: String(s.handN).trim(), d: s.hand === 'issue' ? (s.handD || '') : '' }] : [];
+  return s.handI;
+}
+function hItemsFilled(s) { return (Array.isArray(s.handI) ? s.handI : hItems(Object.assign({}, s))).filter((x) => String(x.t || '').trim()); }
+function hLogAdd(s, it) { if (!String(it.t || '').trim()) return; s.handLog = (Array.isArray(s.handLog) ? s.handLog : []).concat(`${String(it.t).trim()}: ${it.d ? 'с ' + hShort(it.d) + ' ' : ''}→ ${hShort(todayISO())}`).slice(-8); }
+function hTouch(s) { const now = Date.now(), ft = s.ft || (s.ft = {}); ['hand', 'handD', 'handN', 'handI', 'handLog'].forEach((k) => { ft[k] = now; }); Store.save(s); }
+function hSuggest(s) {
+  const have = new Set(hItems(s).map((x) => String(x.t || '').trim())), out = [];
+  (s.sections || []).forEach((sec) => { const t = String(sec.note || '').trim(); if (t) { const pl = placeOf(sec) || (sec.no ? '№ ' + sec.no : ''); out.push((pl ? pl + ': ' : '') + t); } });
+  const mn = String(((s.pass || {}).motor || {}).note || '').trim(); if (mn) out.push('двигатель: ' + mn);
+  return [...new Set(out)].filter((t) => !have.has(t)).slice(0, 6);
+}
+function handIssues(s) {
+  const items = hItems(s), sug = hSuggest(s);
+  return `<div class="hi-list">${items.map((it, k) => `<div class="hi-row"><input class="hand-note" data-hsid="${s.id}" data-k="${k}" value="${esc(it.t || '')}" placeholder="Что мешает, напр. не расключён двигатель" aria-label="Замечание ${k + 1}, ${esc(s.name || '')}" autocomplete="off"><button type="button" class="btn sm hi-fix" data-act="hand-item" data-op="fix" data-sid="${s.id}" data-k="${k}">Устранено</button></div>`).join('')}
+    <button type="button" class="btn sm hi-add" data-act="hand-item" data-op="add" data-sid="${s.id}">+ ещё замечание</button>
+    ${sug.length ? `<div class="hi-sug"><span>Из записей системы:</span>${sug.map((t) => `<button type="button" data-act="hand-item" data-op="sug" data-sid="${s.id}" data-t="${esc(t)}">${esc(t)}</button>`).join('')}</div>` : ''}</div>`;
+}
+function handItemAct(s, op, k, t) {
+  const items = hItems(s);
+  if (op === 'fix') {
+    const it = items[k]; if (!it) return -1;
+    hLogAdd(s, it); items.splice(k, 1);
+    if (!items.some((x) => String(x.t || '').trim())) { s.handI = []; s.hand = ''; toast('Замечаний не осталось — отметка снята.'); }
+    hTouch(s); return -1;
+  }
+  if (op === 'add') { items.push({ t: '', d: todayISO() }); hTouch(s); return items.length - 1; }
+  if (op === 'sug') { const e = items.findIndex((x) => !String(x.t || '').trim()); if (e >= 0) items[e].t = t; else items.push({ t, d: todayISO() }); hTouch(s); return -1; }
+  return -1;
+}
+function handText(s) {
+  const h = handOf(s);
+  return h === 'done' ? `предъявлена${s.handD ? ' ' + fmtDate(s.handD) : ''}` : h === 'ready' ? 'налажена' : h === 'work' ? ''
+    : h === 'issue' ? `замечание${hItemsFilled(s).length ? ': ' + hItemsFilled(s).map((x) => x.t.trim() + (x.d ? ' (с ' + fmtDate(x.d) + ')' : '')).join('; ') : ''}` : '';
+}
+function setHand(s, v, d) {
+  const was = handOf(s);
+  if (was === v) v = '';
+  if (was === 'issue' && v !== 'issue') { hItems(s).forEach((it) => hLogAdd(s, it)); s.handI = []; }
+  s.hand = v; s.handD = v === 'done' ? (d || todayISO()) : '';
+  s.handN = '';
+  if (v === 'issue' && !hItems(s).length) s.handI = [{ t: '', d: todayISO() }];
+  hTouch(s);
+  return v;
+}
 function handSeg(s) {
   const h = handOf(s);
-  return `<div class="seg seg-sm hand-seg" role="group" aria-label="Сдача ${esc(s.name || '')}">${HAND.map(([v, t]) => `<button type="button" data-act="hand-set" data-sid="${s.id}" data-v="${v}" aria-pressed="${h === v}">${t}${v === 'done' && h === 'done' && s.handD ? ' ' + esc(hShort(s.handD)) : ''}</button>`).join('')}</div>`;
+  return `<div class="seg seg-sm hand-seg" role="group" aria-label="Статус ${esc(s.name || '')}">${HAND.map(([v, t]) => `<button type="button" data-act="hand-set" data-sid="${s.id}" data-v="${v}" aria-pressed="${h === v}">${t}${v === 'done' && h === 'done' && s.handD ? ' ' + esc(hShort(s.handD)) : ''}</button>`).join('')}</div>
+    ${h === 'issue' ? handIssues(s) : ''}`;
 }
-function handRow(s) { return `<div class="hand-row"><span class="hr-l">Сдача</span>${handSeg(s)}</div>`; }
+function handRow(s) {
+  const log = Array.isArray(s.handLog) ? s.handLog : [];
+  return `<div class="hand-row"><span class="hr-l">Статус</span>${handSeg(s)}</div>${log.length ? `<p class="hint hl-log">Было: ${log.map(esc).join('; ')}</p>` : ''}`;
+}
+function handFLoad(oid) { try { return localStorage.getItem('hf:' + oid) || 'all'; } catch (e) { return 'all'; } }
+function handFSave(oid, v) { try { localStorage.setItem('hf:' + oid, v); } catch (e) { /* нет хранилища */ } }
 function handFilterRow(syss) {
-  const c = { all: syss.length, '': 0, ready: 0, done: 0 }; syss.forEach((s) => { c[handOf(s)]++; });
-  const cur = UI.handF || 'all';
-  const b = (v, t, k) => `<button type="button" class="hf" data-act="hand-filter" data-v="${v}" aria-pressed="${cur === v}">${t} <b>${k}</b></button>`;
-  return `<div class="hf-row" role="group" aria-label="Показать системы">${b('all', 'Все', c.all)}${b('', 'В работе', c[''])}${b('ready', 'Налажены', c.ready)}${b('done', 'Предъявлены', c.done)}<button type="button" class="btn sm hf-mark" data-act="hand-sheet" data-oid="${syss[0] ? syss[0].objectId : ''}">Отметить сдачу</button></div>`;
+  const c = { all: syss.length, '': 0, work: 0, issue: 0, ready: 0, done: 0 }; syss.forEach((s) => { c[handOf(s)]++; });
+  const cur = UI.handF || 'all', oid = syss[0] ? syss[0].objectId : '';
+  const b = (v, t, k) => `<button type="button" class="hf hf-${v}" data-act="hand-filter" data-v="${v}" aria-pressed="${cur === v}">${t} <b>${k}</b></button>`;
+  return `<div class="hf-row" role="group" aria-label="Показать системы">${b('all', 'Все', c.all)}${HAND_F.filter(([v]) => c[v] || cur === v).map(([v, t]) => b(v, t, c[v])).join('')}<button type="button" class="btn sm hf-mark" data-act="hand-sheet" data-oid="${oid}">Статусы</button></div>
+    ${cur === 'issue' && c.issue ? `<button type="button" class="btn sm hf-send" data-act="hand-send" data-oid="${oid}">Отправить замечания</button>` : ''}`;
 }
 function handSheet(oid) {
-  const syss = systemsOf(oid), d = UI.handDate || todayISO();
+  const syss = systemsOf(oid), d = UI.handDate || todayISO(), nIss = syss.filter((s) => handOf(s) === 'issue').length;
   const list = syss.map((s) => `<div class="hl-row"><div class="hl-n"><b>${esc(s.name || '—')}</b><small>${esc([sysTypeName(s.type), s.location].filter(Boolean).join(' · '))}</small></div>${handSeg(s)}</div>`).join('');
-  oeditRoot().innerHTML = `<div class="overlay oe-ov" role="dialog" aria-modal="true" aria-label="Сдача систем"><div class="sheet hand-sheet">
-    <div class="card-head" style="margin:0"><h2>Сдача систем</h2><button class="btn primary" data-act="hand-close">Готово</button></div>
+  oeditRoot().innerHTML = `<div class="overlay oe-ov" role="dialog" aria-modal="true" aria-label="Статусы систем"><div class="sheet hand-sheet">
+    <div class="card-head" style="margin:0"><h2>Статусы систем</h2><button class="btn primary" data-act="hand-close">Готово</button></div>
     <div class="f hand-date"><label for="hand-date">Дата предъявления</label><input type="date" id="hand-date" value="${esc(d)}"></div>
-    <p class="hint">«Налажена» — готова к показу. «Предъявлена» — показали заказчику; ставится дата из поля выше.</p>
+    <p class="hint">«В работе» — взяли на сегодня. «Замечание» — мешает чужое, впишите что. «Налажена» — готова к показу. «Предъявлена» — показали, ставится дата выше. Нажмите ещё раз — отметка снимется.</p>
     <div class="hand-list">${list || '<p class="muted">Систем нет.</p>'}</div>
+    ${nIss ? `<button class="btn" style="margin-top:12px;width:100%" data-act="hand-send" data-oid="${oid}">Отправить замечания (${nIss})</button>` : ''}
   </div></div>`;
 }
+function issuesTextV(oid) {
+  const o = objOf(oid), syss = systemsOf(oid).filter((s) => handOf(s) === 'issue');
+  const blocks = syss.map((s) => { const it = hItemsFilled(s); return `${s.name || '—'}${s.location ? ' (' + s.location + ')' : ''}\n${(it.length ? it : [{ t: 'замечание' }]).map((x) => `— ${x.t.trim()}${x.d ? ' (с ' + hShort(x.d) + ')' : ''}`).join('\n')}`; });
+  return `Замечания по общеобменной вентиляции — ${(o && o.name) || 'объект'}, ${fmtDate(todayISO())}\n\n${blocks.join('\n\n')}`;
+}
+function shareTextV(text) {
+  const copy = () => { try { navigator.clipboard.writeText(text).then(() => toast('Скопировано — вставьте в мессенджер.'), () => toast('Не удалось скопировать.')); } catch (e) { toast('Не удалось скопировать.'); } };
+  try { if (window.AndroidBridge && AndroidBridge.shareText) { AndroidBridge.shareText(text); return; } } catch (e) { /* старое приложение */ }
+  if (navigator.share) { navigator.share({ text }).catch((e) => { if (e && e.name !== 'AbortError') copy(); }); return; }
+  copy();
+}
+document.addEventListener('input', (e) => {
+  const t = e.target; if (!t.matches || !t.matches('.hand-note[data-hsid]')) return;
+  const s = sysOf(t.dataset.hsid); if (!s) return;
+  const items = hItems(s), k = +t.dataset.k || 0; if (!items[k]) items[k] = { t: '', d: todayISO() };
+  items[k].t = t.value; const ft = s.ft || (s.ft = {}); ft.handI = Date.now(); Store.save(s);
+});
 
 /* ===== система (общеобменная): название, местонахождение, тип, дата — в отдельном окне ===== */
 function seditOpen(sid, armed) {
@@ -3921,7 +4071,7 @@ function oeditAct(a) {
     toast('Данные объекта сохранены.');
   }
 }
-document.addEventListener('click', (e) => { const r = document.getElementById('oedit-root'); if (r && e.target.classList && e.target.classList.contains('oe-ov')) r.innerHTML = ''; });
+document.addEventListener('click', (e) => { const r = document.getElementById('oedit-root'); if (r && e.target.classList && e.target.classList.contains('oe-ov')) { const hs = !!r.querySelector('.hand-sheet'); r.innerHTML = ''; if (hs) { const y = window.scrollY; render(); window.scrollTo(0, y); } } });
 
 /* ===== пометки на схеме и фото (редактор общий с разделом ПДВ) ===== */
 async function annotateVent(sys, slot, i) {
@@ -4321,15 +4471,26 @@ document.addEventListener('click', (e) => {
     case 'hand-set': {
       const s = sysOf(a.dataset.sid); if (!s) break;
       const dEl = $('#hand-date'); if (dEl && dEl.value) UI.handDate = dEl.value;
-      setHand(s, a.dataset.v, UI.handDate);
+      const nv = setHand(s, a.dataset.v, UI.handDate);
       const box = document.querySelector('#oedit-root .overlay'), st = box ? box.scrollTop : 0;
       if (box) { handSheet(s.objectId); const b2 = document.querySelector('#oedit-root .overlay'); if (b2) b2.scrollTop = st; }
       const y = window.scrollY; render(); window.scrollTo(0, y);
+      if (nv === 'issue') { const inp = document.querySelector(`#oedit-root .hand-note[data-hsid="${s.id}"]`) || document.querySelector(`.hand-note[data-hsid="${s.id}"]`); if (inp) inp.focus(); }
       break;
     }
-    case 'hand-filter': { UI.handF = a.dataset.v; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'hand-filter': { UI.handF = a.dataset.v; if (UI.handObj) handFSave(UI.handObj, UI.handF); const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'hand-item': {
+      const s = sysOf(a.dataset.sid); if (!s) break;
+      const box = document.querySelector('#oedit-root .overlay'), st = box ? box.scrollTop : 0;
+      const fk = handItemAct(s, a.dataset.op, +a.dataset.k || 0, a.dataset.t || '');
+      if (box) { handSheet(s.objectId); const b2 = document.querySelector('#oedit-root .overlay'); if (b2) b2.scrollTop = st; }
+      const y = window.scrollY; render(); window.scrollTo(0, y);
+      if (fk >= 0) { const inp = document.querySelector(`#oedit-root .hand-note[data-hsid="${s.id}"][data-k="${fk}"]`) || document.querySelector(`.hand-note[data-hsid="${s.id}"][data-k="${fk}"]`); if (inp) inp.focus(); }
+      break;
+    }
+    case 'hand-send': shareTextV(issuesTextV(a.dataset.oid || (UI.route && UI.route.oid))); break;
     case 'hand-sheet': handSheet(a.dataset.oid || (UI.route && UI.route.oid)); break;
-    case 'hand-close': oeditRoot().innerHTML = ''; break;
+    case 'hand-close': { oeditRoot().innerHTML = ''; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
     case 'backup': exportBackup(); break;
     case 'template': exportTemplate(); break;
     case 'import': { const f = $('#import-file'); f.accept = '.json,application/json,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.pdf,application/pdf'; f.click(); break; }
@@ -4388,7 +4549,7 @@ render();
 /* Кнопка «Назад» в приложении Android: на уровень выше по журналу */
 window.__vnbBack = () => {
   { const sb = document.querySelector('.sharebox'); if (sb) { sb.remove(); return true; } }
-  { const oe = document.getElementById('oedit-root'); if (oe && oe.innerHTML) { oe.innerHTML = ''; return true; } }
+  { const oe = document.getElementById('oedit-root'); if (oe && oe.innerHTML) { const hs = !!oe.querySelector('.hand-sheet'); oe.innerHTML = ''; if (hs) { const y = window.scrollY; render(); window.scrollTo(0, y); } return true; } }
   if (UI.tab === 'ref') { UI.tab = 'journal'; render(); window.scrollTo(0, 0); return true; }
   if (isPdv() && window.__pdvBack) return window.__pdvBack();
   if (window.__pdv && window.__pdv.annClose()) return true;
@@ -4874,6 +5035,37 @@ body.pdv-on .hl-n{display:flex;align-items:baseline;gap:8px;min-width:0}
 body.pdv-on .hl-n b{font-size:16px}
 body.pdv-on .hl-n small{color:var(--ink-2);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 body.pdv-on .hand-date input{max-width:220px}
+body.pdv-on .hs.work{background:color-mix(in srgb, var(--link) 16%, transparent);color:var(--link)}
+body.pdv-on .hs.issue{background:var(--warn-bg);color:var(--warn)}
+body.pdv-on .hs.ready{background:var(--ok-bg);color:var(--ok)}
+body.pdv-on .hs.done{background:var(--ok);color:var(--sheet)}
+body.pdv-on .hs-n{display:block;margin-top:2px;font-size:11px;font-weight:600;line-height:1.2;color:var(--warn);white-space:normal;overflow-wrap:anywhere}
+body.pdv-on .hand-seg button{padding:6px 4px;font-size:13px}
+body.pdv-on .hand-seg button[data-v="work"][aria-pressed="true"]{background:var(--link);color:var(--sheet)}
+body.pdv-on .hand-seg button[data-v="issue"][aria-pressed="true"]{background:var(--warn);color:var(--sheet)}
+body.pdv-on .hand-seg button[data-v="ready"][aria-pressed="true"]{background:var(--ok-bg);color:var(--ok);font-weight:700}
+body.pdv-on .hand-seg button[data-v="done"][aria-pressed="true"]{background:var(--ok);color:var(--sheet)}
+body.pdv-on .hand-row .hand-seg{flex-basis:100%}
+body.pdv-on .hand-note{width:100%;box-sizing:border-box;margin-top:6px;border:1.5px solid var(--warn);border-radius:8px;padding:9px 10px;font:inherit;font-size:15px;background:var(--sheet);color:var(--ink)}
+body.pdv-on .hand-row .hand-note{flex-basis:100%;margin-top:0}
+body.pdv-on .hf-issue[aria-pressed="false"] b{color:var(--warn)}
+body.pdv-on .hf-send{margin-top:8px}
+body.pdv-on .hl-log{margin:6px 0 0;font-size:12.5px}
+body.pdv-on .hi-list{display:flex;flex-direction:column;gap:6px;flex-basis:100%;margin-top:6px}
+body.pdv-on .hi-row{display:flex;gap:6px;align-items:stretch}
+body.pdv-on .hi-row .hand-note{flex:1 1 auto;min-width:0;margin-top:0}
+body.pdv-on .hi-fix{flex:none;white-space:nowrap;background:var(--ok-bg);color:var(--ok);border-color:transparent;font-weight:600}
+body.pdv-on .hi-add{align-self:flex-start;background:transparent;border-style:dashed;color:var(--ink-2)}
+body.pdv-on .hi-sug{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--ink-2)}
+body.pdv-on .hi-sug span{flex-basis:100%}
+body.pdv-on .hi-sug button{border:1px solid var(--warn);background:var(--warn-bg);color:var(--warn);border-radius:999px;padding:5px 10px;font:inherit;font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;min-height:32px}
+body.pdv-on .hs-n + .hs-n{margin-top:1px}
+body.pdv-on .gtbl .g-s .hs{display:block;margin-top:3px;font-size:10.5px;font-weight:700;line-height:1.15}
+body.pdv-on .gtbl .g-s .hs.work{color:var(--link)}
+body.pdv-on .gtbl .g-s .hs.issue{color:var(--warn)}
+body.pdv-on .gtbl .g-s .hs.ready{color:var(--ok)}
+body.pdv-on .gtbl .g-s .hs.done{color:var(--sheet)}
+body.pdv-on .gtbl .g-s .hs-n{color:var(--warn);font-weight:600;font-size:10.5px;line-height:1.2}
 /* редактор пометок — общий для обоих разделов */
 .toast{z-index:60}
 .ann{position:fixed;inset:0;z-index:55;background:#1E252B;display:flex;flex-direction:column;color:#fff;padding-top:env(safe-area-inset-top,0px)}
@@ -5304,6 +5496,7 @@ function objHead(o) {
 function viewObject(o) {
   const names = sysNames(o);
   const c = ptStats(rowsOf(o), o);
+  if (UI.handObj !== o.id) { UI.handObj = o.id; UI.handF = handFLoad(o.id); }
   const shown = UI.handF && UI.handF !== 'all' ? names.filter((n) => handOf(o, n) === UI.handF) : names;
   const groups = shown.length ? sysTable(o, shown, { idx: (n) => names.indexOf(n) + 1 }) : '<p class="muted">Нет систем с такой отметкой.</p>';
   return `<div class="stack">
@@ -5859,7 +6052,7 @@ function protoData(o) {
 /* ===== Excel: в том же виде, что таблица наладчика, плюс листы по этажам ===== */
 function fileSafe(s) { return String(s || '').replace(/[«»"“”„]+/g, '').replace(/[\\/:*?<>|]+/g, '-').replace(/\s+/g, ' ').trim().slice(0, 60) || 'объект'; }
 const rnd = (x, d = 0) => (OK(x) ? Math.round(x * Math.pow(10, d)) / Math.pow(10, d) : '');
-const XL_HEAD = ['№', 'Система', 'Обслуживаемое помещение', 'Этаж', 'Помещение (точка)', 'Фактический расход, м³/ч', 'Давление, Па', 'Дата замера', 'Ранее', 'Проектный расход, м³/ч', 'Разница с проектом, %', 'Частотник', 'Сечение решётки', 'Оценка', 'Замечания', 'Сдача системы'];
+const XL_HEAD = ['№', 'Система', 'Обслуживаемое помещение', 'Этаж', 'Помещение (точка)', 'Фактический расход, м³/ч', 'Давление, Па', 'Дата замера', 'Ранее', 'Проектный расход, м³/ч', 'Разница с проектом, %', 'Частотник', 'Сечение решётки', 'Оценка', 'Замечания', 'Статус'];
 const XL_W = [5, 9, 40, 6, 24, 12, 10, 11, 22, 12, 12, 10, 16, 15, 30, 20];
 function xlRow(o, r, i) {
   const e = rowEval(o, r), P = hasP(r);
@@ -7786,35 +7979,127 @@ async function exportZones(o) {
   } catch (e) { toast('Не удалось сделать PDF. Попробуйте ещё раз.'); } finally { UI.pdfBusy = false; }
 }
 
-/* ===== сдача систем: в работе → налажена → предъявлена (с датой) =====
-   Хранится у системы: i.hand = '' | 'ready' | 'done', i.handD = дата предъявления (ISO). */
-const HAND = [['', 'В работе'], ['ready', 'Налажена'], ['done', 'Предъявлена']];
-function handOf(o, n) { const h = sysInfo(o, n).hand; return h === 'ready' || h === 'done' ? h : ''; }
+/* ===== статусы систем: в работе · замечание · налажена · предъявлена =====
+   Хранится у системы: i.hand = '' | 'work' | 'issue' | 'ready' | 'done', i.handD — дата предъявления,
+   i.handI — замечания пунктами [{ t, d }], i.handLog — устранённые строками «текст: с 01.11 → 05.11».
+   Повторное нажатие на статус снимает отметку. Устранён последний пункт — система выходит из «Замечание». */
+const HAND = [['work', 'В работе'], ['issue', 'Замечание'], ['ready', 'Налажена'], ['done', 'Предъявлена']];
+const HAND_F = [['work', 'В работе'], ['issue', 'Замечания'], ['ready', 'Налажены'], ['done', 'Предъявлены']];
+function handOf(o, n) { const h = sysInfo(o, n).hand; return HAND.some(([v]) => v === h) ? h : ''; }
 function hShort(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? `${m[3]}.${m[2]}` : ''; }
+/* пункты замечаний; старое одно поле handN читается как один пункт */
+function hItems(i) {
+  if (!Array.isArray(i.handI)) i.handI = String(i.handN || '').trim() ? [{ t: String(i.handN).trim(), d: i.hand === 'issue' ? (i.handD || '') : '' }] : [];
+  return i.handI;
+}
+function hItemsFilled(i) { return (Array.isArray(i.handI) ? i.handI : hItems(Object.assign({}, i))).filter((x) => String(x.t || '').trim()); }
+function hLogAdd(i, it) { if (!String(it.t || '').trim()) return; i.handLog = (Array.isArray(i.handLog) ? i.handLog : []).concat(`${String(it.t).trim()}: ${it.d ? 'с ' + hShort(it.d) + ' ' : ''}→ ${hShort(todayISO())}`).slice(-8); }
 function handChip(o, n) {
-  const h = handOf(o, n), d = sysInfo(o, n).handD;
-  return h === 'done' ? `<span class="hs done">предъявл.${d ? `<br>${esc(hShort(d))}` : ''}</span>` : h === 'ready' ? '<span class="hs ready">налажена</span>' : '';
+  const i = sysInfo(o, n), h = handOf(o, n), d = i.handD;
+  if (h === 'done') return `<span class="hs done">предъявл.${d ? `<br>${esc(hShort(d))}` : ''}</span>`;
+  if (h === 'ready') return '<span class="hs ready">налажена</span>';
+  if (h === 'work') return '<span class="hs work">в работе</span>';
+  if (h === 'issue') {
+    const it = hItemsFilled(i);
+    return `<span class="hs issue">замечание</span>${it.slice(0, 2).map((x) => `<span class="hs-n">${esc(x.t)}</span>`).join('')}${it.length > 2 ? `<span class="hs-n">+ ещё ${it.length - 2}</span>` : ''}`;
+  }
+  return '';
 }
-function setHand(o, n, v, d) { const i = ensureSys(o, n); i.hand = v; i.handD = v === 'done' ? (d || todayISO()) : ''; Store.save(o); }
+function setHand(o, n, v, d) {
+  const i = ensureSys(o, n), was = handOf(o, n);
+  if (was === v) v = '';
+  if (was === 'issue' && v !== 'issue') { hItems(i).forEach((it) => hLogAdd(i, it)); i.handI = []; }
+  i.hand = v;
+  i.handD = v === 'done' ? (d || todayISO()) : '';
+  i.handN = '';
+  if (v === 'issue' && !hItems(i).length) i.handI = [{ t: '', d: todayISO() }];
+  Store.save(o);
+  return v;
+}
+/* записи из точек и двигателя — подсказки для замечания */
+function hSuggest(o, n) {
+  const have = new Set(hItems(sysInfo(o, n)).map((x) => String(x.t || '').trim()));
+  const out = [];
+  pointsOf(o, n).forEach((r) => { const t = String(r.note || '').trim(); if (t) out.push((String(r.floor || '').trim() ? `${String(r.floor).trim()} эт.: ` : '') + t); });
+  const mn = String(sysInfo(o, n).motNote || '').trim(); if (mn) out.push('двигатель: ' + mn);
+  return [...new Set(out)].filter((t) => !have.has(t)).slice(0, 6);
+}
+function handIssues(o, n) {
+  const i = sysInfo(o, n), items = hItems(i), sug = hSuggest(o, n);
+  return `<div class="hi-list">${items.map((it, k) => `<div class="hi-row"><input class="hand-note" data-pn="${esc(n)}" data-k="${k}" value="${esc(it.t || '')}" placeholder="Что мешает, напр. не расключён двигатель" aria-label="Замечание ${k + 1}, ${esc(n)}" autocomplete="off"><button type="button" class="btn sm hi-fix" data-act="phand-fix" data-name="${esc(n)}" data-k="${k}">Устранено</button></div>`).join('')}
+    <button type="button" class="btn sm hi-add" data-act="phand-add" data-name="${esc(n)}">+ ещё замечание</button>
+    ${sug.length ? `<div class="hi-sug"><span>Из записей системы:</span>${sug.map((t) => `<button type="button" data-act="phand-sug" data-name="${esc(n)}" data-t="${esc(t)}">${esc(t)}</button>`).join('')}</div>` : ''}</div>`;
+}
 function handSeg(o, n) {
-  const h = handOf(o, n), d = sysInfo(o, n).handD;
-  return `<div class="seg seg-sm hand-seg" role="group" aria-label="Сдача ${esc(n)}">${HAND.map(([v, t]) => `<button type="button" data-act="phand-set" data-name="${esc(n)}" data-v="${v}" aria-pressed="${h === v}">${t}${v === 'done' && h === 'done' && d ? ' ' + esc(hShort(d)) : ''}</button>`).join('')}</div>`;
+  const i = sysInfo(o, n), h = handOf(o, n);
+  return `<div class="seg seg-sm hand-seg" role="group" aria-label="Статус ${esc(n)}">${HAND.map(([v, t]) => `<button type="button" data-act="phand-set" data-name="${esc(n)}" data-v="${v}" aria-pressed="${h === v}">${t}${v === 'done' && h === 'done' && i.handD ? ' ' + esc(hShort(i.handD)) : ''}</button>`).join('')}</div>
+    ${h === 'issue' ? handIssues(o, n) : ''}`;
 }
-function handRow(o, n) { return `<div class="hand-row"><span class="hr-l">Сдача</span>${handSeg(o, n)}</div>`; }
-function handCounts(o, names) { const c = { all: names.length, '': 0, ready: 0, done: 0 }; names.forEach((n) => { c[handOf(o, n)]++; }); return c; }
+/* действия с пунктами: устранено / добавить / из подсказки; возвращает индекс поля для фокуса */
+function handItemAct(o, n, act, k, t) {
+  const i = ensureSys(o, n), items = hItems(i);
+  if (act === 'fix') {
+    const it = items[k]; if (!it) return -1;
+    hLogAdd(i, it); items.splice(k, 1);
+    if (!items.some((x) => String(x.t || '').trim())) { i.handI = []; i.hand = ''; toast('Замечаний не осталось — отметка снята.'); }
+    Store.save(o); return -1;
+  }
+  if (act === 'add') { items.push({ t: '', d: todayISO() }); Store.save(o); return items.length - 1; }
+  if (act === 'sug') {
+    const e = items.findIndex((x) => !String(x.t || '').trim());
+    if (e >= 0) items[e].t = t; else items.push({ t, d: todayISO() });
+    Store.save(o); return -1;
+  }
+  return -1;
+}
+function handRow(o, n) {
+  const log = Array.isArray(sysInfo(o, n).handLog) ? sysInfo(o, n).handLog : [];
+  return `<div class="hand-row"><span class="hr-l">Статус</span>${handSeg(o, n)}</div>${log.length ? `<p class="hint hl-log">Было: ${log.map(esc).join('; ')}</p>` : ''}`;
+}
+function handCounts(o, names) { const c = { all: names.length, '': 0, work: 0, issue: 0, ready: 0, done: 0 }; names.forEach((n) => { c[handOf(o, n)]++; }); return c; }
 function handFilterRow(o, names) {
   const c = handCounts(o, names), cur = UI.handF || 'all';
-  const b = (v, t, k) => `<button type="button" class="hf" data-act="phand-filter" data-v="${v}" aria-pressed="${cur === v}">${t} <b>${k}</b></button>`;
-  return `<div class="hf-row" role="group" aria-label="Показать системы">${b('all', 'Все', c.all)}${b('', 'В работе', c[''])}${b('ready', 'Налажены', c.ready)}${b('done', 'Предъявлены', c.done)}<button type="button" class="btn sm hf-mark" data-act="sheet" data-v="hand">Отметить сдачу</button></div>`;
+  const b = (v, t, k) => `<button type="button" class="hf hf-${v}" data-act="phand-filter" data-v="${v}" aria-pressed="${cur === v}">${t} <b>${k}</b></button>`;
+  return `<div class="hf-row" role="group" aria-label="Показать системы">${b('all', 'Все', c.all)}${HAND_F.filter(([v]) => c[v] || cur === v).map(([v, t]) => b(v, t, c[v])).join('')}<button type="button" class="btn sm hf-mark" data-act="sheet" data-v="hand">Статусы</button></div>
+    ${cur === 'issue' && c.issue ? '<button type="button" class="btn sm hf-send" data-act="phand-send">Отправить замечания</button>' : ''}`;
 }
 function sheetHand(o) {
-  const names = sysNames(o), d = UI.handDate || todayISO();
+  const names = sysNames(o), d = UI.handDate || todayISO(), c = handCounts(o, names);
   const list = names.map((n) => `<div class="hl-row"><div class="hl-n"><b>${esc(n)}</b><small>${esc(String(purposeShort(o, n) || '').replace(/­/g, ''))}</small></div>${handSeg(o, n)}</div>`).join('');
-  return sheetWrap('Сдача систем', `<div class="f hand-date"><label for="hand-date">Дата предъявления</label><input type="date" id="hand-date" value="${esc(d)}"></div>
-    <p class="hint">«Налажена» — готова к показу. «Предъявлена» — показали заказчику; ставится дата из поля выше.</p>
-    <div class="hand-list">${list || '<p class="muted">Систем нет.</p>'}</div>`, '<button class="btn primary" data-act="sheet-close">Готово</button>');
+  return sheetWrap('Статусы систем', `<div class="f hand-date"><label for="hand-date">Дата предъявления</label><input type="date" id="hand-date" value="${esc(d)}"></div>
+    <p class="hint">«В работе» — взяли на сегодня. «Замечание» — мешает чужое, впишите что. «Налажена» — готова к показу. «Предъявлена» — показали, ставится дата выше. Нажмите ещё раз — отметка снимется.</p>
+    <div class="hand-list">${list || '<p class="muted">Систем нет.</p>'}</div>`, `${c.issue ? '<button class="btn" data-act="phand-send">Отправить замечания</button>' : ''}<button class="btn primary" data-act="sheet-close">Готово</button>`);
 }
-function handText(o, n) { const h = handOf(o, n), d = sysInfo(o, n).handD; return h === 'done' ? `предъявлена${d ? ' ' + fmtDate(d) : ''}` : h === 'ready' ? 'налажена' : ''; }
+function handText(o, n) {
+  const i = sysInfo(o, n), h = handOf(o, n), d = i.handD;
+  return h === 'done' ? `предъявлена${d ? ' ' + fmtDate(d) : ''}` : h === 'ready' ? 'налажена' : h === 'work' ? ''
+    : h === 'issue' ? `замечание${hItemsFilled(i).length ? ': ' + hItemsFilled(i).map((x) => x.t.trim() + (x.d ? ' (с ' + fmtDate(x.d) + ')' : '')).join('; ') : ''}` : '';
+}
+/* фильтр запоминается для каждого объекта */
+function handFLoad(oid) { try { return localStorage.getItem('hfp:' + oid) || 'all'; } catch (e) { return 'all'; } }
+function handFSave(oid, v) { try { localStorage.setItem('hfp:' + oid, v); } catch (e) { /* нет хранилища */ } }
+/* замечания одним текстом — в мессенджер */
+function issuesText(o) {
+  const names = sysNames(o).filter((n) => handOf(o, n) === 'issue');
+  const blocks = names.map((n) => {
+    const i = sysInfo(o, n), p = String(purposeShort(o, n) || '').replace(/­/g, ''), it = hItemsFilled(i);
+    return `${n}${p ? ' (' + p + ')' : ''}\n${(it.length ? it : [{ t: 'замечание' }]).map((x) => `— ${x.t.trim()}${x.d ? ' (с ' + hShort(x.d) + ')' : ''}`).join('\n')}`;
+  });
+  return `Замечания по противодымной вентиляции — ${o.name || 'объект'}, ${fmtDate(todayISO())}\n\n${blocks.join('\n\n')}`;
+}
+function shareText(text) {
+  const copy = () => { try { navigator.clipboard.writeText(text).then(() => toast('Скопировано — вставьте в мессенджер.'), () => toast('Не удалось скопировать.')); } catch (e) { toast('Не удалось скопировать.'); } };
+  try { if (window.AndroidBridge && AndroidBridge.shareText) { AndroidBridge.shareText(text); return; } } catch (e) { /* старое приложение */ }
+  if (navigator.share) { navigator.share({ text }).catch((e) => { if (e && e.name !== 'AbortError') copy(); }); return; }
+  copy();
+}
+document.addEventListener('input', function handNoteInput(e) {
+  const t = e.target; if (!t.matches || !t.matches('.hand-note[data-pn]')) return;
+  const o = curObj(); if (!o) return;
+  const i = ensureSys(o, t.dataset.pn), items = hItems(i), k = +t.dataset.k || 0;
+  if (!items[k]) items[k] = { t: '', d: todayISO() };
+  items[k].t = t.value; Store.save(o);
+});
 
 
 /* ===== отрисовка: объекты → объект (системы) → система (вентилятор + точки); зоны отдельно ===== */
@@ -8112,11 +8397,20 @@ document.addEventListener('click', (e) => {
     case 'phand-set': if (o) {
       const dEl = document.getElementById('hand-date'); if (dEl && dEl.value) UI.handDate = dEl.value;
       const ov = ovRoot.querySelector('.overlay'), st = ov ? ov.scrollTop : 0;
-      setHand(o, a.dataset.name, a.dataset.v, UI.handDate);
+      const nv = setHand(o, a.dataset.name, a.dataset.v, UI.handDate);
       rerender();
       const ov2 = ovRoot.querySelector('.overlay'); if (ov2) ov2.scrollTop = st;
+      if (nv === 'issue') { const inp = [...document.querySelectorAll('.hand-note[data-pn]')].find((x) => x.dataset.pn === a.dataset.name); if (inp) inp.focus(); }
     } break;
-    case 'phand-filter': UI.handF = a.dataset.v; rerender(); break;
+    case 'phand-fix': case 'phand-add': case 'phand-sug': if (o) {
+      const ov = ovRoot.querySelector('.overlay'), st = ov ? ov.scrollTop : 0;
+      const fk = handItemAct(o, a.dataset.name, a.dataset.act.slice(6), +a.dataset.k || 0, a.dataset.t || '');
+      rerender();
+      const ov2 = ovRoot.querySelector('.overlay'); if (ov2) ov2.scrollTop = st;
+      if (fk >= 0) { const inp = [...document.querySelectorAll('.hand-note[data-pn]')].find((x) => x.dataset.pn === a.dataset.name && +x.dataset.k === fk); if (inp) inp.focus(); }
+    } break;
+    case 'phand-filter': UI.handF = a.dataset.v; if (o) handFSave(o.id, UI.handF); rerender(); break;
+    case 'phand-send': if (o) shareText(issuesText(o)); break;
     case 'zones-pdf': if (o) exportZones(o); break;
     case 'export-object': if (o) { if (UI.sheet && UI.sheet.type === 'more') closeSheet(); exportObject(o); } break;
     case 'ov-close': ovRoot.innerHTML = ''; break;
@@ -8471,12 +8765,12 @@ window.__pdv = {
     render();
   },
   renderRef() { UI.tab = 'ref'; UI.sheet = null; render(); },
-  open(oid) { if (UI.route.oid !== oid) { UI.modOpen = {}; UI.handF = 'all'; } UI.route = { name: 'object', oid }; UI.sheet = null; },
+  open(oid) { if (UI.route.oid !== oid) { UI.modOpen = {}; UI.handObj = null; } UI.route = { name: 'object', oid }; UI.sheet = null; },
   stats(o) {
     const rows = Array.isArray(o.rows) ? o.rows : [];
     const c = ptStats(rows, o);
     const names = Object.keys(o.sys || {}), hc = handCounts(o, names);
-    return { sys: names.length, pts: rows.length, ok: c.ok || 0, bad: c.bad || 0, ready: hc.ready, done: hc.done };
+    return { sys: names.length, pts: rows.length, ok: c.ok || 0, bad: c.bad || 0, work: hc.work, issue: hc.issue, ready: hc.ready, done: hc.done };
   },
   photoArrays(o) { try { return allPhotosOf(o); } catch (e) { return []; } },
   annotate(blob, save) { return annOpenExt(blob, save); },
