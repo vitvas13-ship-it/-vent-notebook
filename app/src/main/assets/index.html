@@ -744,6 +744,9 @@ body .crumbs.scr > span:last-child{flex:none !important;overflow:visible;white-s
 .hi-list .btn.hi-add{border:0;background:none;color:var(--link);font-weight:600;padding:4px 2px;min-height:30px;justify-content:flex-start}
 .hi-row .hand-note{border-color:color-mix(in srgb, var(--warn) 55%, var(--rule))}
 body .hi-row input.hand-note{border-color:color-mix(in srgb, var(--warn) 55%, var(--rule))}
+/* метки в таблице: сплошные, чтобы не сливались с синим назначением */
+body .hs.work{background:var(--link);color:var(--sheet)}
+body .hs.issue{background:var(--warn);color:var(--sheet)}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -5084,6 +5087,8 @@ body.pdv-on .hand-seg.seg button[data-v="done"][aria-pressed="true"]{background:
 body.pdv-on .hi-row .btn.hi-fix{background:color-mix(in srgb, var(--ok) 14%, transparent);color:var(--ok);border:1px solid color-mix(in srgb, var(--ok) 35%, transparent);font-weight:600}
 body.pdv-on .hi-list .btn.hi-add{border:0;background:none;color:var(--link);font-weight:600;padding:4px 2px;min-height:30px;justify-content:flex-start}
 body.pdv-on .hi-row .hand-note{border-color:color-mix(in srgb, var(--warn) 55%, var(--rule))}
+body.pdv-on .gtbl .g-s .hs.work{background:var(--link);color:var(--sheet)}
+body.pdv-on .gtbl .g-s .hs.issue{background:var(--warn);color:var(--sheet)}
 /* редактор пометок — общий для обоих разделов */
 .toast{z-index:60}
 .ann{position:fixed;inset:0;z-index:55;background:#1E252B;display:flex;flex-direction:column;color:#fff;padding-top:env(safe-area-inset-top,0px)}
