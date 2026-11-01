@@ -5260,12 +5260,12 @@ function purposeLabel(o, n) {
 }
 const PURPOSE_SHORT = { corr: 'из кори\u00ADдора', room: 'из поме\u00ADщения', gas: 'газовое тушение', kdu: 'Компен\u00ADсация ДУ', stair: 'Подпор в ЛК Н2', lift: 'Подпор в шахту лифта', lock: 'Подпор в тамбур-шлюз', mgn: 'Подпор в зону МГН' };
 function purposeShort(o, n) { const k = purposeKey(o, n); return k in PURPOSE_SHORT ? PURPOSE_SHORT[k] : purposeLabel(o, n); }
-/* худшая точка, когда вентилятор не замерен */
+/* отклонение по точкам (диапазон), когда вентилятор не замерен */
 function worstDev(o, n) {
   const ev = pointsOf(o, n).filter((r) => r.m !== 'P').map((r) => rowEval(o, r)).filter((e) => OK(e.pct));
   if (!ev.length) return '—';
-  const w = ev.reduce((a, e) => (Math.abs(e.pct) > Math.abs(a.pct) ? e : a));
-  return `<span class="${ev.some((e) => e.st === 'bad') ? 'bad-t' : 'ok-t'}">${pctTxt(w.pct)}</span>${ev.length > 1 ? '<span class="wl">худшая</span>' : ''}`;
+  const d = ev.map((e) => e.pct), lo = pctTxt(Math.min(...d)), hi = pctTxt(Math.max(...d));
+  return `<span class="${ev.some((e) => e.st === 'bad') ? 'bad-t' : 'ok-t'}">${lo === hi ? lo : `${lo} …<br>${hi}`}</span>`;
 }
 /* титул: таблица с сеткой, как в основном блокноте */
 function sysTable(o, names, opt = {}) {
