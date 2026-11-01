@@ -229,6 +229,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        /** «Отправить замечания»: текст в мессенджер или почту. */
+        @JavascriptInterface
+        fun shareText(text: String) {
+            runOnUiThread {
+                try {
+                    val send = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, text)
+                    }
+                    startActivity(Intent.createChooser(send, getString(R.string.send_file)))
+                } catch (e: Exception) {
+                    toast("Не удалось отправить")
+                }
+            }
+        }
+
         /** Тема страницы: строка состояния и панель навигации в цвет фона. */
         @JavascriptInterface
         fun setBars(dark: Boolean) {
