@@ -6,6 +6,10 @@ import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -159,6 +163,25 @@ class MainActivity : AppCompatActivity() {
         if (web.url == null) web.loadUrl(START_URL)
     }
 
+    /** Датчик атмосферного давления телефона (есть не во всех телефонах), гПа. */
+    @Volatile private var baroHpa = Float.NaN
+    private val sensors by lazy { getSystemService(SENSOR_SERVICE) as? SensorManager }
+    private val baroSensor by lazy { sensors?.getDefaultSensor(Sensor.TYPE_PRESSURE) }
+    private val baroListener = object : SensorEventListener {
+        override fun onSensorChanged(e: SensorEvent) { if (e.values.isNotEmpty()) baroHpa = e.values[0] }
+        override fun onAccuracyChanged(s: Sensor?, a: Int) {}
+    }
+
+    override fun onResume() {
+        super.onResume()
+        baroSensor?.let { try { sensors?.registerListener(baroListener, it, SensorManager.SENSOR_DELAY_NORMAL) } catch (_: Exception) {} }
+    }
+
+    override fun onPause() {
+        try { sensors?.unregisterListener(baroListener) } catch (_: Exception) {}
+        super.onPause()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         web.saveState(outState)
@@ -287,6 +310,10 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun testoState(): String = testo.state
+
+        /** Давление с датчика телефона, гПа; пусто — датчика нет или ещё нет значения. */
+        @JavascriptInterface
+        fun baro(): String = if (baroHpa.isNaN() || baroHpa < 500f || baroHpa > 1200f) "" else String.format(java.util.Locale.US, "%.1f", baroHpa)
 
         /** Экран не гаснет, пока открыт «Замер». */
         @JavascriptInterface
