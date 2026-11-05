@@ -916,6 +916,20 @@ body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;ba
 
 .dv-humc{border-top:1px solid var(--line);padding-top:10px}
 
+.dv-src{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.dv-src-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px;font-size:14px;color:var(--muted)}
+:root body .dv-src-l{text-transform:uppercase;font-size:13px;letter-spacing:.02em;white-space:nowrap}
+:root body .dv-dcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 12px;margin:0 0 8px;border:1px solid rgba(127,127,127,.35);border-radius:10px;background:rgba(127,127,127,.07);color:var(--ink);font:inherit;min-height:0;box-shadow:none}
+:root body button.dv-dcard{cursor:pointer}
+:root body .dv-dcard.on{border-color:var(--ok);background:rgba(46,180,100,.08)}
+.dv-di{flex:none;width:36px;height:36px;display:grid;place-items:center;border-radius:8px;background:rgba(127,127,127,.18);color:var(--ink)}
+.dv-dt{display:flex;flex-direction:column;gap:1px;min-width:0;font-size:13px;color:var(--muted)}
+.dv-dt b{color:var(--ink)}
+.dv-dt>b{font-size:15px}
+.dv-dr{margin-left:auto;flex:none;width:20px;height:20px;border-radius:50%;border:2px solid rgba(127,127,127,.7)}
+.dv-dcard.on .dv-dr{border-color:var(--ok);background:radial-gradient(circle,var(--ok) 0 45%,transparent 50%)}
+.dv-hum-o{grid-template-columns:1fr}
+
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
 .sect-sw{display:flex;width:100%;max-width:520px}
@@ -2766,9 +2780,7 @@ function devPages() {
     <div class="fields" style="margin-top:10px">${devField('Lp', 'Заданный расход', 'м³/ч')}${devField('kcorr', 'Поправочный коэффициент', '')}${DEV.prog === 'grille' ? devField('free', 'Свободная площадь', '%', { hint: 'живое сечение решётки' }) : ''}</div>
     <h3 style="margin-top:14px">Стандартный объёмный расход</h3>${devSeg('std', [['1', 'Вкл.'], ['0', 'Выкл.']])}
     ${c.std === '0' ? '' : `<div class="fields" style="margin-top:10px">${devField('pstd', 'Стандартное давление', 'Па', { mode: 'numeric' })}${devField('tstd', 'Стандартная температура', '°C')}</div>
-    <div class="fields" style="margin-top:6px">${devPField()}</div>
-    <div class="lrow" style="margin:10px 0 4px"><span class="lbl">Температура окружающей среды</span>${devSeg('tsrc', [['flow', 'Зонд расхода'], ['hum', 'Зонд влажности'], ['man', 'Вручную']])}</div>
-    ${c.tsrc === 'man' ? `<div class="fields">${devField('tman', 'Температура', '°C')}</div>` : `<p class="hint">${c.tsrc === 'hum' ? 'С рукоятки с зондом влажности — например, уличный воздух.' : 'С крыльчатки или струны — температура потока.'}</p>`}`}`;
+    ${devPSrcHTML()}${devTSrcHTML()}`}`;
   const meas = `<h3>Замер</h3>${devSeg('mode', [['time', 'По времени'], ['count', 'По числу замеров']])}
     <div class="fields" style="margin-top:10px">${c.mode === 'count' ? '<p class="hint">Каждое «Запустить» — одно значение в точку.</p>' : devField('ivl', p.grid ? 'Интервал на точку' : 'Время замера', 'с', { mode: 'numeric', hint: '0 — до «Остановить»' })}</div>
     <p class="hint">Зонд: крыльчатка Testo по Bluetooth.</p>`;
@@ -3074,6 +3086,7 @@ function devAct(act, a) {
     case 'dv-new': devNewRun(); devPaint.k = ''; break;
     case 'dv-del': { if (DEV.run && Array.isArray(DEV.run.vals)) DEV.run.vals.splice(+a.dataset.i, 1); devPaint(); return; }
     case 'dv-conn': testoConnect(); return;
+    case 'dv-psrc': { if (a.dataset.v === 'man') { const b = phoneBaro(); lsSet(LS_DEV_P, OK(b) ? tF(b, 1) : ''); } else lsSet(LS_DEV_P, ''); break; }
     case 'dv-more': try { AndroidBridge.testoStart(); } catch (err) { /* нет моста */ } return;
     case 'dv-off': try { AndroidBridge.testoStop(); } catch (e) { /* нет моста */ } return;
     case 'dv-topt': { const l = DEV.link; if (!l) break; UI.tab = 'journal'; keepScreen(false); go({ name: 'section', sid: l.sid, cid: l.cid }); return; }
@@ -3140,7 +3153,8 @@ function condObjDefault() {
 function devHumHTML() {
   const objs = Store.all('object').sort((a, b) => natCmp(a.name, b.name)), cur = condObjDefault();
   return `<div class="dv-humc">
-    <div class="row dv-hum-f">${devPField()}
+    ${devPSrcHTML()}
+    <div class="row dv-hum-f dv-hum-o">
     <div class="f"><label for="dv-coid">Объект</label><select id="dv-coid">${objs.map((o) => `<option value="${esc(o.id)}"${o.id === cur ? ' selected' : ''}>${esc(o.name || 'Объект')}</option>`).join('')}</select></div></div>
     <div class="dv-foot2 row"><button class="btn primary" data-act="dv-cond">Записать как улицу</button><button class="btn" data-act="dv-air">В точку…</button></div>
     <p class="hint">«Улица» — в условия замера объекта и в отчёт. «В точку» — воздух в помещении или в воздуховоде у этой точки.</p></div>`;
@@ -3196,6 +3210,29 @@ function airLine(sec) {
   const a = sec && sec.air; if (!a || !a.at) return '';
   const q = psy(a.t, a.rh, devP());
   return `<p class="hint src-l">Воздух в точке: ${esc(condText(a))}${q ? ` · т. росы ${tF(q.td, 1)} °C` : ''} · ${esc(condWhen(a))}</p>`;
+}
+
+
+/* ===== источники, как в testo 400: «Абсолютное рабочее давление» и «Температура окружающей среды» ===== */
+const dvCard = (on, icon, title, lines, act) => `<${act ? 'button type="button"' : 'div'} class="dv-dcard${on ? ' on' : ''}"${act || ''}><span class="dv-di" aria-hidden="true">${icon}</span><span class="dv-dt"><b>${title}</b>${lines.filter(Boolean).map((l) => `<span>${l}</span>`).join('')}</span>${act ? `<span class="dv-dr" aria-hidden="true"></span>` : ''}</${act ? 'button' : 'div'}>`;
+const ICON_PHONE = '<svg viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="2" width="12" height="20" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="18" r="1.1" fill="currentColor"/></svg>';
+const ICON_PROBE = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2v11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="9" y="13" width="6" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+function devPSrcHTML() {
+  const b = phoneBaro(), man = OK(devPman()) || !OK(b);
+  return `<div class="dv-src"><div class="dv-src-h"><span>Абсолютное рабочее давление</span>${OK(b) ? `<button type="button" class="lnk dv-src-l" data-act="dv-psrc" data-v="${man ? 'phone' : 'man'}">${man ? 'С телефона' : 'Ввод вручную'}</button>` : ''}</div>
+    ${man ? `<div class="fields"><div class="f"><label for="dv-p">Ввод вручную <span class="u">гПа</span></label><input id="dv-p" data-dp type="text" class="num-in" inputmode="decimal" autocomplete="off" placeholder="1013" value="${esc(String(lsGet(LS_DEV_P) || ''))}">${OK(b) ? '' : '<span class="hint">датчика давления в телефоне нет</span>'}</div></div>` : dvCard(true, ICON_PHONE, 'Телефон', ['датчик давления', `Параметр: давление · <b>${tF(b, 1)} гПа</b>`])}</div>`;
+}
+function devTSrcHTML() {
+  const c = DEV.cfg, man = c.tsrc === 'man';
+  const card = (k) => {
+    const d = k === 'hum' ? TESTO.hum : TESTO.flow;
+    const t = d ? d.t : null;
+    return dvCard(c.tsrc === k, ICON_PROBE, d ? esc(probeShort(d)) : (k === 'hum' ? 'Зонд влажности' : 'Зонд расхода'),
+      [d ? (d.sn ? `Серийный номер: ${esc(d.sn)}` : '') : '<span class="muted">не подключён</span>', `Параметр: температура${OK(t) ? ` · <b>${tF(t, 1)} °C</b>` : ''}`, k === 'hum' ? 'например, уличный воздух' : 'температура потока'],
+      ` data-act="dv-set" data-k="tsrc" data-v="${k}" aria-pressed="${c.tsrc === k}"`);
+  };
+  return `<div class="dv-src"><div class="dv-src-h"><span>Температура окружающей среды</span><button type="button" class="lnk dv-src-l" data-act="dv-set" data-k="tsrc" data-v="${man ? 'flow' : 'man'}">${man ? 'Выбрать зонд' : 'Ввод вручную'}</button></div>
+    ${man ? `<div class="fields">${devField('tman', 'Ввод вручную', '°C')}</div>` : card('flow') + card('hum')}</div>`;
 }
 
 /* ---------- точки замера: сечение (ГОСТ 12.3.018, черт. 1–2) или места на решётке ---------- */
