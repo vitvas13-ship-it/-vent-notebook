@@ -843,7 +843,7 @@ body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;ba
 .dv-progs h2,.dv-hist h2{margin:0 0 8px;font-size:17px}
 .dv-prog{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--rule);padding:12px 2px;font:inherit;color:var(--ink);cursor:pointer}
 .dv-prog b{font-size:16px}.dv-prog small{color:var(--ink-2);font-size:13px}
-.dv-prog.last b::after{content:' ★';color:var(--signal,#F2C230)}
+.dv-prog.last b::after{content:'последняя';margin-left:8px;padding:1px 6px;border-radius:5px;font-size:11px;font-weight:600;vertical-align:middle;color:var(--muted);border:1px solid rgba(127,127,127,.45)}
 .dv-h{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--rule);padding:8px 0;font-size:14px}
 .dv-h small{color:var(--ink-2)}
 .dv-top{display:flex;align-items:center;gap:10px}
@@ -991,6 +991,36 @@ body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;ba
 .dv-listtop{display:flex;gap:8px;align-items:stretch}
 .dv-listtop .dv-instr-b{flex:1}
 :root body .dv-setb{flex:none;width:56px;min-height:0;border-radius:12px;border:1px solid rgba(127,127,127,.35);background:var(--card);color:var(--ink);font-size:24px;box-shadow:none}
+
+.dv-off .dv-rl{opacity:.55}
+.dv-off .dv-rs2{color:#C62828;opacity:1}
+.dv-r .dv-rc .dv-sw{margin-left:4px}
+
+.si-parts-v{display:flex;flex-direction:column}
+.si-parts{display:flex;flex-direction:column;gap:6px;margin:4px 0}
+.si-parts>label{font-weight:600;font-size:14px}
+.si-prow{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:center;padding:8px;border:1px solid rgba(127,127,127,.3);border-radius:10px}
+.si-prow [data-f=name],.si-prow [data-f=range]{grid-column:1/-1}
+.si-prow [data-f=range]{grid-row:3}
+.si-prow input{height:40px;padding:6px 10px;font-size:15px;border-radius:8px}
+.si-prow input{width:100%;min-width:0}
+
+/* строка «Приборы» */
+.dv-listtop{display:flex;gap:8px;align-items:stretch}
+:root body .dv-instr-b{display:flex;align-items:center;gap:10px;flex:1;min-width:0;overflow:hidden;min-height:56px;padding:8px 14px;border:1px solid rgba(127,127,127,.35);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;text-align:left;box-shadow:none;cursor:pointer}
+.dv-ib{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.dv-dot{flex:none;width:10px;height:10px;border-radius:50%;background:rgba(127,127,127,.55)}
+.dv-dot.on{background:var(--ok)}
+.dv-dot.busy{background:#F2C230;animation:dvblink 1s infinite}
+@keyframes dvblink{50%{opacity:.3}}
+.dv-ibt{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.dv-ibt b{font-size:16px}
+.dv-ibt>span{font-size:14px;color:var(--ink)}
+.dv-sn.sm{font-size:12px;padding:0 5px}
+:root body .dv-setb{flex:none;width:56px;min-height:56px;border-radius:12px;border:1px solid rgba(127,127,127,.35);background:var(--card);color:var(--ink);font-size:24px;box-shadow:none}
+:root body .dv-siw{display:block;width:100%;margin-top:8px;padding:8px 12px;border-radius:10px;border:0;text-align:left;font:inherit;font-size:14px;font-weight:600;min-height:0;box-shadow:none;cursor:pointer}
+:root body .dv-siw.bad{background:rgba(198,40,40,.12);color:#C62828}
+:root body .dv-siw.soon{background:rgba(217,130,43,.14);color:#B86A16}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -2411,7 +2441,7 @@ function backupBlock() {
     <div class="head-actions"><button class="btn primary" data-act="import-pdf">Из паспортов PDF</button><button class="btn" data-act="import-xlsx">Из шаблона Excel</button><button class="btn" data-act="template">Скачать шаблон</button></div>
     <details class="imp-more"><summary>Подробнее, что можно загрузить</summary><p class="muted small"><b>Паспорта PDF</b> — технический отчёт: системы, вентилятор и двигатель, точки и схемы. Сюда же — <b>«Характеристика систем»</b> и <b>спецификация оборудования</b> из проекта (PDF с текстом; спецификацию можно и в Excel): проектные данные и марки вентиляторов и двигателей. <b>Шаблон Excel</b> — заполните на компьютере системы и точки (противодымные — на листе «ПДВ»); подойдёт и ваша таблица наладки ПДВ по этажам. Объект с тем же названием дополнится, уже вписанное не стирается. Противодымные системы сами уйдут в раздел «Противодымная».</p></details></section>
     <section class="card c-note"><div class="card-head"><h2>Резервная копия</h2><span class="ref">.json</span></div>
-    <div class="head-actions"><button class="btn" data-act="backup">Сохранить копию</button><button class="btn" data-act="import">Загрузить из файла</button></div></section>${themeBlock()}`;
+    <div class="head-actions"><button class="btn" data-act="backup">Сохранить копию</button><button class="btn" data-act="import">Загрузить из файла</button></div></section>${typeof hasTesto === 'function' && hasTesto() ? '' : themeBlock()}`;
 }
 
 /* ===== объект ===== */
@@ -2852,7 +2882,8 @@ function devListHTML() {
   const last = lsGet(LS_DEV_PROG);
   const hist = (lsGet(LS_DEV_HIST) || []).slice(0, 10);
   return `<div class="stack dv">
-    <div class="dv-listtop"><button type="button" class="dv-instr-b" data-act="dv-instr"><span class="dv-di" aria-hidden="true">${ICON_PROBE}</span><span class="dv-dt"><b>Измерительные приборы</b><span id="dv-conn">${devInstrSum()}</span></span><span class="chev-r" aria-hidden="true">›</span></button><button type="button" class="dv-setb" data-act="dv-sopen" aria-label="Настройки">⚙</button></div>
+    <div class="dv-listtop"><button type="button" class="dv-instr-b" data-act="dv-instr" aria-label="Измерительные приборы"><span id="dv-conn" class="dv-ib">${devInstrSum()}</span><span class="chev-r" aria-hidden="true">›</span></button><button type="button" class="dv-setb" data-act="dv-sopen" aria-label="Настройки">⚙</button></div>
+    ${devSiWarn()}
     <section class="card dv-progs"><h2>Программы измерения</h2>
       ${devProgList(last)}
     </section>
@@ -3038,16 +3069,21 @@ function devMeasHTML() {
     <div class="dv-foot" id="dv-foot">${devFootHTML()}</div>
   </div>`;
 }
+/* строка «Приборы» над программами: точка состояния и подключённые зонды */
 function devInstrSum() {
-  const exp = siList().filter((x) => siState(x) !== 'ok');
-  const warn = exp.length ? `<span class="si-st si-blk ${exp.some((x) => siState(x) === 'bad') ? 'bad' : 'soon'}">⚠ поверка: ${exp.map((x) => esc(x.short || x.name)).join(', ')}</span>` : '';
-  return warn + devInstrSum0();
-}
-function devInstrSum0() {
   const on = Object.values(TESTO.devs).filter((d) => d.st === 'on');
-  if (TESTO.agg === 'scan' && !on.length) return 'Ищу рукоятку…';
-  if (!on.length) return TESTO.st === 'connecting' ? 'Подключаюсь…' : 'не подключены — нажмите, чтобы подключить';
-  return `<span class="tst-on">●</span> ${on.map((d) => `${esc(probeName(d.probe) || 'зонд')}${d.sn ? ' ' + esc(String(d.sn).slice(-3)) : ''}`).join(' · ')}`;
+  const busy = (TESTO.agg === 'scan' || TESTO.st === 'connecting') && !on.length;
+  const dot = `<i class="dv-dot ${on.length ? 'on' : busy ? 'busy' : ''}"></i>`;
+  const short = (d) => { const n = siPartName(d.sn) || probeName(d.probe) || 'зонд'; return /влажн/i.test(n) ? 'влажность' : /ø\s*100/i.test(n) ? 'крыльч. Ø100' : /ø\s*16/i.test(n) ? 'крыльч. Ø16' : n; };
+  const txt = on.length ? on.map((d) => `${esc(short(d))}${d.sn ? ` <b class="dv-sn sm">${esc(String(d.sn).slice(-3))}</b>` : ''}`).join(' · ')
+    : busy ? 'ищу рукоятки…' : '<span class="muted">не подключены</span>';
+  return `${dot}<span class="dv-ibt"><b>Приборы</b><span>${txt}</span></span>`;
+}
+/* предупреждение о поверке — отдельной строкой, только если есть */
+function devSiWarn() {
+  const exp = siList().filter((x) => siState(x) !== 'ok'); if (!exp.length) return '';
+  const bad = exp.some((x) => siState(x) === 'bad');
+  return `<button type="button" class="dv-siw ${bad ? 'bad' : 'soon'}" data-act="dv-instr">⚠ ${bad ? 'Истекла поверка' : 'Скоро кончится поверка'}: ${exp.map((x) => esc(x.short || x.name)).join(', ')}</button>`;
 }
 /* ===== «Измерительные приборы», как в testo 400: подключённые рукоятки с зондами, телефон, недавние ===== */
 const LS_DEV_SEEN = 'vnb.dev.seen';
@@ -3256,7 +3292,7 @@ function devAct(act, a) {
       toast(`Объект «${name}» создан — он есть и в Журнале.`); return;
     }
     case 'dv-instr': DEV.back = DEV.view; DEV.view = 'instr'; break;
-    case 'dv-si-edit': case 'dv-si-x': case 'dv-si-del': case 'dv-si-save': siAct(act, a); break;
+    case 'dv-si-edit': case 'dv-si-x': case 'dv-si-del': case 'dv-si-save': case 'dv-si-padd': case 'dv-si-pdel': siAct(act, a); break;
     case 'dv-instr-x': DEV.view = DEV.back && DEV.back !== 'instr' && DEV.back !== 'set' ? DEV.back : 'list'; break;
     case 'dv-off1': { const h = a.dataset.h; DEV.manualOff = true; try { if (AndroidBridge.testoStopOne) AndroidBridge.testoStopOne(h); else AndroidBridge.testoStop(); } catch (err) { /* нет моста */ } return; }
     case 'dv-dpadd': {
@@ -3490,14 +3526,30 @@ function devDistHTML() {
 
 /* ===== средства измерений и поверка: реестр в журнале (документ si-registry), заполнен по свидетельствам ===== */
 const SI_ID = 'si-registry';
+const SI_V = 2;
+const SI3 = { id: 'si3', short: 'testo 440 dP', name: 'Testo 440 dP — прибор для измерения скорости и оценки качества воздуха в помещении со встроенным сенсором дифференциального давления', type: 'Testo 440dp', range: '−150…+150 гПа', reg: '75219-19', sn: '83537726', date: '2026-04-14', until: '2027-04-13', cert: 'С-МА/14-04-2026/519006943',
+  parts: [{ code: '0635 9430', sn: '20927197', name: 'крыльчатка Ø100', kind: 'vane100', range: '0,3…35 м/с; −20…+70 °C' }, { code: '0635 9570', sn: '20919973', name: 'крыльчатка Ø16', kind: 'vane', range: '0,6…50 м/с' }, { code: '0636 9730', sn: '83544807', name: 'зонд-наконечник влажности/температуры', range: '0…100 %; −20…+70 °C' }] };
+const SI5 = { id: 'si5', short: 'трубка Пито', name: 'Трубка Пито', type: '—', range: '0…+600 °C; +1…+100 м/с', sn: '1EXO', date: '2026-04-15', until: '2027-04-14', cert: 'С-МА/15-04-2026/519217930' };
 const SI_SEED = [
-  { id: 'si1', short: 'testo 400', name: 'Измеритель комбинированный testo 400', reg: '77857-20', sn: '64193230', date: '2026-09-02', until: '2027-09-01', cert: 'С-МА/02-09-2026/554398596' },
-  { id: 'si2', short: 'струна 0635 1032', name: 'Зонд цифровой Testo 0635 1032 (обогреваемая струна, с кабелем)', reg: '81990-21', sn: '21195077', date: '2026-09-02', until: '2027-09-01', cert: 'С-МА/02-09-2026/554488659', parts: [{ code: '0635 1032', sn: '21195077', name: 'обогреваемая струна', kind: 'hot' }] },
-  { id: 'si3', short: 'testo 440 dP', name: 'Комплект измерительный testo 440 dP', reg: '75219-19', sn: '83537726', date: '2025-04-01', until: '2026-03-31', cert: 'С-МА/01-04-2025/422334753',
-    parts: [{ code: '0636 9730', sn: '83544807', name: 'зонд температуры/влажности' }, { code: '0635 9430', sn: '20927197', name: 'крыльчатка Ø100', kind: 'vane100' }, { code: '0635 9570', sn: '20919973', name: 'крыльчатка Ø16', kind: 'vane' }] },
-  { id: 'si4', short: 'трубка Пито', name: 'Трубка Пито-Прандтля testo', reg: '71845-18', sn: '1ВСН', date: '2025-02-19', until: '2026-02-18', cert: 'С-МА/19-02-2025/412109556', note: 'Kт = 1,018' },
+  { id: 'si1', short: 'testo 400', name: 'Измеритель комбинированный testo 400', type: 'Testo 400', reg: '77857-20', sn: '64193230', date: '2026-09-02', until: '2027-09-01', cert: 'С-МА/02-09-2026/554398596' },
+  { id: 'si2', short: 'струна 0635 1032', name: 'Зонд цифровой Testo 0635 1032 (обогреваемая струна, с кабелем)', type: '0635 1032', reg: '81990-21', sn: '21195077', date: '2026-09-02', until: '2027-09-01', cert: 'С-МА/02-09-2026/554488659', parts: [{ code: '0635 1032', sn: '21195077', name: 'обогреваемая струна', kind: 'hot' }] },
+  SI3, SI5,
 ];
-function siDoc() { let d = Store.get(SI_ID); if (!d && Store.ready) { d = { id: SI_ID, kind: 'si', items: SI_SEED.map((x) => JSON.parse(JSON.stringify(x))), createdAt: Date.now() }; Store.save(d); } return d || { items: SI_SEED }; }
+/* обновление реестра, заведённого прежней версией: новая поверка testo 440 dP, вместо старой трубки Пито — новая */
+function siMigrate(d) {
+  if ((d.v || 1) >= SI_V) return false;
+  const i3 = d.items.findIndex((x) => x.sn === '83537726');
+  if (i3 >= 0 && (d.items[i3].until || '') < '2027-04-13') d.items[i3] = JSON.parse(JSON.stringify(SI3));
+  d.items = d.items.filter((x) => x.sn !== '1ВСН');
+  if (!d.items.some((x) => x.sn === '1EXO')) d.items.push(JSON.parse(JSON.stringify(SI5)));
+  d.v = SI_V; return true;
+}
+function siDoc() {
+  let d = Store.get(SI_ID);
+  if (!d && Store.ready) { d = { id: SI_ID, kind: 'si', v: SI_V, items: SI_SEED.map((x) => JSON.parse(JSON.stringify(x))), createdAt: Date.now() }; Store.save(d); }
+  if (d && siMigrate(d)) { d.u = Date.now(); Store.save(d); }
+  return d || { items: SI_SEED };
+}
 const siList = () => (siDoc().items || []);
 function siFind(sn) { sn = String(sn || '').trim(); if (!sn) return null; return siList().find((x) => String(x.sn) === sn || (x.parts || []).some((q) => String(q.sn) === sn)) || null; }
 function siPart(sn) { sn = String(sn || '').trim(); for (const x of siList()) { const q = (x.parts || []).find((y) => String(y.sn) === sn); if (q) return q; } return null; }
@@ -3510,35 +3562,52 @@ function siSectionHTML() {
   const card = (x) => {
     if (edit === x.id) return siFormHTML(x);
     const st = siState(x);
-    return `<div class="si-card ${st}"><div class="si-h"><b>${esc(x.name)}</b><button type="button" class="lnk" data-act="dv-si-edit" data-id="${esc(x.id)}">Изменить</button></div>
-      <span>зав. № ${esc(x.sn)}${x.reg ? ` · госреестр ${esc(x.reg)}` : ''}</span>
-      ${(x.parts || []).length ? `<span>в составе: ${x.parts.map((q) => `${esc(q.name)} ${esc(q.code)} № ${esc(q.sn)}`).join('; ')}</span>` : ''}
-      <span>свид. ${esc(x.cert || '—')}</span>
-      <span class="si-st ${st}">${st === 'bad' ? 'поверка истекла' : st === 'soon' ? 'поверка скоро кончится' : 'поверка'} · до ${esc(fmtDate(x.until || ''))}</span>${x.note ? `<span>${esc(x.note)}</span>` : ''}</div>`;
+    return `<div class="si-card ${st}"><div class="si-h"><b>${esc(x.short || x.name)}</b><button type="button" class="lnk" data-act="dv-si-edit" data-id="${esc(x.id)}">Изменить</button></div>
+      <span class="si-st ${st}">${st === 'bad' ? 'поверка истекла' : st === 'soon' ? 'поверка скоро кончится' : 'поверен'} · до ${esc(fmtDate(x.until || ''))}</span>
+      <span>зав. № ${esc(x.sn)} · свид. ${esc(x.cert || '—')}</span>${x.range ? `<span>${esc(x.range)}</span>` : ''}
+      ${(x.parts || []).length ? `<span class="si-parts-v">${x.parts.map((q) => `<span>• ${esc(q.name)} — № ${esc(q.sn)}${q.range ? ` · ${esc(q.range)}` : ''}</span>`).join('')}</span>` : ''}${x.note ? `<span>${esc(x.note)}</span>` : ''}</div>`;
   };
   return `<section class="card"><h2>Средства измерений</h2>${siList().map(card).join('')}${edit === '__new' ? siFormHTML({ id: '__new' }) : ''}
     <div class="head-actions"><button class="btn" data-act="dv-si-edit" data-id="__new">+ Добавить прибор</button></div>
     <p class="hint">Попадает в отчёт: у каждого замера — прибор, номер свидетельства и срок поверки. За месяц до конца поверки — предупреждение.</p></section>`;
 }
-function siFormHTML(x) {
+function siFormHTML(x0) {
+  const x = DEV.siDraft && DEV.siDraft.id === x0.id ? DEV.siDraft : x0;
   const f = (k, l, t = 'text', ph = '') => `<div class="f"><label for="si-${k}">${l}</label><input id="si-${k}" type="${t}" value="${esc(x[k] || '')}" placeholder="${esc(ph)}" autocomplete="off"></div>`;
-  return `<div class="si-form">${f('name', 'Наименование', 'text', 'Анемометр …')}<div class="row si-2">${f('sn', 'Заводской №')}${f('reg', 'Госреестр №')}</div>
-    ${f('cert', 'Свидетельство о поверке №')}<div class="row si-2">${f('date', 'Дата поверки', 'date')}${f('until', 'Действительно до', 'date')}</div>${f('note', 'Примечание', 'text', 'Kт = …')}
+  const parts = x.parts || [];
+  return `<div class="si-form">
+    <p class="hint">Всё — из свидетельства о поверке (ФГИС «Аршин» или бумажное). «В составе» — зонды, которые поверены вместе с прибором: по их номеру блокнот узнаёт зонд на рукоятке.</p>
+    ${f('name', 'Наименование (как в свидетельстве)', 'text', 'Комплект измерительный testo 440 dP')}
+    <div class="row si-2">${f('short', 'Коротко — для экрана', 'text', 'testo 440 dP')}${f('sn', 'Заводской №')}</div>
+    <div class="row si-2">${f('type', 'Тип', 'text', 'Testo 440dp')}${f('range', 'Характеристика', 'text', '−150…+150 гПа')}</div>
+    <div class="row si-2">${f('reg', 'Госреестр №', 'text', '75219-19')}${f('cert', 'Свидетельство №', 'text', 'С-МА/…')}</div>
+    <div class="row si-2">${f('date', 'Дата поверки', 'date')}${f('until', 'Действительно до', 'date')}</div>
+    <div class="si-parts"><label>В составе (зонды)</label>
+      ${parts.map((q, i) => `<div class="si-prow"><input data-part="${i}" data-f="name" value="${esc(q.name || '')}" placeholder="крыльчатка Ø16" aria-label="Зонд ${i + 1}: название"><input data-part="${i}" data-f="code" value="${esc(q.code || '')}" placeholder="0635 9570" aria-label="Зонд ${i + 1}: код"><input data-part="${i}" data-f="sn" value="${esc(q.sn || '')}" placeholder="зав. №" aria-label="Зонд ${i + 1}: заводской номер"><input data-part="${i}" data-f="range" value="${esc(q.range || '')}" placeholder="характеристика: 0,6…50 м/с" aria-label="Зонд ${i + 1}: характеристика"><button type="button" class="lnk" data-act="dv-si-pdel" data-i="${i}" aria-label="Убрать зонд ${i + 1}">✕</button></div>`).join('')}
+      <button type="button" class="btn sm" data-act="dv-si-padd">+ зонд</button></div>
+    ${f('note', 'Примечание', 'text', 'Kт = 1,018')}
     <div class="head-actions"><button class="btn primary" data-act="dv-si-save" data-id="${esc(x.id)}">Сохранить</button><button class="btn" data-act="dv-si-x">Отмена</button>${x.id !== '__new' ? `<button class="btn danger" data-act="dv-si-del" data-id="${esc(x.id)}">Удалить</button>` : ''}</div></div>`;
 }
 function siAct(act, a) {
   const d = siDoc(); d.items = d.items || [];
-  if (act === 'dv-si-edit') { DEV.siEdit = a.dataset.id; return; }
-  if (act === 'dv-si-x') { DEV.siEdit = null; return; }
+  if (act === 'dv-si-edit') { DEV.siEdit = a.dataset.id; DEV.siDraft = null; return; }
+  if (act === 'dv-si-x') { DEV.siEdit = null; DEV.siDraft = null; return; }
+  if (act === 'dv-si-padd' || act === 'dv-si-pdel') {
+    const dr = siReadForm(DEV.siEdit);
+    if (act === 'dv-si-padd') dr.parts.push({ name: '', code: '', sn: '' }); else dr.parts.splice(+a.dataset.i, 1);
+    DEV.siDraft = dr; return;
+  }
   if (act === 'dv-si-del') { d.items = d.items.filter((x) => x.id !== a.dataset.id); d.u = Date.now(); Store.save(d); DEV.siEdit = null; return; }
   if (act === 'dv-si-save') {
     const v = (k) => { const e = document.getElementById('si-' + k); return e ? e.value.trim() : ''; };
     if (!v('name')) { toast('Впишите наименование.'); return; }
+    const dr = siReadForm(a.dataset.id);
     let x = d.items.find((y) => y.id === a.dataset.id);
     if (!x) { x = { id: 'si' + Date.now().toString(36) }; d.items.push(x); }
-    ['name', 'sn', 'reg', 'cert', 'date', 'until', 'note'].forEach((k) => { x[k] = v(k); });
+    ['name', 'short', 'type', 'range', 'sn', 'reg', 'cert', 'date', 'until', 'note'].forEach((k) => { x[k] = dr[k]; });
     if (!x.short) x.short = x.name;
-    d.u = Date.now(); Store.save(d); DEV.siEdit = null; toast('Сохранено.');
+    x.parts = dr.parts.filter((q) => q.sn || q.name);
+    d.u = Date.now(); Store.save(d); DEV.siEdit = null; DEV.siDraft = null; toast('Сохранено.');
   }
 }
 
@@ -3656,8 +3725,10 @@ function devSetHTML() {
   return `<div class="stack dv">
     <div class="dv-top"><button class="lnk" data-act="dv-instr-x">‹ Назад</button><b>Настройки</b><span></span></div>
     <section class="card dv-cfg"><h3>Программы</h3>
-      <p class="hint dv-rh">★ — наверху списка. «Скрыть» — убрать из списка (вернуть — «Показать скрытые»).</p>
-      <div class="dv-rows">${DEV_PROGS.map((p) => devRow(esc(p.t), `<button type="button" class="dv-fav${st.fav[p.id] ? ' on' : ''}" data-act="dv-fav" data-v="${p.id}" aria-pressed="${!!st.fav[p.id]}" aria-label="В избранное">★</button><button type="button" class="btn sm${st.hide[p.id] ? ' on' : ''}" data-act="dv-hide" data-v="${p.id}" aria-pressed="${!!st.hide[p.id]}">${st.hide[p.id] ? 'Скрыта' : 'Скрыть'}</button>`)).join('')}</div></section>
+      <p class="hint dv-rh">★ — наверху списка. Переключатель — показывать программу в списке или нет.</p>
+      <div class="dv-rows">${DEV_PROGS.map((p) => { const vis = !st.hide[p.id]; return `<div class="dv-r${vis ? '' : ' dv-off'}"><span class="dv-rl">${esc(p.t)}<small class="dv-rs2">${vis ? 'в списке' : 'скрыта'}</small></span><span class="dv-rc"><button type="button" class="dv-fav${st.fav[p.id] ? ' on' : ''}" data-act="dv-fav" data-v="${p.id}" aria-pressed="${!!st.fav[p.id]}" aria-label="В избранное: ${esc(p.t)}">★</button><button type="button" class="dv-sw" role="switch" aria-checked="${vis}" aria-label="Показывать: ${esc(p.t)}" data-act="dv-hide" data-v="${p.id}"><i></i></button></span></div>`; }).join('')}</div></section>
+    <section class="card dv-cfg"><h3>Оформление</h3><div class="dv-rows">
+      ${devRow('Тема', `<div class="seg seg-sm" role="group">${[['light', 'Светлое'], ['dark', 'Тёмное'], ['auto', 'Как в телефоне']].map(([k, tt]) => `<button data-act="theme-set" data-v="${k}" aria-pressed="${themePref() === k}">${tt}</button>`).join('')}</div>`)}</div></section>
     <section class="card dv-cfg"><h3>Единицы</h3><div class="dv-rows">
       ${devRow('Расход', sSeg('uQ', [['m3h', 'м³/ч'], ['ls', 'л/с']]))}
       ${devRow('Атм. давление', sSeg('uP', [['hPa', 'гПа'], ['kPa', 'кПа'], ['mmHg', 'мм рт. ст.']]))}</div>
@@ -3673,6 +3744,21 @@ function devSetHTML() {
       ${sSw('sound', 'Звук', 'писк в начале и конце точки')}${sSw('vib', 'Вибрация', 'в начале и конце точки')}
       ${sSw('keep', 'Экран не гаснет', 'пока открыт замер')}${sSw('auto', 'Автоподключение рукояток', 'при открытии «Прибора» и после обрыва')}</div></section>
   </div>`;
+}
+
+/* форма прибора → черновик (для «+ зонд» без потери набранного) */
+function siReadForm(id) {
+  const v = (k) => { const e = document.getElementById('si-' + k); return e ? e.value.trim() : ''; };
+  const old = (siList().find((y) => y.id === id) || {}).parts || [];
+  const dr = { id, name: v('name'), short: v('short'), type: v('type'), range: v('range'), sn: v('sn'), reg: v('reg'), cert: v('cert'), date: v('date'), until: v('until'), note: v('note'), parts: [] };
+  document.querySelectorAll('.si-prow').forEach((row, i) => {
+    const g = (f) => { const e = row.querySelector(`[data-f="${f}"]`); return e ? e.value.trim() : ''; };
+    const q = { name: g('name'), code: g('code'), sn: g('sn'), range: g('range') };
+    const was = old.find((o) => o.sn && o.sn === q.sn);
+    q.kind = was && was.kind ? was.kind : /ø?\s*100|Ø100/i.test(q.name) ? 'vane100' : /ø?\s*16|Ø16|крыльч/i.test(q.name) ? 'vane' : /струн/i.test(q.name) ? 'hot' : '';
+    dr.parts.push(q);
+  });
+  return dr;
 }
 
 /* ---------- точки замера: сечение (ГОСТ 12.3.018, черт. 1–2) или места на решётке ---------- */
