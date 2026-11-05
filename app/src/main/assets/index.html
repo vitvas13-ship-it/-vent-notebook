@@ -1022,6 +1022,9 @@ body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;ba
 :root body .dv-siw.bad{background:rgba(198,40,40,.12);color:#C62828}
 :root body .dv-siw.soon{background:rgba(217,130,43,.14);color:#B86A16}
 
+.si-st.none{color:var(--muted);font-weight:600}
+.si-st.none .lnk{font-size:13px;padding:0}
+
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
 .sect-sw{display:flex;width:100%;max-width:520px}
@@ -2604,7 +2607,7 @@ const hasHum = () => !!TESTO.hum;
 const isHum = () => !!TESTO.hum && !TESTO.flow;
 /* короткая подпись зонда, как в testo 400: «Крыльчатка · 973» */
 /* заголовок зонда на экране замера: «Крыльчатка [973] 99 %»; номер выделен, полный — в подсказке */
-const probeHead = (d) => { if (!d) return ''; const n = (typeof siPartName === 'function' && siPartName(d.sn)) || probeName(d.probe) || 'зонд'; return `<div class="dv-ch2"><span>${esc(n.charAt(0).toUpperCase() + n.slice(1))}</span>${d.sn ? `<b class="dv-sn" title="Зонд № ${esc(d.sn)}, рукоятка ${esc(handleNo(d.name || d.h))}">${esc(String(d.sn).slice(-3))}</b>` : ''}${siState(siFind(d.sn)) === 'bad' ? '<span class="si-st bad">поверка истекла</span>' : ''}${d.bat != null ? `<span class="dv-bat">заряд ${Math.round(d.bat)} %</span>` : ''}</div>`; };
+const probeHead = (d) => { if (!d) return ''; const n = (typeof siPartName === 'function' && siPartName(d.sn)) || probeName(d.probe) || 'зонд'; return `<div class="dv-ch2"><span>${esc(n.charAt(0).toUpperCase() + n.slice(1))}</span>${d.sn ? `<b class="dv-sn" title="Зонд № ${esc(d.sn)}, рукоятка ${esc(handleNo(d.name || d.h))}">${esc(String(d.sn).slice(-3))}</b>` : ''}${d.sn && !siFind(d.sn) ? '<span class="si-st none">поверка не внесена</span>' : siState(siFind(d.sn)) === 'bad' ? '<span class="si-st bad">поверка истекла</span>' : ''}${d.bat != null ? `<span class="dv-bat">заряд ${Math.round(d.bat)} %</span>` : ''}</div>`; };
 const probeShort = (d) => { const n = probeName(d.probe) || 'зонд'; return n.charAt(0).toUpperCase() + n.slice(1) + (d.sn ? ' · ' + String(d.sn).slice(-3) : ''); };
 /* тип зонда по коду с рукоятки: «UP_Vane_vt» → крыльчатка */
 function probeName(id) {
@@ -3099,7 +3102,7 @@ function devInstrHTML() {
   const seen = (lsGet(LS_DEV_SEEN) || []).filter((x) => !onKeys.has(x.h + '|' + x.sn));
   const b = phoneBaro(), cap = (n) => n.charAt(0).toUpperCase() + n.slice(1);
   const card = (d) => `<div class="dv-icard"><span class="dv-di" aria-hidden="true">${ICON_PROBE}</span><span class="dv-dt"><b>Рукоятка ${esc(handleNo(d.name || d.h) || d.h)}</b>${d.st === 'on'
-      ? `<span>${esc(cap(siPartName(d.sn) || probeName(d.probe) || 'зонд'))}${d.sn ? ` · № ${esc(d.sn)}` : ''}</span>${d.bat != null ? `<span>заряд ${Math.round(d.bat)} %</span>` : ''}${siBadge(d.sn)}` : '<span>подключаюсь…</span>'}</span>
+      ? `<span>${esc(cap(siPartName(d.sn) || probeName(d.probe) || 'зонд'))}${d.sn ? ` · № ${esc(d.sn)}` : ''}</span>${d.bat != null ? `<span>заряд ${Math.round(d.bat)} %</span>` : ''}${siBadge(d.sn, siPartName(d.sn) || probeName(d.probe))}` : '<span>подключаюсь…</span>'}</span>
     <button type="button" class="btn sm" data-act="dv-off1" data-h="${esc(d.h)}">Отключить</button></div>`;
   return `<div class="stack dv">
     <div class="dv-top"><button class="lnk" data-act="dv-instr-x">‹ Назад</button><b>Измерительные приборы</b><span></span></div>
@@ -3292,7 +3295,7 @@ function devAct(act, a) {
       toast(`Объект «${name}» создан — он есть и в Журнале.`); return;
     }
     case 'dv-instr': DEV.back = DEV.view; DEV.view = 'instr'; break;
-    case 'dv-si-edit': case 'dv-si-x': case 'dv-si-del': case 'dv-si-save': case 'dv-si-padd': case 'dv-si-pdel': siAct(act, a); break;
+    case 'dv-si-quick': case 'dv-si-edit': case 'dv-si-x': case 'dv-si-del': case 'dv-si-save': case 'dv-si-padd': case 'dv-si-pdel': siAct(act, a); break;
     case 'dv-instr-x': DEV.view = DEV.back && DEV.back !== 'instr' && DEV.back !== 'set' ? DEV.back : 'list'; break;
     case 'dv-off1': { const h = a.dataset.h; DEV.manualOff = true; try { if (AndroidBridge.testoStopOne) AndroidBridge.testoStopOne(h); else AndroidBridge.testoStop(); } catch (err) { /* нет моста */ } return; }
     case 'dv-dpadd': {
@@ -3556,7 +3559,9 @@ function siPart(sn) { sn = String(sn || '').trim(); for (const x of siList()) { 
 const siPartName = (sn) => { const q = siPart(sn); return q ? q.name : ''; };
 function siState(x) { if (!x || !x.until) return 'ok'; const d = (new Date(x.until + 'T23:59:59') - Date.now()) / 864e5; return d < 0 ? 'bad' : d < 30 ? 'soon' : 'ok'; }
 const siRef = (x) => `${x.short || x.name} № ${x.sn}, свид. ${x.cert || '—'}${x.until ? ', до ' + fmtDate(x.until) : ''}`;
-function siBadge(sn) { const x = siFind(sn); if (!x) return ''; const st = siState(x); return `<span class="si-st ${st}">${st === 'bad' ? 'поверка истекла ' : 'поверка до '}${esc(fmtDate(x.until))}</span>`; }
+function siBadge(sn, name) {
+  const x = siFind(sn);
+  if (!x) return sn ? `<span class="si-st none">поверка не внесена · <button type="button" class="lnk" data-act="dv-si-quick" data-sn="${esc(sn)}" data-name="${esc(name || '')}">внести</button></span>` : ''; const st = siState(x); return `<span class="si-st ${st}">${st === 'bad' ? 'поверка истекла ' : 'поверка до '}${esc(fmtDate(x.until))}</span>`; }
 function siSectionHTML() {
   const edit = DEV.siEdit;
   const card = (x) => {
@@ -3569,7 +3574,7 @@ function siSectionHTML() {
   };
   return `<section class="card"><h2>Средства измерений</h2>${siList().map(card).join('')}${edit === '__new' ? siFormHTML({ id: '__new' }) : ''}
     <div class="head-actions"><button class="btn" data-act="dv-si-edit" data-id="__new">+ Добавить прибор</button></div>
-    <p class="hint">Попадает в отчёт: у каждого замера — прибор, номер свидетельства и срок поверки. За месяц до конца поверки — предупреждение.</p></section>`;
+    <p class="hint">Вносите только то, чем работаете. Подключили зонд, которого здесь нет, — блокнот просто напишет «поверка не внесена», мерить это не мешает. Внесённые попадают в отчёт с номером свидетельства и сроком; за месяц до конца срока — предупреждение.</p></section>`;
 }
 function siFormHTML(x0) {
   const x = DEV.siDraft && DEV.siDraft.id === x0.id ? DEV.siDraft : x0;
@@ -3591,6 +3596,12 @@ function siFormHTML(x0) {
 function siAct(act, a) {
   const d = siDoc(); d.items = d.items || [];
   if (act === 'dv-si-edit') { DEV.siEdit = a.dataset.id; DEV.siDraft = null; return; }
+  if (act === 'dv-si-quick') {
+    /* подключённый зонд без поверки — новая запись с его номером */
+    const nm = a.dataset.name || 'зонд';
+    DEV.siEdit = '__new'; DEV.siDraft = { id: '__new', name: nm.charAt(0).toUpperCase() + nm.slice(1), short: nm, sn: a.dataset.sn, parts: [] };
+    setTimeout(() => { const f = document.querySelector('.si-form'); if (f) f.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 50); return;
+  }
   if (act === 'dv-si-x') { DEV.siEdit = null; DEV.siDraft = null; return; }
   if (act === 'dv-si-padd' || act === 'dv-si-pdel') {
     const dr = siReadForm(DEV.siEdit);
