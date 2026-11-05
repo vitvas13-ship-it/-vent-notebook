@@ -905,13 +905,16 @@ body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;ba
 
 .dv-psy{margin:6px 0 0}
 .dv-humc{margin-top:10px}
-.dv-hum-f,.cond-f{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;align-items:end;margin-bottom:10px}
+.dv-hum-f,.cond-f{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;align-items:start;margin-bottom:10px}
 .cond-f{grid-template-columns:repeat(3,1fr)}
 .dv-hum-f .f,.cond-f .f{min-width:0;margin:0}
 .dv-hum-f input,.dv-hum-f select,.cond-f input{width:100%}
 :root body .cond-row .cond-x{background:none;border:0;color:var(--muted);padding:0 6px;min-height:0;font-size:15px;box-shadow:none}
 .cond-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
 .cond-row{font-size:14px;line-height:1.4}
+.dv-ch2{font-size:13px;font-weight:700;color:var(--muted);margin:10px 0 2px;text-transform:none}
+
+.dv-humc{border-top:1px solid var(--line);padding-top:10px}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -2477,9 +2480,24 @@ function secResult(sys, sec) { const it = M.system(sys).secs.find((x) => x.s.id 
 /* ===== вкладка «Прибор»: рукоятка Testo по Bluetooth, устроено как testo 400 =====
    Программа → настройка (страницы) → экран замера: «Запустить» на каждой точке.
    Расстановка точек — ГОСТ 12.3.018-79, DIN EN 12599, ASHRAE 111 (коэффициенты — доля размера от стенки). */
-const TESTO = { st: 'off', v: null, t: null, rh: null, bat: null, sn: '', handle: '', probe: '', hist: [] };
-/* на рукоятке зонд влажности (HumBoardTesto) — скорости нет, есть t и φ */
-const isHum = () => /hum|_rh/i.test(TESTO.probe) || (TESTO.rh != null && TESTO.v == null);
+/* Несколько рукояток сразу: TESTO.devs[имя рукоятки] = { st, v, t, rh, bat, sn, probe }.
+   Роль решает зонд: крыльчатка/струна — расход (TESTO.v, t, sn, handle, probe), влажность — воздух (TESTO.rh, ht, hum). */
+const TESTO = { st: 'off', agg: 'off', devs: {}, v: null, t: null, rh: null, ht: null, bat: null, sn: '', handle: '', probe: '', hum: null, flow: null, hist: [] };
+const isHumProbe = (d) => !!d && (/hum|_rh/i.test(d.probe || '') || (d.rh != null && d.v == null));
+function testoSync() {
+  const on = Object.values(TESTO.devs).filter((d) => d.st === 'on');
+  const fl = on.find((d) => !isHumProbe(d)) || null, hu = on.find((d) => isHumProbe(d)) || null;
+  TESTO.flow = fl; TESTO.hum = hu;
+  TESTO.v = fl ? fl.v : null; TESTO.t = fl ? fl.t : null; TESTO.bat = fl ? fl.bat : hu ? hu.bat : null;
+  TESTO.sn = fl ? fl.sn : ''; TESTO.handle = fl ? fl.h : ''; TESTO.probe = fl ? fl.probe : '';
+  TESTO.rh = hu ? hu.rh : null; TESTO.ht = hu ? hu.t : null;
+  TESTO.st = on.length ? 'on' : TESTO.agg;
+}
+/* есть зонд влажности; isHum — только он, без зонда расхода (скорость не мерится) */
+const hasHum = () => !!TESTO.hum;
+const isHum = () => !!TESTO.hum && !TESTO.flow;
+/* короткая подпись зонда, как в testo 400: «Крыльчатка · 973» */
+const probeShort = (d) => { const n = probeName(d.probe) || 'зонд'; return n.charAt(0).toUpperCase() + n.slice(1) + (d.sn ? ' · ' + String(d.sn).slice(-3) : ''); };
 /* тип зонда по коду с рукоятки: «UP_Vane_vt» → крыльчатка */
 function probeName(id) {
   const s = String(id || ''); if (!s) return '';
@@ -2703,8 +2721,9 @@ function devHistAdd(where) {
 function devConnHTML() {
   const st = TESTO.st;
   if (st === 'on') {
-    const h = handleNo(TESTO.handle), pn = probeName(TESTO.probe);
-    return `<span class="tst-on">● Testo</span>${h ? ` рукоятка <b>${esc(h)}</b>` : ''}${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''} <button class="lnk" data-act="dv-off">Отключить</button>${pn || TESTO.sn ? `<span class="dv-probe">Зонд: ${esc(pn || '—')}${TESTO.sn ? ' · № ' + esc(TESTO.sn) : ''}</span>` : ''}`;
+    const list = Object.values(TESTO.devs).filter((d) => d.st === 'on' || d.st === 'connecting');
+    const line = (d) => `<span class="dv-probe">${d.st === 'on' ? '<span class="tst-on">●</span>' : '<span class="muted">○</span>'} рукоятка <b>${esc(handleNo(d.h) || d.h)}</b>${d.st === 'on' ? `${d.probe || d.sn ? ` · ${esc(probeName(d.probe) || 'зонд')}${d.sn ? ' № ' + esc(d.sn) : ''}` : ''}${d.bat != null ? ` · ${Math.round(d.bat)} %` : ''}` : ' · подключаюсь…'}</span>`;
+    return `<span class="tst-on">Testo</span> <button class="lnk" data-act="dv-more">${TESTO.agg === 'scan' ? 'ищу ещё…' : '+ рукоятка'}</button> <button class="lnk" data-act="dv-off">Отключить</button>${list.map(line).join('')}`;
   }
   if (st === 'scan') return 'Ищу рукоятку…';
   if (st === 'connecting') return 'Подключаюсь…';
@@ -2837,10 +2856,13 @@ function devCurHTML() {
   const mean = j && j.n ? Math.abs(j.sum / j.n) : null;
   const row = (l, val, u) => `<div class="dv-cr"><span>${l}</span><b>${val} <small>${u}</small></b></div>`;
   return `<div class="dv-ch"><span>Текущее значение</span><span class="dv-conn2">${devConnHTML()}</span></div>
-    ${isHum() ? `${row('Температура', tF(TESTO.t, 1), '°C')}${row('Влажность', tF(TESTO.rh, 1), '%')}${psyLine(TESTO.t, TESTO.rh, devP())}` : `${p !== 'std' ? row('Объёмный поток', OK(devL(p, c, v)) ? F(devL(p, c, v)) : '0,0', 'м³/ч') : ''}
+    ${hasHum() && TESTO.flow ? `<div class="dv-ch2">${esc(probeShort(TESTO.flow))}</div>` : ''}
+    ${isHum() ? '' : `${p !== 'std' ? row('Объёмный поток', OK(devL(p, c, v)) ? F(devL(p, c, v)) : '0,0', 'м³/ч') : ''}
     ${row('Скорость потока', tF(v, 2), 'м/с')}
     ${row('Температура', tF(TESTO.t, 1), '°C')}
-    ${j && j.n ? row('Среднее сейчас', tF(mean, 2), 'м/с') : ''}`}`;
+    ${j && j.n ? row('Среднее сейчас', tF(mean, 2), 'м/с') : ''}`}
+    ${hasHum() ? `${TESTO.flow ? `<div class="dv-ch2">${esc(probeShort(TESTO.hum))}</div>` : ''}${row('Температура', tF(TESTO.ht, 1), '°C')}${row('Влажность', tF(TESTO.rh, 1), '%')}${psyLine(TESTO.ht, TESTO.rh, devP())}` : ''}
+    ${p === 'std' && OK(devP(true)) ? `<div class="dv-ch2">${devPsrc() === 'телефон' ? 'Телефон' : 'Вписано вручную'}</div>${row('Атм. давление', tF(devP(true), 1), 'гПа')}` : ''}`;
 }
 function devFootHTML() { if (TESTO.st === 'on' && isHum()) return ''; return devPtdHTML() + devFootBtns(); }
 function devFootBtns() {
@@ -2880,8 +2902,8 @@ function devMeasHTML() {
     <div class="dv-pillrow" id="dv-pill">${devPillHTML()}</div>
     <div class="dv-res" id="dv-res">${devResHTML()}</div>
     <div class="dv-cur" id="dv-cur">${devCurHTML()}</div>
-    <div id="dv-hum">${isHum() ? devHumHTML() : ''}</div>
     ${p.grid ? `<div class="dv-sch" id="dv-sch">${devSVG(true)}</div>` : `<div id="dv-vals">${devValsHTML()}</div>`}
+    <div id="dv-hum">${hasHum() ? devHumHTML() : ''}</div>
     <div class="dv-foot" id="dv-foot">${devFootHTML()}</div>
   </div>`;
 }
@@ -2896,7 +2918,7 @@ function devPaint() {
   const set = (id, h) => { const e = document.getElementById(id); if (e) e.innerHTML = h; };
   if (DEV.view === 'list') { set('dv-conn', devConnHTML()); return; }
   if (DEV.view !== 'meas') return;
-  if (devPaint.hum !== isHum()) { devPaint.hum = isHum(); set('dv-hum', devPaint.hum ? devHumHTML() : ''); }
+  if (devPaint.hum !== hasHum()) { devPaint.hum = hasHum(); set('dv-hum', devPaint.hum ? devHumHTML() : ''); }
   set('dv-pill', devPillHTML()); set('dv-res', devResHTML()); set('dv-cur', devCurHTML()); set('dv-foot', devFootHTML());
   if (devProg(DEV.prog).grid) { const k = DEV.run ? `${DEV.run.cur}|${devCount()}|${DEV.run.sel}|${Object.values(DEV.run.vals).join()}` : ''; if (devPaint.k !== k) { devPaint.k = k; set('dv-sch', devSVG(true)); } }
   else set('dv-vals', devValsHTML());
@@ -2932,22 +2954,35 @@ function devFromPoint(sys, sec) {
 /* события рукоятки */
 window.__testo = (e) => {
   if (!e) return;
+  /* рукоятка события; старое приложение без поля h — одна рукоятка «Testo» */
+  const hk = e.h || e.handle || 'Testo';
+  const D = () => TESTO.devs[hk] || (TESTO.devs[hk] = { h: hk, st: e.h ? 'connecting' : 'on', v: null, t: null, rh: null, bat: null, sn: '', probe: '' });
   if (e.e === 'state') {
-    TESTO.st = e.s;
-    if (e.s === 'scan' || e.s === 'connecting') { TESTO.sn = ''; TESTO.probe = ''; TESTO.handle = ''; TESTO.rh = null; TESTO.v = null; }
-    if (e.s === 'off' || e.s === 'err') { TESTO.v = null; TESTO.t = null; if (e.msg) toast(e.msg); if (DEV.run) DEV.run.job = null; }
+    TESTO.agg = e.s;
+    if (!e.h && e.s === 'on' && TESTO.devs.Testo) TESTO.devs.Testo.st = 'on';
+    if (e.s === 'off' || (e.s === 'err' && !Object.values(TESTO.devs).some((d) => d.st === 'on'))) TESTO.devs = {};
+    if (e.msg) toast(e.msg);
+    testoSync();
+    if (TESTO.st !== 'on' && DEV.run) DEV.run.job = null;
+  } else if (e.e === 'hstate') {
+    if (e.s === 'off') delete TESTO.devs[hk]; else D().st = e.s;
   } else if (e.e === 'val') {
-    if (e.n === 'Velocity') { TESTO.v = e.v; TESTO.hist.push(e.v); if (TESTO.hist.length > 40) TESTO.hist.shift(); devOnVal(e.v); }
-    else if (e.n === 'Humidity') TESTO.rh = e.v;
-    else if (e.n === 'Temperature') { TESTO.t = e.v; const j = DEV.run && DEV.run.job; if (j && j.t0) { j.tsum += e.v; j.tn++; } }
-  } else if (e.e === 'bat') TESTO.bat = e.v;
-  else if (e.e === 'dev') { TESTO.sn = e.sn || ''; TESTO.handle = e.handle || ''; }
+    const d = D(); if (!e.h) d.st = 'on';
+    testoSync();
+    const isFlow = TESTO.flow === d;
+    if (e.n === 'Velocity') { d.v = e.v; if (isFlow || !TESTO.flow) { TESTO.hist.push(e.v); if (TESTO.hist.length > 40) TESTO.hist.shift(); testoSync(); devOnVal(e.v); } }
+    else if (e.n === 'Humidity') d.rh = e.v;
+    else if (e.n === 'Temperature') { d.t = e.v; if (isFlow) { const j = DEV.run && DEV.run.job; if (j && j.t0) { j.tsum += e.v; j.tn++; } } }
+  } else if (e.e === 'bat') D().bat = e.v;
+  else if (e.e === 'dev') D().sn = e.sn || '';
   else if (e.e === 'probe') {
     /* зонд сменили на рукоятке — номер перечитывается, тип показываем сразу */
-    if (TESTO.probe && e.id && TESTO.probe !== e.id) { TESTO.sn = ''; toast(`Зонд: ${probeName(e.id)}`); }
-    TESTO.probe = e.id || '';
+    const d = D();
+    if (d.probe && e.id && d.probe !== e.id) { d.sn = ''; d.v = null; d.rh = null; toast(`Рукоятка ${handleNo(hk)}: ${probeName(e.id)}`); }
+    d.probe = e.id || '';
   }
-  else if (e.e === 'btn') {
+  testoSync();
+  if (e.e === 'btn') {
     /* кнопка на рукоятке = «Запустить» / «Остановить» */
     if (UI.tab === 'dev' && DEV.view === 'meas' && DEV.run) { if (DEV.run.job) devStop(!DEV.run.job.dur); else if (!devDone() || !devProg(DEV.prog).grid || DEV.run.arm) devStart(); }
   }
@@ -2956,7 +2991,7 @@ window.__testo = (e) => {
 };
 function testoMiniHTML() {
   const st = TESTO.st;
-  if (st === 'on') return `<span class="tst-on">● Testo${handleNo(TESTO.handle) ? ' ' + esc(handleNo(TESTO.handle)) : ''}${TESTO.probe ? ' · ' + esc(probeName(TESTO.probe)) : ''}</span> ${isHum() ? `${tF(TESTO.t, 1)} °C · ${tF(TESTO.rh, 1)} %` : `${tF(TESTO.v == null ? null : Math.abs(TESTO.v))} м/с`}${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''}`;
+  if (st === 'on') return `<span class="tst-on">● Testo</span> ${[TESTO.flow ? `${tF(TESTO.v == null ? null : Math.abs(TESTO.v))} м/с` : '', hasHum() ? `воздух ${tF(TESTO.ht, 1)} °C · ${tF(TESTO.rh, 0)} %` : ''].filter(Boolean).join(' · ')}`;
   if (st === 'scan') return 'Ищу рукоятку…';
   if (st === 'connecting') return 'Подключаюсь…';
   return '';
@@ -3025,6 +3060,7 @@ function devAct(act, a) {
     case 'dv-new': devNewRun(); devPaint.k = ''; break;
     case 'dv-del': { if (DEV.run && Array.isArray(DEV.run.vals)) DEV.run.vals.splice(+a.dataset.i, 1); devPaint(); return; }
     case 'dv-conn': testoConnect(); return;
+    case 'dv-more': try { AndroidBridge.testoStart(); } catch (err) { /* нет моста */ } return;
     case 'dv-off': try { AndroidBridge.testoStop(); } catch (e) { /* нет моста */ } return;
     case 'dv-topt': { const l = DEV.link; if (!l) break; UI.tab = 'journal'; keepScreen(false); go({ name: 'section', sid: l.sid, cid: l.cid }); return; }
     case 'dv-next': {
@@ -3033,13 +3069,13 @@ function devAct(act, a) {
       if (DEV.run && !DEV.run.saved && devCount() && DEV.prog !== 'std') devSaveTo(DEV.link.sid, DEV.link.cid, true);
       devFromPoint(sys, nx); toast(`Точка ${nx.no || ''}${nx.place ? ' · ' + nx.place : ''}`); return;
     }
-    case 'dv-cond': { condAdd(document.getElementById('dv-coid') ? document.getElementById('dv-coid').value : '', { t: TESTO.t, rh: TESTO.rh, p: devP(true) }, true); return; }
+    case 'dv-cond': { condAdd(document.getElementById('dv-coid') ? document.getElementById('dv-coid').value : '', { t: TESTO.ht, rh: TESTO.rh, p: devP(true) }, true); return; }
     case 'dv-cadd': {
       const v = (id) => { const e = document.getElementById(id); return e ? N(e.value) : NaN; };
       if (condAdd(a.dataset.oid, { t: v('cnd-t'), rh: v('cnd-rh'), p: v('cnd-p') }, false)) break; return;
     }
     case 'dv-cdel': { const o = objOf(a.dataset.oid); if (!o || !Array.isArray(o.cond)) return; o.cond.splice(+a.dataset.i, 1); o.u = Date.now(); Store.save(o); break; }
-    case 'dv-air': { if (!OK(TESTO.t)) { toast('Нет значений с зонда.'); return; } DEV.pick = Object.assign({ oid: '', sid: '', cid: '' }, lsGet('vnb.dev.pick') || {}); DEV.pick.cid = ''; DEV.pick.mode = 'air'; oeditRoot().innerHTML = devPickHTML(); return; }
+    case 'dv-air': { if (!OK(TESTO.ht)) { toast('Нет значений с зонда.'); return; } DEV.pick = Object.assign({ oid: '', sid: '', cid: '' }, lsGet('vnb.dev.pick') || {}); DEV.pick.cid = ''; DEV.pick.mode = 'air'; oeditRoot().innerHTML = devPickHTML(); return; }
     case 'dv-save': { DEV.pick = Object.assign({ oid: '', sid: '', cid: '' }, lsGet('vnb.dev.pick') || {}); DEV.pick.cid = ''; DEV.pick.mode = ''; oeditRoot().innerHTML = devPickHTML(); return; }
     case 'dv-pick-x': oeditRoot().innerHTML = ''; return;
     case 'dv-pick-ok': {
@@ -3110,7 +3146,7 @@ function condAdd(oid, v, live) {
   if (!live && OK(v.p) && !(Math.abs(v.p - phoneBaro()) < 1)) lsSet(LS_DEV_P, String(v.p).replace('.', ','));
   const r1 = (x) => (OK(x) ? Math.round(x * 10) / 10 : null);
   const e = { at: new Date().toISOString(), t: r1(v.t), rh: r1(v.rh), p: OK(v.p) ? Math.round(v.p) : null };
-  if (live) e.src = { dev: 'Testo', handle: TESTO.handle || '', probe: TESTO.probe || '', sn: TESTO.sn || '' };
+  if (live && TESTO.hum) e.src = { dev: 'Testo', handle: TESTO.hum.h || '', probe: TESTO.hum.probe || '', sn: TESTO.hum.sn || '' };
   o.cond = (Array.isArray(o.cond) ? o.cond : []).concat(e).slice(-12); o.u = Date.now(); Store.save(o);
   lsSet('vnb.dev.pick', Object.assign(lsGet('vnb.dev.pick') || {}, { oid: o.id }));
   toast(`${o.name || 'Объект'}: улица ${condText(e)}`);
@@ -3123,12 +3159,12 @@ const condWhen = (e) => `${fmtDate(e.at.slice(0, 10))} ${new Date(e.at).toTimeSt
 /* карточка «Условия замера» на странице объекта */
 function condCardHTML(o) {
   const list = Array.isArray(o.cond) ? o.cond : [];
-  const live = TESTO.st === 'on' && isHum();
+  const live = TESTO.st === 'on' && hasHum();
   const pv = lsGet(LS_DEV_P) || (OK(phoneBaro()) ? tF(phoneBaro(), 0) : '');
   const last = list[list.length - 1];
   return modCard('obj.cond', 'c-cond', 'Условия замера', last ? condText(last) : 'наружный воздух', `
     ${list.length ? `<div class="cond-list">${list.map((e, i) => { const q = psy(e.t, e.rh, e.p); return `<div class="cond-row"><span class="muted">${esc(condWhen(e))}</span> <b>${esc(condText(e))}</b>${q ? ` <span class="muted">· т. росы ${tF(q.td, 1)} °C</span>` : ''}${e.src ? ' <span class="muted">· Testo</span>' : ''} <button class="cond-x" data-act="dv-cdel" data-oid="${esc(o.id)}" data-i="${i}" aria-label="Удалить запись">✕</button></div>`; }).join('')}</div>` : ''}
-    <div class="row cond-f"><div class="f"><label for="cnd-t">t, °C</label><input id="cnd-t" type="text" class="num-in" inputmode="decimal" autocomplete="off" value="${live ? esc(tF(TESTO.t, 1)) : ''}"></div>
+    <div class="row cond-f"><div class="f"><label for="cnd-t">t, °C</label><input id="cnd-t" type="text" class="num-in" inputmode="decimal" autocomplete="off" value="${live ? esc(tF(TESTO.ht, 1)) : ''}"></div>
       <div class="f"><label for="cnd-rh">φ, %</label><input id="cnd-rh" type="text" class="num-in" inputmode="decimal" autocomplete="off" value="${live ? esc(tF(TESTO.rh, 0)) : ''}"></div>
       <div class="f"><label for="cnd-p">Давление, гПа</label><input id="cnd-p" type="text" class="num-in" inputmode="decimal" autocomplete="off" placeholder="1013" value="${esc(String(pv))}"></div></div>
     <div class="head-actions"><button class="btn" data-act="dv-cadd" data-oid="${esc(o.id)}">Записать</button></div>
@@ -3137,7 +3173,8 @@ function condCardHTML(o) {
 /* t, φ в точку журнала: sec.air */
 function devAirTo(sid, cid) {
   const sys = Store.get(sid), sec = sys && secOf(sys, cid); if (!sec) { toast('Точка не найдена.'); return; }
-  sec.air = { at: new Date().toISOString(), t: Math.round(TESTO.t * 10) / 10, rh: OK(TESTO.rh) ? Math.round(TESTO.rh * 10) / 10 : null, sn: TESTO.sn || '', handle: TESTO.handle || '' };
+  const hu = TESTO.hum || {};
+  sec.air = { at: new Date().toISOString(), t: Math.round(TESTO.ht * 10) / 10, rh: OK(TESTO.rh) ? Math.round(TESTO.rh * 10) / 10 : null, sn: hu.sn || '', handle: hu.h || '', probe: hu.probe || '' };
   sec.u = Date.now(); Store.save(sys);
   toast(`Точка ${sec.no || ''}: воздух ${condText(sec.air)}`);
 }
