@@ -747,6 +747,20 @@ body .hi-row input.hand-note{border-color:color-mix(in srgb, var(--warn) 55%, va
 /* метки в таблице: сплошные, чтобы не сливались с синим назначением */
 body .hs.work{background:var(--link);color:var(--sheet)}
 body .hs.issue{background:var(--warn);color:var(--sheet)}
+/* рукоятка Testo */
+.tst-row{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+:root body .btn.tst-btn{align-self:flex-start;background:color-mix(in srgb, var(--link) 14%, transparent);color:var(--link);border-color:color-mix(in srgb, var(--link) 40%, transparent);font-weight:600}
+.tst-line{font-size:13px;color:var(--ink-2);line-height:1.4}
+.tst-on{color:var(--ok);font-weight:700}
+.tst-line .lnk{background:none;border:0;color:var(--link);font:inherit;font-weight:600;padding:2px 4px;cursor:pointer;text-decoration:underline}
+.tst-sheet .lrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0}
+.tst-big{display:flex;align-items:baseline;gap:8px;margin:8px 0 6px}
+.tst-big b{font-size:44px;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.tst-big span{color:var(--ink-2);font-size:14px}
+.tst-bar{height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.tst-bar i{display:block;height:100%;background:var(--link)}
+.tst-meta{margin-top:6px;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.tst-act{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -2307,6 +2321,72 @@ function chips(sec, key, opts, label) {
 
 function secResult(sys, sec) { const it = M.system(sys).secs.find((x) => x.s.id === sec.id); return it ? it.r : M.section(sec, baOf(sys)); }
 
+/* рукоятка Testo: события приходят из приложения в window.__testo({e, ...}) */
+const TESTO = { st: 'off', v: null, t: null, bat: null, avg: null };
+function hasTesto() { try { return !!(window.AndroidBridge && AndroidBridge.testoStart); } catch (e) { return false; } }
+const LS_TESTO_DUR = 'vnb.testo.dur';
+function testoDur() { const d = +lsGet(LS_TESTO_DUR); return [10, 20, 30].includes(d) ? d : 20; }
+const tF = (x, d = 2) => (x == null || !isFinite(x) ? '—' : x.toFixed(d).replace('.', ',').replace('-', '−'));
+function testoLineHTML() {
+  const st = TESTO.st;
+  if (st === 'on') return `<span class="tst-on">● Testo</span> ${tF(TESTO.v)} м/с · ${tF(TESTO.t, 1)} °C${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''} <button class="lnk" data-act="tst-off">Отключить</button>`;
+  if (st === 'scan') return 'Ищу рукоятку…';
+  if (st === 'connecting') return 'Подключаюсь…';
+  return '<span class="muted">Рукоятка не подключена — включите её и закройте приложение Testo.</span>';
+}
+function testoSheetHTML() {
+  const a = TESTO.avg, dur = a ? a.dur : testoDur();
+  const el = a && a.t0 ? Math.min(dur, (Date.now() - a.t0) / 1000) : 0;
+  const mean = a && a.n ? Math.abs(a.sum / a.n) : null;
+  const wait = TESTO.st !== 'on' ? (TESTO.st === 'scan' ? 'Ищу рукоятку…' : TESTO.st === 'connecting' ? 'Подключаюсь…' : 'Подключаю…') : (a && !a.t0 ? 'Жду замер…' : '');
+  return `<div class="overlay oe-ov tst-ov" role="dialog" aria-modal="true" aria-label="Скорость с Testo"><div class="sheet tst-sheet">
+    <div class="card-head" style="margin:0"><h2>Скорость с Testo</h2></div>
+    <div class="lrow"><span class="lbl">Усреднять</span><div class="seg seg-sm" role="group" aria-label="Время усреднения">${[10, 20, 30].map((d) => `<button data-act="tst-dur" data-v="${d}" aria-pressed="${d === dur}">${d} с</button>`).join('')}</div></div>
+    <div class="tst-big"><b>${mean == null ? '—' : tF(mean)}</b> <span>м/с, среднее</span></div>
+    <div class="tst-bar" aria-hidden="true"><i style="width:${Math.round(el / dur * 100)}%"></i></div>
+    <div class="tst-meta">${wait || `${Math.floor(el)} из ${dur} с · сейчас ${tF(TESTO.v)} м/с · ${tF(TESTO.t, 1)} °C`}</div>
+    <p class="hint">Держите крыльчатку неподвижно в потоке. Направление не важно — записывается значение без знака.</p>
+    <div class="tst-act"><button class="btn" data-act="tst-cancel">Отмена</button><button class="btn primary" data-act="tst-now" ${mean == null ? 'disabled' : ''}>Записать сейчас</button></div>
+  </div></div>`;
+}
+function testoPaint() {
+  document.querySelectorAll('.tst-line').forEach((x) => { x.innerHTML = testoLineHTML(); });
+  const sh = document.querySelector('#oedit-root .tst-sheet');
+  if (TESTO.avg && !sh) { TESTO.avg = null; return; }
+  if (sh) oeditRoot().innerHTML = testoSheetHTML();
+}
+function testoWrite() {
+  const a = TESTO.avg; if (!a || !a.n) return;
+  const val = (Math.round(Math.abs(a.sum / a.n) * 100) / 100).toFixed(2).replace('.', ',');
+  TESTO.avg = null; oeditRoot().innerHTML = '';
+  const inp = document.querySelector(`[data-doc="${a.doc}"][data-path="${a.path}"]`);
+  if (inp) { inp.value = val; inp.dispatchEvent(new Event('input', { bubbles: true })); }
+  else { const d = Store.get(a.doc); if (d) { setPath(d, a.path, val); touch(d, a.path); Store.save(d); const y = window.scrollY; render(); window.scrollTo(0, y); } }
+  toast(`Записано ${val} м/с`);
+}
+window.__testo = (e) => {
+  if (!e) return;
+  if (e.e === 'state') {
+    TESTO.st = e.s;
+    if (e.s === 'off' || e.s === 'err') { TESTO.v = null; TESTO.t = null; if (e.msg) toast(e.msg); if (TESTO.avg) { TESTO.avg = null; oeditRoot().innerHTML = ''; } }
+  } else if (e.e === 'val') {
+    if (e.n === 'Velocity') {
+      TESTO.v = e.v;
+      const a = TESTO.avg;
+      if (a && TESTO.st === 'on') {
+        if (!a.t0) a.t0 = Date.now();
+        a.sum += e.v; a.n++;
+        if ((Date.now() - a.t0) / 1000 >= a.dur) { testoWrite(); }
+      }
+    } else if (e.n === 'Temperature') TESTO.t = e.v;
+  } else if (e.e === 'bat') TESTO.bat = e.v;
+  testoPaint();
+};
+function testoTake(docId, path) {
+  TESTO.avg = { doc: docId, path, dur: testoDur(), t0: 0, sum: 0, n: 0 };
+  oeditRoot().innerHTML = testoSheetHTML();
+  if (TESTO.st !== 'on' && TESTO.st !== 'scan' && TESTO.st !== 'connecting') { try { AndroidBridge.testoStart(); } catch (e) { toast('Не удалось включить Bluetooth.'); } }
+}
 function viewSection(sys, sec) {
   const o = objOf(sys.objectId);
   const r = secResult(sys, sec);
@@ -2377,6 +2457,7 @@ function viewSection(sys, sec) {
         ${inNum(sys, P('Lp'), 'L проект', 'м³/ч', { cls: 'big' })}
         <div class="f big"><div class="lrow"><label for="${fid(sys, factPath)}">${factLbl}</label>${toggle}</div>${valInput(sys, factPath, byL ? 'L факт' : (kf ? 'Δp факт' : 'V факт'), factVal)}</div>
       </div>
+      ${!byL && !kf && (m === 'anemo' || m === 'grille') && hasTesto() ? `<div class="tst-row"><button class="btn tst-btn" data-act="tst-take" data-doc="${sys.id}" data-path="${factPath}">Скорость с Testo</button><div class="tst-line">${testoLineHTML()}</div></div>` : ''}
       <div id="sec-result">${resultHTML(r, sec)}</div>${fromPass ? '<p class="hint">Расход из паспорта. Будете перемерять — выберите выше, чем меряете.</p>' : ''}
       ${fan || duct ? `<div class="fields pres">${psField}${fan ? inNum(sys, P('t'), 'Температура t', '°C') : ''}</div>${fan ? '<p class="hint">Pст и t — для давления вентилятора.</p>' : ''}` : ''}`;
   }
@@ -4504,6 +4585,11 @@ document.addEventListener('click', (e) => {
     case 'hand-send': shareTextV(issuesTextV(a.dataset.oid || (UI.route && UI.route.oid))); break;
     case 'hand-sheet': handSheet(a.dataset.oid || (UI.route && UI.route.oid)); break;
     case 'hand-close': { oeditRoot().innerHTML = ''; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'tst-take': testoTake(a.dataset.doc, a.dataset.path); break;
+    case 'tst-cancel': TESTO.avg = null; oeditRoot().innerHTML = ''; break;
+    case 'tst-now': testoWrite(); break;
+    case 'tst-dur': { const d = +a.dataset.v; lsSet(LS_TESTO_DUR, d); if (TESTO.avg) Object.assign(TESTO.avg, { dur: d, t0: 0, sum: 0, n: 0 }); oeditRoot().innerHTML = testoSheetHTML(); break; }
+    case 'tst-off': try { AndroidBridge.testoStop(); } catch (e) { /* нет моста */ } break;
     case 'backup': exportBackup(); break;
     case 'template': exportTemplate(); break;
     case 'import': { const f = $('#import-file'); f.accept = '.json,application/json,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.pdf,application/pdf'; f.click(); break; }

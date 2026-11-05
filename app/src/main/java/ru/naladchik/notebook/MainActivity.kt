@@ -1,9 +1,11 @@
 package ru.naladchik.notebook
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -22,6 +24,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
 import androidx.webkit.WebViewAssetLoader
@@ -41,6 +44,26 @@ class MainActivity : AppCompatActivity() {
         WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
             .build()
+    }
+
+    /** Рукоятка Testo по Bluetooth: события уходят в страницу как window.__testo({...}). */
+    private val testo by lazy {
+        TestoBle(this) { o -> if (::web.isInitialized) web.evaluateJavascript("window.__testo&&window.__testo($o)", null) }
+    }
+
+    private fun btPerms(): Array<String> =
+        if (Build.VERSION.SDK_INT >= 31) arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
+        else arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+
+    private val btPermLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { res ->
+            if (res.values.all { it }) testo.start()
+            else web.evaluateJavascript("window.__testo&&window.__testo({e:'state',s:'err',msg:'Без разрешения «Устройства поблизости» блокнот не найдёт рукоятку.'})", null)
+        }
+
+    private fun testoStart() {
+        val need = btPerms().filter { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }
+        if (need.isEmpty()) testo.start() else btPermLauncher.launch(need.toTypedArray())
     }
 
     /** Результат выбора фото / файла (галерея, камера, проводник). */
@@ -142,6 +165,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        try { testo.stop() } catch (_: Exception) {}
         fileCallback?.onReceiveValue(null)
         fileCallback = null
         web.destroy()
@@ -253,6 +277,16 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun isApp(): Boolean = true
+
+        /** Рукоятка Testo: подключиться / отключиться / состояние. */
+        @JavascriptInterface
+        fun testoStart() { runOnUiThread { this@MainActivity.testoStart() } }
+
+        @JavascriptInterface
+        fun testoStop() { runOnUiThread { testo.stop() } }
+
+        @JavascriptInterface
+        fun testoState(): String = testo.state
     }
 
     private fun applyBars(dark: Boolean) {
