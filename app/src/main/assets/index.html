@@ -1056,6 +1056,30 @@ body::before{background:var(--hdr)}
 .dv-where{text-align:center;font-size:14px;line-height:1.35;color:var(--ink-2);padding:0 4px}
 .dv-where b{color:var(--ink);font-size:18px;white-space:nowrap}
 .dv-where small{font-size:12px;white-space:nowrap}
+/* поле скоростей в карточке точки */
+.vf{margin:6px 0 2px;border:1px solid var(--rule);border-radius:10px;background:var(--sheet-2);font-size:13px}
+.vf summary{cursor:pointer;padding:8px 10px;font-weight:700;color:var(--ink);list-style:none;display:flex;gap:8px;align-items:baseline}
+.vf summary::-webkit-details-marker{display:none}
+.vf summary::before{content:"›";display:inline-block;transition:transform .15s;color:var(--ink-2)}
+.vf[open] summary::before{transform:rotate(90deg)}
+.vf summary span{font-weight:500;color:var(--ink-2);font-size:12px}
+.vf-row{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 4px}
+.vf-row span{background:var(--sheet);border:1px solid var(--rule);border-radius:7px;padding:3px 8px;font-variant-numeric:tabular-nums;font-weight:600}
+.vf-row i{font-style:normal;color:var(--ink-3,var(--ink-2));font-size:10px;margin-right:4px;font-weight:500}
+.vf-t{border-collapse:collapse;margin:0 10px 4px;font-variant-numeric:tabular-nums}
+.vf-t td,.vf-t th{border:1px solid var(--rule);padding:4px 7px;text-align:center;min-width:42px}
+.vf-t td{background:var(--sheet);font-weight:600}
+.vf-t th{font-size:11px;color:var(--ink-2);font-weight:600;background:transparent}
+.vf-t th small{display:block;font-size:9px;font-weight:500}
+.vf-t td.vf-hi{background:color-mix(in srgb, #F28C28 22%, var(--sheet))}
+.vf-t td.vf-lo{background:color-mix(in srgb, #3B82F6 18%, var(--sheet))}
+.vf-t td.vf-x{color:var(--ink-2);font-weight:400}
+.vf-s{padding:2px 10px 9px;color:var(--ink-2);font-size:12px}
+.vf-s b{color:var(--ink)}
+.vf{overflow-x:auto}
+.vf summary{display:block;padding-left:26px;text-indent:-14px;line-height:1.3}
+.vf summary::before{width:14px;text-indent:0}
+.vf summary span{display:block;text-indent:0;margin-top:1px}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -2698,11 +2722,13 @@ function devCoeffs(std, shape, n) {
   return Array.from({ length: n }, (_, i) => (2 * i + 1) / (2 * n));
 }
 function devHolesOpts(std, shape) {
+  if (std === 'grille') return [1, 2, 3, 4, 5, 6, 7, 8];
   if (std === 'gost') return shape === 'round' ? [2] : [2, 4];
   if (std === 'ashrae') return shape === 'rect' ? [5, 6, 7] : [3];
   return shape === 'rect' ? [1, 2, 3, 4, 5] : [1, 2];
 }
 function devPtsOpts(std, shape) {
+  if (std === 'grille') return [1, 2, 3, 4, 5, 6, 7, 8];
   if (std === 'gost') return [2, 4];
   if (std === 'ashrae') return shape === 'rect' ? [5, 6, 7] : [6, 10];
   return shape === 'rect' ? [3, 4, 5, 6, 7, 8, 9, 10] : [2, 4, 6, 8, 10];
@@ -2710,6 +2736,8 @@ function devPtsOpts(std, shape) {
 /* по умолчанию: ГОСТ — по размерам (черт. 1–2), EN — 3×3 / 2×4, ASHRAE — 5×5 / 3×6 */
 function devDefaults(std, c) {
   const round = c.shape === 'round';
+  /* решётка: примерно точка на 150 мм, от 2 до 8 по каждой стороне */
+  if (std === 'grille') { const n = (x) => Math.min(8, Math.max(2, Math.ceil((N(x) || 0) / 150))); return round ? { holes: 2, pts: 2 } : { holes: n(c.a), pts: n(c.b) }; }
   if (std === 'gost') {
     if (round) return { holes: 2, pts: N(c.D) > 300 ? 4 : 2 };
     const across = c.orient === 'h' ? N(c.b) : N(c.a), depth = c.orient === 'h' ? N(c.a) : N(c.b);
@@ -2719,7 +2747,7 @@ function devDefaults(std, c) {
   return round ? { holes: 2, pts: 4 } : { holes: 3, pts: 3 };
 }
 function devFixCounts(prog, c) {
-  if (!devProg(prog).grid) return;
+  if (!devProg(prog).grid && prog !== 'grille') return;
   const ho = devHolesOpts(prog, c.shape), po = devPtsOpts(prog, c.shape), d = devDefaults(prog, c);
   if (!ho.includes(+c.holes)) c.holes = d.holes;
   if (!po.includes(+c.pts)) c.pts = d.pts;
@@ -2732,6 +2760,9 @@ function devCfgLoad(prog) { const c = Object.assign(devCfgDefault(), lsGet(LS_DE
 function devCfgSave() { if (DEV.prog) lsSet(LS_DEV_CFG + DEV.prog, DEV.cfg); }
 
 const DEV = { view: 'list', prog: null, cfg: null, page: 0, run: null, link: null, pick: null };
+/* замер по сетке: сеточные программы и решётка в режиме «Сетка» (не «Проводка») */
+const devGrilleGrid = (prog, c) => prog === 'grille' && !!c && c.gmode !== 'sweep';
+function devG(prog, c) { if (prog === undefined) { prog = DEV.prog; c = DEV.cfg; } return !!(devProg(prog).grid || devGrilleGrid(prog, c)); }
 
 /* площадь (м²) и множитель к расходу */
 function devArea(c) {
@@ -2774,7 +2805,7 @@ const devPt = (G, key) => { for (const h of G.holes) { const p = h.pts.find((x) 
 
 /* ---------- состояние замера ---------- */
 function devNewRun() {
-  const grid = devProg(DEV.prog).grid;
+  const grid = devG();
   DEV.run = { vals: grid ? {} : [], det: {}, sel: null, arm: false, cur: null, job: null, saved: false, at: Date.now() };
   if (grid) { const G = devGrid(DEV.prog, DEV.cfg); DEV.run.cur = G ? G.order[0] : null; }
 }
@@ -2786,12 +2817,12 @@ function devMean() {
 const devCount = () => { const r = DEV.run; return !r ? 0 : DEV.prog === 'kfac' ? (r.dp || []).length : Array.isArray(r.vals) ? r.vals.length : Object.keys(r.vals).length; };
 function devDone() {
   const r = DEV.run; if (!r) return false;
-  if (!devProg(DEV.prog).grid) return r.vals.length > 0;
+  if (!devG()) return r.vals.length > 0;
   const G = devGrid(DEV.prog, DEV.cfg); return !!G && G.order.every((k) => k in r.vals);
 }
 function devStart() {
   const r = DEV.run; if (!r || r.job) return;
-  if (devProg(DEV.prog).grid && !r.cur) { toast(devDone() ? 'Все точки замерены. Перемерить — нажмите на точку.' : 'Задайте размеры в настройке.'); return; }
+  if (devG() && !r.cur) { toast(devDone() ? 'Все точки замерены. Перемерить — нажмите на точку.' : 'Задайте размеры в настройке.'); return; }
   if (TESTO.st === 'on' && isHum()) { toast('На рукоятке зонд влажности — для скорости поставьте крыльчатку или струну.'); return; }
   testoConnect();
   const ivl = Math.max(0, Math.round(N(S().ivl) || 0));
@@ -2818,7 +2849,7 @@ function devStop(save) {
     testoBeep(true);
     const cv = devCV(j);
     if (cv > 10) toast(`Поток неустойчив (±${F(cv, 0)} %) — лучше мерить дольше.`);
-    if (DEV.link && (devDone() || !devProg(DEV.prog).grid) && DEV.prog !== 'std') devSaveTo(DEV.link.sid, DEV.link.cid, true);
+    if (DEV.link && (devDone() || !devG()) && DEV.prog !== 'std') devSaveTo(DEV.link.sid, DEV.link.cid, true);
   }
   devPaint();
 }
@@ -2869,7 +2900,7 @@ function devSaveTo(sid, cid, quiet) {
   if (!String(sec.Lp || '').trim() && String(c.Lp || '').trim()) sec.Lp = c.Lp;
   if ((sec.role === 'fan_in' || sec.role === 'fan_out') && OK(DEV.run.t)) sec.t = (Math.round(DEV.run.t * 10) / 10).toFixed(1).replace('.', ',');
   const pr = devProg(prog);
-  sec.src = { dev: 'Testo', sn: TESTO.sn || '', handle: TESTO.handle || '', probe: TESTO.probe || '', at: new Date().toISOString(), prog: pr.t, grid: pr.grid ? `${c.holes}×${c.pts}` : '' };
+  sec.src = { dev: 'Testo', sn: TESTO.sn || '', handle: TESTO.handle || '', probe: TESTO.probe || '', at: new Date().toISOString(), prog: pr.t, grid: prog === 'grille' ? (devG() ? `по точкам ${c.holes}×${c.pts}` : 'по времени, проводка') : devG() ? `${c.holes}×${c.pts}` : '' };
   sec.meas = { prog, cfg: Object.assign({}, c), vals: DEV.run.vals, det: DEV.run.det || {}, t: OK(DEV.run.t) ? Math.round(DEV.run.t * 10) / 10 : null, p: OK(devP(true)) ? Math.round(devP(true)) : null, unc: (() => { const u = devUnc(); return u ? { tot: Math.round(u.tot * 10) / 10, prof: OK(u.prof) ? Math.round(u.prof * 10) / 10 : null, inst: Math.round(u.inst * 10) / 10, U: OK(u.U) ? Math.round(u.U) : null } : null; })() };
   sec.u = Date.now(); Store.save(sys);
   DEV.run.saved = true;
@@ -2954,6 +2985,14 @@ function devPages() {
   const meas = '';
   if (DEV.prog === 'funnel') return [flow.replace('<h3>Расход</h3>', `<h3>Воронка</h3><p class="hint dv-rh">Пересчёт скорости в расход — по зонду в воронке (${esc(FUN_NAMES[flowKind()] || 'зонд')}), задаётся в «Измерительных приборах».</p><h3>Расход</h3>`)];
   if (DEV.prog === 'kfac') return [devKfacCfgHTML()];
+  if (DEV.prog === 'grille') {
+    const sw = c.gmode === 'sweep';
+    const gm = `<div class="dv-rows">${devSegRow('Способ', 'gmode', [['grid', 'Сетка'], ['sweep', 'Проводка']])}</div><p class="hint dv-rh">${sw ? 'Ведите крыльчатку равномерно по всей решётке — прибор считает среднее за время. Можно несколько проводок.' : 'Решётка делится на равные прямоугольники, замер — в центре каждого.'}</p>`;
+    if (sw) return [geo + gm + flow];
+    const gp = `<h3>Точки по решётке</h3><div class="dv-rows">${devSel('holes', 'Столбцов', devHolesOpts('grille'))}${devSel('pts', 'Рядов', devPtsOpts('grille'))}</div>
+    <div id="dv-prev">${devSVG(false)}</div>`;
+    return [geo + gm, gp, flow];
+  }
   if (!p.grid) return DEV.prog === 'std' ? [] : [geo + flow];
   const ho = devHolesOpts(DEV.prog, c.shape), po = devPtsOpts(DEV.prog, c.shape);
   const grid = `<h3>Сетка · ${esc(p.t.replace('Сетка ', ''))}</h3>
@@ -3024,7 +3063,7 @@ function devSVG(live) {
     if (vert) s += flag(x0 + p0.x * w, y0, hh.n, hh.lab, cp && cp.h === hh);
     else { const Y = y0 + p0.y * h; s += `<g class="dv-flag${cp && cp.h === hh ? ' on' : ''}"><rect x="${(x0 - 66).toFixed(1)}" y="${(Y - 13).toFixed(1)}" width="56" height="26" rx="5"/><text x="${(x0 - 38).toFixed(1)}" y="${(Y - 2).toFixed(1)}">${hh.n}</text><text class="s" x="${(x0 - 38).toFixed(1)}" y="${(Y + 9).toFixed(1)}">${esc(hh.lab)}</text><path d="M${(x0 - 10).toFixed(1)},${(Y - 5).toFixed(1)} L${(x0 - 10).toFixed(1)},${(Y + 5).toFixed(1)} L${(x0 - 2).toFixed(1)},${Y.toFixed(1)}Z"/></g>`; }
   });
-  if (cp) s += tip(x0 + cp.p.x * w, y0 + cp.p.y * h, `${F(cp.p.depth + devWall(), 0)} мм`);
+  if (cp && DEV.prog !== 'grille') s += tip(x0 + cp.p.x * w, y0 + cp.p.y * h, `${F(cp.p.depth + devWall(), 0)} мм`);
   return s + '</svg>';
 }
 /* карточка точки: среднее, мин/макс, сколько значений — по нажатию на замеренную точку */
@@ -3033,7 +3072,7 @@ function devPtdHTML() {
   const G = devGrid(DEV.prog, DEV.cfg), q = G && devPt(G, r.sel); if (!q) return '';
   const d = r.det[r.sel] || { v: r.vals[r.sel] }, ix = q.h.pts.indexOf(q.p) + 1;
   const sub = [OK(d.min) && OK(d.max) ? `мин ${tF(devLo(d), 2)} · макс ${tF(devHi(d), 2)}` : '', d.n ? `${d.n} знач.${d.s ? ` за ${d.s} с` : ''}` : '', d.cv > 0.5 ? `колебания ±${F(d.cv, 0)} %` : '', OK(d.t) ? `${tF(d.t, 1)} °C` : ''].filter(Boolean).map((t) => t.replace(/ (?=[%°]|м\/с|с$)/g, '\u00a0')).join(' · ');
-  return `<div class="dv-ptd${d.cv > 10 ? ' warn' : ''}"><div class="dv-ptd-h"><span>Отв. ${q.h.n} · точка ${ix} · глубина ${F(q.p.depth, 0)} мм${devWall() ? ` (отметка ${F(q.p.depth + devWall(), 0)})` : ''}</span><button class="lnk" data-act="dv-ptx" aria-label="Закрыть">✕</button></div>
+  return `<div class="dv-ptd${d.cv > 10 ? ' warn' : ''}"><div class="dv-ptd-h"><span>${DEV.prog === 'grille' ? `Столбец ${q.h.n} · ряд ${ix}` : `Отв. ${q.h.n} · точка ${ix} · глубина ${F(q.p.depth, 0)} мм${devWall() ? ` (отметка ${F(q.p.depth + devWall(), 0)})` : ''}`}</span><button class="lnk" data-act="dv-ptx" aria-label="Закрыть">✕</button></div>
     <div class="dv-ptd-v">${tF(Math.abs(d.v), 2)} <small>м/с средняя</small></div>${sub ? `<div class="dv-ptd-s">${sub}</div>` : ''}
     ${r.job ? '' : `<div class="dv-ptd-b"><button class="btn sm" data-act="dv-redo">Перемерить</button><button class="btn sm" data-act="dv-ptdel">Удалить</button></div>`}</div>`;
 }
@@ -3078,7 +3117,7 @@ function devCurHTML() {
 }
 function devFootHTML() { if (TESTO.st === 'on' && isHum()) return ''; return devPtdHTML() + devFootBtns(); }
 function devFootBtns() {
-  const r = DEV.run, grid = devProg(DEV.prog).grid;
+  const r = DEV.run, grid = devG();
   if (DEV.prog === 'kfac') return r && (r.dp || []).length ? `<div class="dv-foot2">${DEV.link ? '' : '<button class="btn primary dv-go" data-act="dv-save">Сохранить в точку…</button>'}<button class="btn" data-act="dv-new">Новый замер</button></div>` : '';
   if (r && r.job) return `${grid && r.cur ? devWhereHTML() : ''}<button class="btn dv-go dv-stop" data-act="dv-stop">${r.job.dur ? 'Отмена' : 'Остановить'}</button>`;
   const done = devDone();
@@ -3098,10 +3137,11 @@ const devWall = () => { const w = N(DEV.cfg && DEV.cfg.wall); return OK(w) && w 
 function devWhereHTML() {
   const r = DEV.run, G = r && r.cur && devGrid(DEV.prog, DEV.cfg), q = G && devPt(G, r.cur); if (!q) return '';
   const ix = q.h.pts.indexOf(q.p) + 1, w = devWall(), d = q.p.depth;
+  if (DEV.prog === 'grille') return `<div class="dv-where">Столбец ${q.h.n} · ряд ${ix} · <b>точка ${G.order.indexOf(r.cur) + 1}</b> из ${G.order.length}</div>`;
   return `<div class="dv-where">Отверстие ${q.h.n} · точка ${ix} из ${q.h.pts.length} · ${w ? `отметка на зонде <b>${F(d + w, 0)} мм</b> <small>(${F(d, 0)} + ${F(w, 0)} стенка)</small>` : `зонд на <b>${F(d, 0)} мм</b> от внутренней стенки`}</div>`;
 }
 function devValsHTML() {
-  const r = DEV.run; if (!r || devProg(DEV.prog).grid || !r.vals.length) return '';
+  const r = DEV.run; if (!r || devG() || !r.vals.length) return '';
   return `<div class="dv-vals">${r.vals.map((x, i) => `<div><span>${i + 1}.</span> ${tF(Math.abs(x.v))} м/с · ${x.s} с${OK(x.min) && OK(x.max) && x.n > 1 ? ` · ${tF(devLo(x), 1)}…${tF(devHi(x), 1)}` : ''} <button class="lnk" data-act="dv-del" data-i="${i}" aria-label="Удалить значение ${i + 1}">✕</button></div>`).join('')}</div>`;
 }
 function devNextSec() {
@@ -3123,7 +3163,7 @@ function devMeasHTML() {
     <div class="dv-pillrow" id="dv-pill">${devPillHTML()}</div>
     <div class="dv-res" id="dv-res">${devResHTML()}</div>
     ${DEV.prog === 'kfac' ? `<div id="dv-kin">${devKfacInHTML()}</div>` : `<div class="dv-cur" id="dv-cur">${devCurHTML()}</div>`}
-    ${DEV.prog === 'kfac' ? '' : p.grid ? `<div class="dv-sch" id="dv-sch">${devSVG(true)}</div>` : `<div id="dv-vals">${devValsHTML()}</div>`}
+    ${DEV.prog === 'kfac' ? '' : devG() ? `<div class="dv-sch" id="dv-sch">${devSVG(true)}</div>` : `<div id="dv-vals">${devValsHTML()}</div>`}
     <div id="dv-hum">${hasHum() && DEV.prog !== 'kfac' ? devHumHTML() : ''}</div>
     <div class="dv-foot" id="dv-foot">${devFootHTML()}</div>
   </div>`;
@@ -3192,7 +3232,7 @@ function devPaint() {
   if (DEV.view !== 'meas') return;
   { const hh = hasHum() && DEV.prog !== 'kfac'; if (devPaint.hum !== hh) { devPaint.hum = hh; set('dv-hum', hh ? devHumHTML() : ''); } }
   set('dv-pill', devPillHTML()); set('dv-res', devResHTML()); set('dv-cur', devCurHTML()); set('dv-foot', devFootHTML());
-  if (devProg(DEV.prog).grid) { const k = DEV.run ? `${DEV.run.cur}|${devCount()}|${DEV.run.sel}|${Object.values(DEV.run.vals).join()}` : ''; if (devPaint.k !== k) { devPaint.k = k; set('dv-sch', devSVG(true)); } }
+  if (devG()) { const k = DEV.run ? `${DEV.run.cur}|${devCount()}|${DEV.run.sel}|${Object.values(DEV.run.vals).join()}` : ''; if (devPaint.k !== k) { devPaint.k = k; set('dv-sch', devSVG(true)); } }
   else set('dv-vals', devValsHTML());
 }
 /* открыть программу (из списка или из точки журнала) */
@@ -3212,8 +3252,8 @@ function devFromPoint(sys, sec) {
   c.air = sys.type === 'exhaust' ? 'exhaust' : 'supply';
   if (prog === 'grille') { const kf = N(sec.kFree); c.free = OK(kf) && kf > 0 ? String(Math.round(kf * 100)) : '100'; c.kcorr = '1,00'; }
   if (sec.drill === 'h') c.orient = 'h';
-  if (sec.meas && sec.meas.prog === prog && sec.meas.cfg) { c.holes = sec.meas.cfg.holes; c.pts = sec.meas.cfg.pts; c.orient = sec.meas.cfg.orient; }
-  else if (devProg(prog).grid) { const d = devDefaults(prog, c); c.holes = d.holes; c.pts = d.pts; }
+  if (sec.meas && sec.meas.prog === prog && sec.meas.cfg) { c.holes = sec.meas.cfg.holes; c.pts = sec.meas.cfg.pts; c.orient = sec.meas.cfg.orient; if (sec.meas.cfg.gmode) c.gmode = sec.meas.cfg.gmode; }
+  else if (devG(prog, c)) { const d = devDefaults(prog, c); c.holes = d.holes; c.pts = d.pts; }
   devFixCounts(prog, c);
   DEV.cfg = c; DEV.page = 0;
   const geoOK = OK(devArea(c));
@@ -3259,7 +3299,7 @@ window.__testo = (e) => {
   testoSync();
   if (e.e === 'btn') {
     /* кнопка на рукоятке = «Запустить» / «Остановить» */
-    if (UI.tab === 'dev' && DEV.view === 'meas' && DEV.run) { if (DEV.run.job) devStop(!DEV.run.job.dur); else if (!devDone() || !devProg(DEV.prog).grid || DEV.run.arm) devStart(); }
+    if (UI.tab === 'dev' && DEV.view === 'meas' && DEV.run) { if (DEV.run.job) devStop(!DEV.run.job.dur); else if (!devDone() || !devG() || DEV.run.arm) devStart(); }
   }
   devPaint();
   document.querySelectorAll('.tst-mini').forEach((x) => { x.innerHTML = testoMiniHTML(); });
@@ -3301,7 +3341,7 @@ document.addEventListener('change', (e) => {
 document.addEventListener('input', (e) => {
   const el = e.target; if (!el.dataset || !el.dataset.dcfg || el.tagName === 'SELECT') return;
   DEV.cfg[el.dataset.dcfg] = el.value;
-  if (['a', 'b', 'D'].includes(el.dataset.dcfg) && DEV.prog === 'gost') { const d = devDefaults('gost', DEV.cfg); DEV.cfg.holes = d.holes; DEV.cfg.pts = d.pts; }
+  if (['a', 'b', 'D'].includes(el.dataset.dcfg) && (DEV.prog === 'gost' || DEV.prog === 'grille')) { const d = devDefaults(DEV.prog, DEV.cfg); DEV.cfg.holes = d.holes; DEV.cfg.pts = d.pts; }
   if (['a', 'b', 'D', 'l1', 'l2'].includes(el.dataset.dcfg)) { const x = document.getElementById('dv-dist'); if (x) x.innerHTML = devDistHTML(); }
   devCfgSave();
 });
@@ -3319,7 +3359,8 @@ function devAct(act, a) {
     case 'dv-page': { DEV.page = Math.max(0, DEV.page + (+a.dataset.v)); break; }
     case 'dv-set': {
       const k = a.dataset.k; DEV.cfg[k] = a.dataset.v;
-      if (k === 'shape' || (k === 'orient' && DEV.prog === 'gost')) { const d = devDefaults(DEV.prog, DEV.cfg); if (devProg(DEV.prog).grid) { DEV.cfg.holes = d.holes; DEV.cfg.pts = d.pts; } }
+      if (k === 'shape' || (k === 'orient' && DEV.prog === 'gost')) { const d = devDefaults(DEV.prog, DEV.cfg); if (devG()) { DEV.cfg.holes = d.holes; DEV.cfg.pts = d.pts; } }
+      if (k === 'gmode') devNewRun();
       devFixCounts(DEV.prog, DEV.cfg); devCfgSave(); break;
     }
     case 'dv-apply': {
@@ -3840,6 +3881,41 @@ function appSetHTML() {
   </div>`;
 }
 
+/* ===== журнал: «Поле скоростей» — значения с прибора, сохранённые в точке ===== */
+function devVFieldHTML(sec) {
+  const ms = sec && sec.meas; if (!ms || !ms.vals) return '';
+  const f2 = (v) => tF(Math.abs(v), 2);
+  const stat = (arr) => { const a = arr.filter((v) => OK(v)).map(Math.abs); if (!a.length) return null; const m = a.reduce((x, y) => x + y, 0) / a.length, lo = Math.min(...a), hi = Math.max(...a); return { m, lo, hi, n: a.length, sp: m > 0 ? (hi - lo) / 2 / m * 100 : NaN }; };
+  const isG = !Array.isArray(ms.vals), sweep = ms.prog === 'grille' && (ms.cfg || {}).gmode === 'sweep';
+  const how = isG ? 'по точкам' : 'по времени';
+  const secs = (isG ? Object.values(ms.det || {}) : ms.vals).map((x) => x && +x.s).filter((x) => x > 0);
+  const durT = secs.length ? (Math.min(...secs) === Math.max(...secs) ? ` по ${secs[0]} с` : ` по ${Math.min(...secs)}–${Math.max(...secs)} с`) : '';
+  const pl = (n, f) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? f[0] : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? f[1] : f[2]}`;
+  const foot = (st) => `<div class="vf-s">средняя ${how} <b>${tF(st.m, 2)}</b> · мин ${tF(st.lo, 2)} · макс ${tF(st.hi, 2)} м/с${OK(st.sp) ? ` · разброс ±${F(st.sp, 0)}\u00a0%` : ''}${ms.unc && OK(ms.unc.U) ? ` · неравномерность ${F(ms.unc.U, 0)}\u00a0%` : ''}</div>`;
+  let body = '', cnt = 0;
+  if (Array.isArray(ms.vals)) {
+    const arr = ms.vals.map((x) => x && x.v); const st = stat(arr); if (!st) return '';
+    cnt = st.n;
+    body = `<div class="vf-row">${ms.vals.map((x, i) => `<span><i>${i + 1}</i>${f2(x.v)}</span>`).join('')}</div>${foot(st)}`;
+  } else {
+    const G = devGrid(ms.prog, ms.cfg || {}); if (!G) return '';
+    const st = stat(Object.values(ms.vals)); if (!st) return '';
+    cnt = st.n;
+    const cell = (k) => { const v = ms.vals[k]; if (!OK(v)) return '<td class="vf-x">—</td>'; const d = (Math.abs(v) - st.m) / st.m; return `<td class="${d > 0.25 ? 'vf-hi' : d < -0.25 ? 'vf-lo' : ''}">${f2(v)}</td>`; };
+    if (ms.prog === 'grille' && (ms.cfg || {}).shape !== 'round') {
+      /* решётка: как она висит — ряды сверху вниз, столбцы слева направо */
+      const P = G.holes[0].pts.length;
+      body = `<table class="vf-t"><tbody>${Array.from({ length: P }, (_, i) => `<tr>${G.holes.map((h) => cell(h.pts[i].key)).join('')}</tr>`).join('')}</tbody></table>`;
+    } else {
+      const P = G.holes[0].pts.length;
+      body = `<table class="vf-t"><thead><tr><th>отв.</th>${G.holes[0].pts.map((q, i) => `<th>${i + 1}<small>${F(q.depth, 0)}</small></th>`).join('')}</tr></thead><tbody>${G.holes.map((h) => `<tr><th>${h.n}</th>${h.pts.map((q) => cell(q.key)).join('')}</tr>`).join('')}</tbody></table>`;
+    }
+    body += foot(st);
+  }
+  const what = isG ? pl(cnt, ['точка', 'точки', 'точек']) : sweep ? pl(cnt, ['проводка', 'проводки', 'проводок']) : pl(cnt, ['замер', 'замера', 'замеров']);
+  return `<details class="vf"><summary>Поле скоростей · ${how === 'по точкам' ? 'среднее по точкам' : 'среднее по времени'} <span>${what}${durT}, м/с</span></summary>${body}</details>`;
+}
+
 /* ---------- точки замера: сечение (ГОСТ 12.3.018, черт. 1–2) или места на решётке ---------- */
 const tvKey = (label) => String(label).replace(/\./g, '_');
 const GRILLE_N = [1, 2, 4, 6];
@@ -3997,7 +4073,7 @@ function viewSection(sys, sec) {
     const factVal = oneVal(sec[byL ? 'total' : (kf ? 'dpK' : 'vAvg')]);
     const fin = valInput(sys, factPath, byL ? 'L факт' : (kf ? 'Δp факт' : 'V факт'), factVal);
     const testoOK = !byL && !kf && (m === 'anemo' || m === 'grille') && hasTesto();
-    const src = sec.src && sec.src.at ? `<p class="hint src-l">Замер ${esc(sec.src.dev || '')}${sec.src.prog ? ' · ' + esc(sec.src.prog) : ''}${sec.src.grid ? ' ' + esc(sec.src.grid) : ''}${devInstr(sec.src) ? ' · ' + esc(devInstr(sec.src)) : ''}${sec.meas && sec.meas.unc && OK(sec.meas.unc.tot) ? ' · погрешность ±' + esc(F(sec.meas.unc.tot, 0)) + ' %' : ''} · ${esc(condWhen(sec.src))}</p>` : ''
+    const src = sec.src && sec.src.at ? `<p class="hint src-l">Замер ${esc(sec.src.dev || '')}${sec.src.prog ? ' · ' + esc(sec.src.prog) : ''}${sec.src.grid ? ' ' + esc(sec.src.grid) : ''}${devInstr(sec.src) ? ' · ' + esc(devInstr(sec.src)) : ''}${sec.meas && sec.meas.unc && OK(sec.meas.unc.tot) ? ' · погрешность ±' + esc(F(sec.meas.unc.tot, 0)) + ' %' : ''} · ${esc(condWhen(sec.src))}</p>${typeof devVFieldHTML === 'function' ? devVFieldHTML(sec) : ''}` : ''
     const airL = typeof airLine === 'function' ? airLine(sec) : '';
     meas = `<div class="mrow">
         ${inNum(sys, P('Lp'), 'L проект', 'м³/ч', { cls: 'big' })}
@@ -5249,17 +5325,26 @@ async function exportPDF(o, only) {
       }
       /* протокол сеточного замера с прибора (ГОСТ 12.3.018 / EN 12599 / ASHRAE 111) */
       if (typeof devGrid === 'function') for (const c of (sys.sections || [])) {
-        const ms = c.meas; if (!ms || !ms.vals || !devProg(ms.prog).grid || !Object.keys(ms.vals).length) continue;
+        const ms = c.meas; if (!ms || !ms.vals || !Object.keys(ms.vals).length) continue;
+        if (Array.isArray(ms.vals)) {
+          const vs = ms.vals.map((x) => x && x.v).filter((v) => OK(v)).map(Math.abs); if (vs.length < 2) continue;
+          const vm = vs.reduce((x, y) => x + y, 0) / vs.length;
+          need(14 * MM);
+          para(`Замер · точка ${c.no || ''}${placeOf(c) ? ' · ' + placeOf(c) : ''} — ${devProg(ms.prog).t}, среднее по времени${ms.prog === 'grille' && (ms.cfg || {}).gmode === 'sweep' ? ', проводка' : ''}, ${vs.length} знач.`, 9, { bold: true, after: 0.5 });
+          para(`Скорости, м/с: ${vs.map((v) => v.toFixed(2).replace('.', ',')).join(' · ')}; средняя по времени ${vm.toFixed(2).replace('.', ',')}, мин ${Math.min(...vs).toFixed(2).replace('.', ',')}, макс ${Math.max(...vs).toFixed(2).replace('.', ',')}${c.src ? ' · ' + devInstr(c.src) : ''}`, 8, { color: '#333', after: 2 });
+          continue;
+        }
         const G = devGrid(ms.prog, ms.cfg || {}); if (!G) continue;
         const P = G.holes[0].pts.length;
         need(40 * MM);
-        para(`Сеточный замер · точка ${c.no || ''}${placeOf(c) ? ' · ' + placeOf(c) : ''} — ${devProg(ms.prog).t}, ${G.holes.length}×${P}`, 9, { bold: true, after: 0.5 });
-        const head = ['Отверстие'].concat(G.holes[0].pts.map((q, i) => `т. ${i + 1}\n${F(q.depth, 0)} мм`)).concat(['Среднее']);
+        const gr = ms.prog === 'grille';
+        para(`${gr ? 'Замер по сетке на решётке' : 'Сеточный замер'} · точка ${c.no || ''}${placeOf(c) ? ' · ' + placeOf(c) : ''} — ${devProg(ms.prog).t}, среднее по точкам, ${gr ? `${P} ряд. × ${G.holes.length} столб.` : `${G.holes.length}×${P}`}`, 9, { bold: true, after: 0.5 });
+        const head = [gr ? 'Столбец' : 'Отверстие'].concat(G.holes[0].pts.map((q, i) => gr ? `ряд ${i + 1}` : `т. ${i + 1}\n${F(q.depth, 0)} мм`)).concat(['Среднее']);
         const rws = G.holes.map((h) => { const vs = h.pts.map((q) => ms.vals[q.key]).filter((v) => OK(v)).map(Math.abs); return [`${h.n} · ${h.lab}`].concat(h.pts.map((q) => OK(ms.vals[q.key]) ? Math.abs(ms.vals[q.key]).toFixed(2).replace('.', ',') : '—')).concat([vs.length ? (vs.reduce((x, y) => x + y, 0) / vs.length).toFixed(2).replace('.', ',') : '—']); });
         table([head].concat(rws), [16].concat(Array(P).fill(10)).concat([12]), Array.from({ length: P + 1 }, (_, i) => i + 1));
         const all = Object.values(ms.vals).filter((v) => OK(v)).map(Math.abs), vm = all.reduce((x, y) => x + y, 0) / all.length;
-        const un = ms.unc || {}, dd = devDist(ms.cfg || {});
-        const info = [`скорости, м/с; средняя ${vm.toFixed(2).replace('.', ',')} м/с`, OK(un.U) ? `неравномерность ${F(un.U, 0)} %` : '', OK(un.tot) ? `погрешность ±${F(un.tot, 0)} % (профиль ±${OK(un.prof) ? F(un.prof, 0) : '—'} %, зонд ±${F(un.inst, 0)} %)` : '',
+        const un = ms.unc || {}, dd = gr ? null : devDist(ms.cfg || {});
+        const info = [`скорости, м/с; средняя по точкам ${vm.toFixed(2).replace('.', ',')} м/с`, OK(un.U) ? `неравномерность ${F(un.U, 0)} %` : '', OK(un.tot) ? `погрешность ±${F(un.tot, 0)} % (профиль ±${OK(un.prof) ? F(un.prof, 0) : '—'} %, зонд ±${F(un.inst, 0)} %)` : '',
           dd ? `Dh ${F(dd.dh * 1000, 0)} мм${OK(dd.k1) ? `, после возмущения ${String(dd.k1.toFixed(1)).replace('.', ',')} Dh` : ''}${OK(dd.k2) ? `, до возмущения ${String(dd.k2.toFixed(1)).replace('.', ',')} Dh` : ''}` : '',
           OK(ms.t) ? `t ${String(ms.t).replace('.', ',')} °C` : '', OK(ms.p) ? `p ${F(ms.p)} гПа` : '', c.src ? devInstr(c.src) : ''].filter(Boolean);
         para(info.join(' · '), 8, { color: '#333', after: 2 });
