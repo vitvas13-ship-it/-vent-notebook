@@ -761,6 +761,23 @@ body .hs.issue{background:var(--warn);color:var(--sheet)}
 .tst-bar i{display:block;height:100%;background:var(--link)}
 .tst-meta{margin-top:6px;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
 .tst-act{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+/* точка и замер: свёрнутый выбор, точки замера, панель Testo */
+.chip-sum{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:14px;margin:4px 0 2px}
+.pcard .lnk,.tv-box .lnk,.tst-panel .lnk{background:none;border:0;color:var(--link);font:inherit;font-weight:600;padding:4px 2px;cursor:pointer;text-decoration:underline;min-height:0}
+.chip-done{display:block;margin-top:4px}
+.tv-box{margin-top:12px}
+.tv-box .lrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.tv-wrap{overflow-x:auto}
+.tv{width:100%;border-collapse:collapse;table-layout:fixed}
+.tv th{font-size:12px;color:var(--ink-2);font-weight:600;padding:3px 2px;text-align:center;font-variant-numeric:tabular-nums}
+.tv th.tv-h{width:78px;text-align:left;font-size:11.5px;line-height:1.2}
+.tv td{padding:2px}
+body .tv td input.tv-in{width:100%;min-width:0;box-sizing:border-box;padding:9px 2px;text-align:center;font-size:15px}
+body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;background:color-mix(in srgb, var(--link) 10%, var(--sheet))}
+.tst-panel{margin-top:12px;padding:10px 12px;border:1px solid var(--rule);border-radius:12px;background:color-mix(in srgb, var(--link) 5%, transparent)}
+.tst-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tst-ctl .tst-go,.tst-ctl .tst-stop{flex:1 1 auto;min-width:150px}
+.tst-run{margin-top:8px}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -2321,72 +2338,156 @@ function chips(sec, key, opts, label) {
 
 function secResult(sys, sec) { const it = M.system(sys).secs.find((x) => x.s.id === sec.id); return it ? it.r : M.section(sec, baOf(sys)); }
 
-/* рукоятка Testo: события приходят из приложения в window.__testo({e, ...}) */
-const TESTO = { st: 'off', v: null, t: null, bat: null, avg: null };
+/* ---------- рукоятка Testo (только в приложении): события из приложения в window.__testo({e, ...}) ---------- */
+const TESTO = { st: 'off', v: null, t: null, bat: null, job: null };
 function hasTesto() { try { return !!(window.AndroidBridge && AndroidBridge.testoStart); } catch (e) { return false; } }
-const LS_TESTO_DUR = 'vnb.testo.dur';
-function testoDur() { const d = +lsGet(LS_TESTO_DUR); return [10, 20, 30].includes(d) ? d : 20; }
+const LS_TESTO_DUR = 'vnb.testo.dur5';
+function testoDur() { const d = +lsGet(LS_TESTO_DUR); return [5, 10, 20].includes(d) ? d : 5; }
 const tF = (x, d = 2) => (x == null || !isFinite(x) ? '—' : x.toFixed(d).replace('.', ',').replace('-', '−'));
-function testoLineHTML() {
-  const st = TESTO.st;
-  if (st === 'on') return `<span class="tst-on">● Testo</span> ${tF(TESTO.v)} м/с · ${tF(TESTO.t, 1)} °C${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''} <button class="lnk" data-act="tst-off">Отключить</button>`;
-  if (st === 'scan') return 'Ищу рукоятку…';
-  if (st === 'connecting') return 'Подключаюсь…';
-  return '<span class="muted">Рукоятка не подключена — включите её и закройте приложение Testo.</span>';
+function testoBeep() {
+  try { const C = window.AudioContext || window.webkitAudioContext; if (!C) return; const ac = testoBeep.ac || (testoBeep.ac = new C());
+    const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 1200; g.gain.value = 0.15; o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 0.18); } catch (e) { /* без звука */ }
 }
-function testoSheetHTML() {
-  const a = TESTO.avg, dur = a ? a.dur : testoDur();
-  const el = a && a.t0 ? Math.min(dur, (Date.now() - a.t0) / 1000) : 0;
-  const mean = a && a.n ? Math.abs(a.sum / a.n) : null;
-  const wait = TESTO.st !== 'on' ? (TESTO.st === 'scan' ? 'Ищу рукоятку…' : TESTO.st === 'connecting' ? 'Подключаюсь…' : 'Подключаю…') : (a && !a.t0 ? 'Жду замер…' : '');
-  return `<div class="overlay oe-ov tst-ov" role="dialog" aria-modal="true" aria-label="Скорость с Testo"><div class="sheet tst-sheet">
-    <div class="card-head" style="margin:0"><h2>Скорость с Testo</h2></div>
-    <div class="lrow"><span class="lbl">Усреднять</span><div class="seg seg-sm" role="group" aria-label="Время усреднения">${[10, 20, 30].map((d) => `<button data-act="tst-dur" data-v="${d}" aria-pressed="${d === dur}">${d} с</button>`).join('')}</div></div>
-    <div class="tst-big"><b>${mean == null ? '—' : tF(mean)}</b> <span>м/с, среднее</span></div>
-    <div class="tst-bar" aria-hidden="true"><i style="width:${Math.round(el / dur * 100)}%"></i></div>
-    <div class="tst-meta">${wait || `${Math.floor(el)} из ${dur} с · сейчас ${tF(TESTO.v)} м/с · ${tF(TESTO.t, 1)} °C`}</div>
-    <p class="hint">Держите крыльчатку неподвижно в потоке. Направление не важно — записывается значение без знака.</p>
-    <div class="tst-act"><button class="btn" data-act="tst-cancel">Отмена</button><button class="btn primary" data-act="tst-now" ${mean == null ? 'disabled' : ''}>Записать сейчас</button></div>
-  </div></div>`;
+
+/* ---------- точки замера в сечении (ГОСТ 12.3.018, черт. 1–2): ячейки по отверстиям и глубинам ---------- */
+const tvKey = (label) => String(label).replace(/\./g, '_');
+function travGrid(sec) {
+  const D = N(sec.D), a = N(sec.a), b = N(sec.b);
+  const P = M.points(sec.shape, D, a, b);
+  if (!P.z) return null;
+  const vert = sec.drill !== 'h';
+  const round = sec.shape === 'round';
+  let rows = [], depths = [];
+  if (round) {
+    if (P.pts.length === 1) { depths = [P.pts[0].depth]; rows = [{ name: 'центр', cells: [tvKey(P.pts[0].label)] }]; }
+    else {
+      const ax1 = vert ? 'В' : 'Г', ax2 = vert ? 'Г' : 'В';
+      const p1 = P.pts.filter((p) => p.axis === ax1), p2 = P.pts.filter((p) => p.axis === ax2);
+      depths = p1.map((p) => p.depth);
+      rows = [{ name: vert ? '1 · сверху' : '1 · сбоку', cells: p1.map((p) => tvKey(p.label)) }, { name: vert ? '2 · сбоку' : '2 · сверху', cells: p2.map((p) => tvKey(p.label)) }];
+    }
+  } else {
+    const xs = [...new Set(P.pts.map((p) => p.x))], ys = [...new Set(P.pts.map((p) => p.y))];
+    const lab = (i, j) => tvKey(P.pts.find((p) => p.x === xs[i] && p.y === ys[j]).label);
+    if (vert) { depths = ys.map((y) => y * b); rows = xs.map((x, i) => ({ name: `${i + 1} · ${F(x * a, 0)} мм`, cells: ys.map((_, j) => lab(i, j)) })); }
+    else { depths = xs.map((x) => x * a); rows = ys.map((y, j) => ({ name: `${j + 1} · ${F(y * b, 0)} мм`, cells: xs.map((_, i) => lab(i, j)) })); }
+  }
+  return { P, rows, depths, order: rows.flatMap((r) => r.cells), round, vert };
+}
+function travVals(sec, G) { const tv = sec.tv || {}; return G.order.map((k) => N(tv[k])).filter((x) => OK(x)); }
+/* V факт = среднее по заполненным точкам; пустая таблица — V факт вводится вручную */
+function travSync(sys, sec) {
+  if (!(sec.method === 'anemo' || sec.method === 'pitot')) return;
+  const G = travGrid(sec); if (!G) return;
+  const vals = travVals(sec, G);
+  const inp = document.querySelector(`[data-doc="${sys.id}"][data-path="sec:${sec.id}.vAvg"]`);
+  if (!vals.length) { if (inp) inp.readOnly = false; return; }
+  const v = (Math.round(vals.reduce((x, y) => x + y, 0) / vals.length * 100) / 100).toFixed(2).replace('.', ',');
+  if (sec.vAvg !== v || sec.entry !== 'V') { sec.vAvg = v; sec.entry = 'V'; sec.u = Date.now(); Store.save(sys); }
+  if (inp) { inp.value = v; inp.readOnly = true; }
+  const cnt = document.getElementById('tv-cnt'); if (cnt) cnt.textContent = `${vals.length} из ${G.order.length}`;
+}
+function tvName(G, k) {
+  for (let i = 0; i < G.rows.length; i++) { const j = G.rows[i].cells.indexOf(k); if (j >= 0) return `отв. ${i + 1}, ${F(G.depths[j], 0)} мм`; }
+  return k;
+}
+function travCur(sec, G) {
+  const tv = sec.tv || {};
+  if (UI.tvCur && UI.tvCur.cid === sec.id && G.order.includes(UI.tvCur.k)) return UI.tvCur.k;
+  return G.order.find((k) => !OK(N(tv[k]))) || G.order[0];
+}
+function travHTML(sys, sec) {
+  const G = travGrid(sec);
+  if (!G) return '<p class="hint">Введите размеры сечения — появятся точки замера.</p>';
+  const tv = sec.tv || {}, cur = travCur(sec, G), filled = travVals(sec, G).length;
+  const cell = (k) => `<td class="${k === cur ? 'cur' : ''}"><input type="text" inputmode="decimal" class="num-in tv-in" data-doc="${sys.id}" data-path="sec:${sec.id}.tv.${k}" data-tvk="${k}" value="${esc(tv[k] || '')}" aria-label="Скорость, ${esc(tvName(G, k))}" autocomplete="off"></td>`;
+  return `<div class="tv-box">
+    <div class="lrow"><span class="lbl">Точки замера · <span id="tv-cnt">${filled} из ${G.order.length}</span></span>
+      <div class="seg seg-sm" role="group" aria-label="Отверстия"><button data-act="tv-drill" data-v="v" aria-pressed="${G.vert}">Сверху</button><button data-act="tv-drill" data-v="h" aria-pressed="${!G.vert}">Сбоку</button></div></div>
+    <div class="tv-wrap"><table class="tv"><thead><tr><th class="tv-h">Отв. \\ глуб.</th>${G.depths.map((d) => `<th>${F(d, 0)}</th>`).join('')}</tr></thead>
+      <tbody>${G.rows.map((r) => `<tr><th class="tv-h">${esc(r.name)}</th>${r.cells.map(cell).join('')}</tr>`).join('')}</tbody></table></div>
+    <p class="hint">Скорость, м/с, в каждой точке. Глубина ввода зонда — в мм от внутренней стенки. V факт = среднее по точкам.${filled ? ' <button class="lnk" data-act="tv-clear">Очистить точки</button>' : ''}</p>
+  </div>`;
+}
+
+/* ---------- панель Testo: Старт → N секунд усреднения → значение в точку ---------- */
+function testoPanelHTML(sys, sec, trav) {
+  const st = TESTO.st, j = TESTO.job && TESTO.job.cid === sec.id ? TESTO.job : null, dur = testoDur();
+  let live;
+  if (st === 'on') live = `<span class="tst-on">● Testo</span> ${tF(TESTO.v)} м/с · ${tF(TESTO.t, 1)} °C${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''} <button class="lnk" data-act="tst-off">Отключить</button>`;
+  else if (st === 'scan') live = 'Ищу рукоятку…';
+  else if (st === 'connecting') live = 'Подключаюсь…';
+  else live = '<span class="muted">Testo не подключена. Включите рукоятку, закройте приложение Testo и нажмите «Старт».</span>';
+  let tgt = 'V факт';
+  if (trav) { const G = travGrid(sec); if (G) tgt = tvName(G, travCur(sec, G)); }
+  let run = '';
+  if (j) {
+    const el = j.t0 ? Math.min(j.dur, (Date.now() - j.t0) / 1000) : 0;
+    const mean = j.n ? Math.abs(j.sum / j.n) : null;
+    run = `<div class="tst-run"><div class="tst-big"><b>${mean == null ? '—' : tF(mean)}</b> <span>м/с, среднее</span></div>
+      <div class="tst-bar" aria-hidden="true"><i style="width:${Math.round(el / j.dur * 100)}%"></i></div>
+      <div class="tst-meta">${st !== 'on' ? 'Подключаю…' : !j.t0 ? 'Жду замер…' : `${Math.floor(el)} из ${j.dur} с`}</div></div>`;
+  }
+  return `<div class="tst-panel">
+    <div class="tst-line">${live}</div>
+    <div class="tst-ctl">
+      <div class="seg seg-sm" role="group" aria-label="Время усреднения">${[5, 10, 20].map((d) => `<button data-act="tst-dur" data-v="${d}" aria-pressed="${d === dur}" ${j ? 'disabled' : ''}>${d} с</button>`).join('')}</div>
+      ${j ? '<button class="btn tst-stop" data-act="tst-stop">Стоп</button>' : `<button class="btn primary tst-go" data-act="tst-start">Старт · ${esc(tgt)}</button>`}
+    </div>${run}
+  </div>`;
 }
 function testoPaint() {
-  document.querySelectorAll('.tst-line').forEach((x) => { x.innerHTML = testoLineHTML(); });
-  const sh = document.querySelector('#oedit-root .tst-sheet');
-  if (TESTO.avg && !sh) { TESTO.avg = null; return; }
-  if (sh) oeditRoot().innerHTML = testoSheetHTML();
+  const box = document.getElementById('tst-box'); if (!box) { if (TESTO.job) TESTO.job = null; return; }
+  const r = UI.route, sys = r && r.name === 'section' ? Store.get(r.sid) : null, sec = sys ? secOf(sys, r.cid) : null;
+  if (!sec) return;
+  box.innerHTML = testoPanelHTML(sys, sec, box.dataset.trav === '1');
 }
-function testoWrite() {
-  const a = TESTO.avg; if (!a || !a.n) return;
-  const val = (Math.round(Math.abs(a.sum / a.n) * 100) / 100).toFixed(2).replace('.', ',');
-  TESTO.avg = null; oeditRoot().innerHTML = '';
-  const inp = document.querySelector(`[data-doc="${a.doc}"][data-path="${a.path}"]`);
-  if (inp) { inp.value = val; inp.dispatchEvent(new Event('input', { bubbles: true })); }
-  else { const d = Store.get(a.doc); if (d) { setPath(d, a.path, val); touch(d, a.path); Store.save(d); const y = window.scrollY; render(); window.scrollTo(0, y); } }
-  toast(`Записано ${val} м/с`);
+function testoFinish() {
+  const j = TESTO.job; TESTO.job = null; if (!j || !j.n) { testoPaint(); return; }
+  const val = (Math.round(Math.abs(j.sum / j.n) * 100) / 100).toFixed(2).replace('.', ',');
+  const sys = Store.get(j.doc), sec = sys ? secOf(sys, j.cid) : null; if (!sec) return;
+  const path = j.k ? `sec:${sec.id}.tv.${j.k}` : `sec:${sec.id}.vAvg`;
+  const inp = document.querySelector(`[data-doc="${sys.id}"][data-path="${path}"]`);
+  if (inp) { inp.readOnly = false; inp.value = val; inp.dispatchEvent(new Event('input', { bubbles: true })); }
+  else { setPath(sys, path, val); touch(sys, path); Store.save(sys); }
+  testoBeep();
+  if (j.k) {
+    const G = travGrid(sec), tv = sec.tv || {};
+    const i = G ? G.order.indexOf(j.k) : -1;
+    const nx = G ? (G.order.slice(i + 1).find((k) => !OK(N(tv[k]))) || G.order.find((k) => !OK(N(tv[k])))) : null;
+    if (nx) { UI.tvCur = { cid: sec.id, k: nx }; toast(`${val} м/с записано. Дальше: ${tvName(G, nx)}.`); }
+    else { UI.tvCur = null; toast(`${val} м/с записано. Все точки замерены.`); }
+    document.querySelectorAll('.tv td.cur').forEach((x) => x.classList.remove('cur'));
+    const nIn = nx && document.querySelector(`.tv-in[data-tvk="${nx}"]`); if (nIn) nIn.parentElement.classList.add('cur');
+  } else toast(`Записано ${val} м/с`);
+  testoPaint();
 }
 window.__testo = (e) => {
   if (!e) return;
   if (e.e === 'state') {
     TESTO.st = e.s;
-    if (e.s === 'off' || e.s === 'err') { TESTO.v = null; TESTO.t = null; if (e.msg) toast(e.msg); if (TESTO.avg) { TESTO.avg = null; oeditRoot().innerHTML = ''; } }
+    if (e.s === 'off' || e.s === 'err') { TESTO.v = null; TESTO.t = null; if (e.msg) toast(e.msg); TESTO.job = null; }
   } else if (e.e === 'val') {
     if (e.n === 'Velocity') {
       TESTO.v = e.v;
-      const a = TESTO.avg;
-      if (a && TESTO.st === 'on') {
-        if (!a.t0) a.t0 = Date.now();
-        a.sum += e.v; a.n++;
-        if ((Date.now() - a.t0) / 1000 >= a.dur) { testoWrite(); }
+      const j = TESTO.job;
+      if (j && TESTO.st === 'on') {
+        if (!j.t0) j.t0 = Date.now();
+        j.sum += e.v; j.n++;
+        if ((Date.now() - j.t0) / 1000 >= j.dur) { testoFinish(); return; }
       }
     } else if (e.n === 'Temperature') TESTO.t = e.v;
   } else if (e.e === 'bat') TESTO.bat = e.v;
   testoPaint();
 };
-function testoTake(docId, path) {
-  TESTO.avg = { doc: docId, path, dur: testoDur(), t0: 0, sum: 0, n: 0 };
-  oeditRoot().innerHTML = testoSheetHTML();
+function testoStart(sys, sec, trav) {
+  let k = null;
+  if (trav) { const G = travGrid(sec); if (!G) { toast('Сначала размеры сечения.'); return; } k = travCur(sec, G); }
+  TESTO.job = { doc: sys.id, cid: sec.id, k, dur: testoDur(), t0: 0, sum: 0, n: 0 };
   if (TESTO.st !== 'on' && TESTO.st !== 'scan' && TESTO.st !== 'connecting') { try { AndroidBridge.testoStart(); } catch (e) { toast('Не удалось включить Bluetooth.'); } }
+  testoPaint();
 }
+
 function viewSection(sys, sec) {
   const o = objOf(sys.objectId);
   const r = secResult(sys, sec);
@@ -2399,8 +2500,6 @@ function viewSection(sys, sec) {
   const idx = list.findIndex((x) => x.id === sec.id);
   const prev = idx > 0 ? list[idx - 1] : null, next = idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null;
   const goSec = (x) => `data-act="go" data-go='${esc(JSON.stringify({ name: 'section', sid: sys.id, cid: x.id }))}'`;
-
-  /* навигация: ‹ точка N из M › */
   const nav = `<div class="pnav">
       <button class="btn sm" ${prev ? goSec(prev) : 'disabled'} aria-label="Предыдущая точка">‹</button>
       <span class="pnav-t">Точка <b>${idx + 1}</b> из ${list.length}</span>
@@ -2408,10 +2507,26 @@ function viewSection(sys, sec) {
       ${peekPhotos(sys, 'scheme').length ? '<button class="btn sm sch-btn" data-act="scheme-view" data-i="0">Схема</button>' : ''}
     </div>`;
 
-  /* 1. Точка: номер, место, что и чем меряем, размеры */
+  /* номер, место */
+  const isTerm = (sec.role || 'terminal') === 'terminal';
+  const roomNames = [...new Set((sys.sections || []).map((x) => String(x.room || '').trim()).filter(Boolean))];
+  const idRow = isTerm
+    ? `<div class="row-no">${inText(sys, P('no'), '№')}${inText(sys, P('room'), 'Помещение', { list: 'rooms-' + sys.id })}</div>
+      ${inText(sys, P('place'), 'Решётка (обозначение, место)')}<datalist id="rooms-${sys.id}">${roomNames.map((x) => `<option value="${esc(x)}">`).join('')}</datalist>`
+    : `<div class="row-no">${inText(sys, P('no'), '№')}${inText(sys, P('place'), 'Место')}</div>`;
+
+  /* что и чем меряем: выбрано — одна строка, «Изменить» раскрывает */
+  const roleName = (ROLE_CHIPS.find(([v]) => v === sec.role) || [])[1] || '';
+  const methName = (METHOD_CHIPS.find(([v]) => v === m) || [])[1] || '';
+  const chipsOpen = !sec.role || !m || (UI.chipsOpen === sec.id);
+  const chipBlock = chipsOpen
+    ? `${chips(sec, 'role', ROLE_CHIPS, 'Что меряем')}${chips(sec, 'method', METHOD_CHIPS.filter(([v]) => v !== 'kfactor' || fan || m === 'kfactor'), 'Чем меряем')}${sec.role && m ? '<button class="lnk chip-done" data-act="chips-close">Свернуть</button>' : ''}`
+    : `<div class="chip-sum"><span><b>${esc(roleName)}</b> · ${esc(methName)}</span><button class="lnk" data-act="chips-open">Изменить</button></div>`;
+
+  /* размеры */
   const dims = sec.shape === 'round'
-    ? inNum(sys, P('D'), 'D', 'мм')
-    : inNum(sys, P('a'), 'a, ширина', 'мм') + inNum(sys, P('b'), 'b, высота', 'мм');
+    ? inNum(sys, P('D'), 'D', 'мм', { struct: duct })
+    : inNum(sys, P('a'), 'a, ширина', 'мм', { struct: duct }) + inNum(sys, P('b'), 'b, высота', 'мм', { struct: duct });
   const kField = M.usesK(sec) ? inNum(sys, P('kFree'), 'K решётки', '', { hint: byL ? 'при L факт не учитывается' : 'L = 3600·V·F·K' }) : '';
   const kfBlock = m !== 'kfactor' ? '' : `<div class="psub">
       <span class="lbl">K-фактор вентилятора</span>
@@ -2421,24 +2536,9 @@ function viewSection(sys, sec) {
       <div class="lrow"><span class="lbl">${m === 'grille' ? 'Размеры решётки' : 'Сечение воздуховода'}</span>
         <div class="seg seg-sm" role="group" aria-label="Форма сечения"><button data-act="shape" data-v="round" aria-pressed="${sec.shape === 'round'}">Круглое</button><button data-act="shape" data-v="rect" aria-pressed="${sec.shape !== 'round'}">Прямоуг.</button></div></div>
       <div class="fields fields-dims">${dims}${kField}</div>
-      <div class="lrow"><div id="sec-geo">${geoHTML(r, sec)}</div>${duct ? '<button class="btn sm" data-act="drill">Точки сверления →</button>' : ''}</div></div>`;
-  const roleName = (ROLE_CHIPS.find(([v]) => v === sec.role) || [])[1] || '';
-  const methName = (METHOD_CHIPS.find(([v]) => v === m) || [])[1] || '';
-  const isTerm = (sec.role || 'terminal') === 'terminal';
-  const ptSum = esc([`№ ${sec.no || '—'}`, isTerm ? sec.room : '', sec.place, roleName, methName].filter(Boolean).join(' · '));
-  const roomNames = [...new Set((sys.sections || []).map((x) => String(x.room || '').trim()).filter(Boolean))];
-  const idRow = isTerm
-    ? `<div class="row-no">${inText(sys, P('no'), '№')}${inText(sys, P('room'), 'Помещение', { list: 'rooms-' + sys.id })}</div>
-      ${inText(sys, P('place'), 'Решётка (обозначение, место)')}<datalist id="rooms-${sys.id}">${roomNames.map((x) => `<option value="${esc(x)}">`).join('')}</datalist>`
-    : `<div class="row-no">${inText(sys, P('no'), '№')}${inText(sys, P('place'), 'Место')}</div>`;
-  const cardPt = modCard('pt.point', 'c-point', 'Точка', ptSum, `<div class="pcard">
-      ${idRow}
-      ${chips(sec, 'role', ROLE_CHIPS, 'Что меряем')}
-      ${chips(sec, 'method', METHOD_CHIPS.filter(([v]) => v !== 'kfactor' || fan || m === 'kfactor'), 'Чем меряем')}
-      ${sizes}
-    </div>`);
+      <div id="sec-geo">${geoHTML(r, sec)}</div></div>`;
 
-  /* 2. Замер: проект и факт рядом, сразу отклонение */
+  /* замер */
   const psPath = P('ps');
   const psVal = esc(String(getPath(sys, psPath)).replace(/^\s*[-−]/, ''));
   const psField = sec.role === 'fan_in'
@@ -2446,25 +2546,36 @@ function viewSection(sys, sec) {
     : `<div class="f"><label for="${fid(sys, psPath)}">${lab('Pст', 'Па')}</label><div class="pre"><button class="sgn" data-act="ps-sign" aria-label="Сменить знак, сейчас ${sec.psSign === '-' ? 'минус' : 'плюс'}">${sec.psSign === '-' ? '−' : '+'}</button><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psPath)}" data-doc="${sys.id}" data-path="${psPath}" value="${psVal}" autocomplete="off"></div></div>`;
   let meas;
   const fromPass = !m && sec.entry === 'L' && (String(oneVal(sec.total) || '').trim() || String(sec.Lp || '').trim());
-  if (!m && !fromPass) meas = '<p class="muted">Выберите выше, чем меряете, — появится поле для замера.</p>';
+  if (!m && !fromPass) meas = '<p class="muted">Выберите, чем меряете, — появится поле для замера.</p>';
   else {
     const kf = m === 'kfactor';
+    const trav = duct && !byL;
+    const travOn = trav && travGrid(sec) && travVals(sec, travGrid(sec)).length > 0;
     const factPath = byL ? P('total') : (kf ? P('dpK') : P('vAvg'));
     const toggle = m === 'hood' ? '' : `<div class="seg seg-xs" role="group" aria-label="Что вписать"><button data-act="entry" data-v="V" aria-pressed="${!byL}">${kf ? 'Δp' : 'V'}</button><button data-act="entry" data-v="L" aria-pressed="${byL}">L</button></div>`;
-    const factLbl = byL ? lab('L факт', 'м³/ч') : (kf ? lab('Δp факт', 'Па') : lab('V факт', 'м/с'));
+    const factLbl = byL ? lab('L факт', 'м³/ч') : (kf ? lab('Δp факт', 'Па') : lab(travOn ? 'V факт, среднее' : 'V факт', 'м/с'));
     const factVal = oneVal(sec[byL ? 'total' : (kf ? 'dpK' : 'vAvg')]);
+    const fin = valInput(sys, factPath, byL ? 'L факт' : (kf ? 'Δp факт' : 'V факт'), factVal);
+    const testoOK = !byL && !kf && (m === 'anemo' || m === 'grille') && hasTesto();
     meas = `<div class="mrow">
         ${inNum(sys, P('Lp'), 'L проект', 'м³/ч', { cls: 'big' })}
-        <div class="f big"><div class="lrow"><label for="${fid(sys, factPath)}">${factLbl}</label>${toggle}</div>${valInput(sys, factPath, byL ? 'L факт' : (kf ? 'Δp факт' : 'V факт'), factVal)}</div>
+        <div class="f big"><div class="lrow"><label for="${fid(sys, factPath)}">${factLbl}</label>${toggle}</div>${travOn ? fin.replace('<input ', '<input readonly ') : fin}</div>
       </div>
-      ${!byL && !kf && (m === 'anemo' || m === 'grille') && hasTesto() ? `<div class="tst-row"><button class="btn tst-btn" data-act="tst-take" data-doc="${sys.id}" data-path="${factPath}">Скорость с Testo</button><div class="tst-line">${testoLineHTML()}</div></div>` : ''}
-      <div id="sec-result">${resultHTML(r, sec)}</div>${fromPass ? '<p class="hint">Расход из паспорта. Будете перемерять — выберите выше, чем меряете.</p>' : ''}
+      ${trav ? travHTML(sys, sec) : ''}
+      ${testoOK ? `<div id="tst-box" data-trav="${trav ? 1 : 0}">${testoPanelHTML(sys, sec, trav)}</div>` : ''}
+      <div id="sec-result">${resultHTML(r, sec)}</div>${fromPass ? '<p class="hint">Расход из паспорта. Будете перемерять — выберите, чем меряете.</p>' : ''}
       ${fan || duct ? `<div class="fields pres">${psField}${fan ? inNum(sys, P('t'), 'Температура t', '°C') : ''}</div>${fan ? '<p class="hint">Pст и t — для давления вентилятора.</p>' : ''}` : ''}`;
   }
   const measSum = OK(r.L) ? `L ${F(r.L)} / ${F(r.Lp)} м³/ч${OK(r.dev) ? ` · <span class="${r.status === 'bad' ? 'bad-t' : 'ok-t'}">${M.fmtSigned(r.dev, 1)} %</span>` : ''}` : 'нет замера';
-  const cardMeas = modCard('pt.meas', 'c-meas', 'Замер', measSum, `<p class="hint" style="margin:-4px 0 8px">Среднее значение с прибора.</p>${meas}`);
+  const ptSum = [esc([`№ ${sec.no || '—'}`, isTerm ? sec.room : '', sec.place].filter(Boolean).join(' · ')), measSum].join(' · ');
+  const cardPt = modCard('pt.point', 'c-point', 'Точка и замер', ptSum, `<div class="pcard">
+      ${idRow}
+      ${chipBlock}
+      ${sizes}
+      <div class="psub pmeas">${meas}</div>
+    </div>`);
 
-  /* 3. Фото и заметка */
+  /* фото и заметка */
   const nPh = (sec.photos || []).length, noteT = String(sec.note || '').trim();
   const noteSum = esc([photoCount(nPh), noteT ? (noteT.length > 30 ? noteT.slice(0, 29) + '…' : noteT) : ''].filter(Boolean).join(' · ')) || 'пусто';
   const cardNote = modCard('pt.photo', 'c-note', 'Фото и заметка', noteSum, `<div class="stack" style="gap:10px">${photoGrid(sys, 'sec:' + sec.id, 'решётка, место')}
@@ -2472,15 +2583,15 @@ function viewSection(sys, sec) {
 
   return `<div class="stack sec-page">
     <nav class="crumbs scr" aria-label="Путь"><button data-act="go" data-go='{"name":"objects"}'>Объекты</button><span class="sep">›</span><button class="scr-o" data-act="go" data-go='${esc(JSON.stringify({ name: 'object', oid: sys.objectId }))}'>${esc((o && o.name) || 'Объект')}</button><span class="sep">›</span><button data-act="go" data-go='${esc(JSON.stringify({ name: 'system', sid: sys.id }))}'>${esc(sys.name || 'Система')}</button><span class="sep">›</span><span>Точка ${esc(sec.no || '')}</span></nav>
-    ${nav}${cardPt}${cardMeas}${cardNote}
+    ${nav}${cardPt}${cardNote}
     <div class="pact">
       <button class="btn primary wide" data-act="add-section">+ Новая точка</button>
       ${delBtn('sec:' + sys.id + ':' + sec.id)}
     </div>
   </div>`;
 }
-
 function refreshSection(sys, sec) {
+  travSync(sys, sec);
   const r = secResult(sys, sec);
   const res = $('#sec-result'); if (res) res.innerHTML = resultHTML(r, sec);
   const geo = $('#sec-geo'); if (geo) geo.innerHTML = geoHTML(r, sec);
@@ -4392,6 +4503,7 @@ function render() {
 
 function go(route, keepScroll) {
   if (route && route.name === 'objsel') route = objEntry(route.oid);
+  if (!route || route.cid !== UI.chipsOpen) UI.chipsOpen = null;
   UI.route = route;
   UI.armed = null;
   UI.modOpen = {};
@@ -4447,6 +4559,14 @@ view.addEventListener('change', (e) => {
   if (el.hasAttribute('data-struct') || el.tagName === 'SELECT' || el.type === 'checkbox') {
     const y = window.scrollY; render(); window.scrollTo(0, y);
   }
+});
+view.addEventListener('focusin', (e) => {
+  const el = e.target; if (!el.dataset || !el.dataset.tvk) return;
+  const r = UI.route; if (!r || r.name !== 'section') return;
+  UI.tvCur = { cid: r.cid, k: el.dataset.tvk };
+  document.querySelectorAll('.tv td.cur').forEach((x) => x.classList.remove('cur'));
+  el.parentElement.classList.add('cur');
+  testoPaint();
 });
 view.addEventListener('keydown', (e) => {
   if (isPdv()) return;
@@ -4585,11 +4705,14 @@ document.addEventListener('click', (e) => {
     case 'hand-send': shareTextV(issuesTextV(a.dataset.oid || (UI.route && UI.route.oid))); break;
     case 'hand-sheet': handSheet(a.dataset.oid || (UI.route && UI.route.oid)); break;
     case 'hand-close': { oeditRoot().innerHTML = ''; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
-    case 'tst-take': testoTake(a.dataset.doc, a.dataset.path); break;
-    case 'tst-cancel': TESTO.avg = null; oeditRoot().innerHTML = ''; break;
-    case 'tst-now': testoWrite(); break;
-    case 'tst-dur': { const d = +a.dataset.v; lsSet(LS_TESTO_DUR, d); if (TESTO.avg) Object.assign(TESTO.avg, { dur: d, t0: 0, sum: 0, n: 0 }); oeditRoot().innerHTML = testoSheetHTML(); break; }
-    case 'tst-off': try { AndroidBridge.testoStop(); } catch (e) { /* нет моста */ } break;
+    case 'chips-open': { if (!d.c) break; UI.chipsOpen = d.c.id; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'chips-close': { UI.chipsOpen = null; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'tv-drill': { if (!d.s || !d.c) break; d.c.drill = a.dataset.v; d.c.u = Date.now(); Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'tv-clear': { if (!d.s || !d.c) break; d.c.tv = {}; d.c.u = Date.now(); Store.save(d.s); UI.tvCur = null; const y = window.scrollY; render(); window.scrollTo(0, y); toast('Точки очищены. V факт можно вписать вручную.'); break; }
+    case 'tst-start': { if (!d.s || !d.c) break; const b = document.getElementById('tst-box'); testoStart(d.s, d.c, b && b.dataset.trav === '1'); break; }
+    case 'tst-stop': TESTO.job = null; testoPaint(); break;
+    case 'tst-dur': lsSet(LS_TESTO_DUR, +a.dataset.v); testoPaint(); break;
+    case 'tst-off': TESTO.job = null; try { AndroidBridge.testoStop(); } catch (e) { /* нет моста */ } break;
     case 'backup': exportBackup(); break;
     case 'template': exportTemplate(); break;
     case 'import': { const f = $('#import-file'); f.accept = '.json,application/json,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.pdf,application/pdf'; f.click(); break; }
