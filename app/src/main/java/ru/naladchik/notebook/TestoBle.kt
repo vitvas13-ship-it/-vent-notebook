@@ -101,6 +101,7 @@ class TestoBle(private val ctx: Context, private val emit: (JSONObject) -> Unit)
     private var handleName = ""
     private fun connect(d: BluetoothDevice) {
         handleName = try { d.name ?: "" } catch (_: Exception) { "" }
+        probeId = ""
         setState("connecting")
         gatt = d.connectGatt(ctx, false, cb, BluetoothDevice.TRANSPORT_LE)
     }
@@ -212,11 +213,43 @@ class TestoBle(private val ctx: Context, private val emit: (JSONObject) -> Unit)
                 // оранжевая кнопка на рукоятке
                 "ButtonClick" -> send(JSONObject().put("e", "btn"))
                 "BatteryLevel" -> if (4 + n + 4 <= body.size) send(JSONObject().put("e", "bat").put("v", bb.getFloat(4 + n).toDouble()))
+                // тип зонда: строка (u32 длина + текст), напр. «UP_Vane_vt»; приходит и при смене зонда
+                "SensorType" -> {
+                    val id = str(body, 4 + n) ?: return
+                    val was = probeId; probeId = id
+                    send(JSONObject().put("e", "probe").put("id", id))
+                    if (was.isNotEmpty() && was != id) reReadProbe()
+                }
             }
         } else if (cmd == 0x07 && (t[1].toInt() and 0xFF) == 0x04 && body.size >= 12) {
             // ответ на «Measboards.Serials»: число зондов (u32), заводской номер (u64)
             val sn = bb.getLong(4)
             if (sn > 0) send(JSONObject().put("e", "dev").put("sn", sn.toString()).put("handle", handleName))
+        } else if (cmd == 0x07 && (t[1].toInt() and 0xFF) == 0x05 && body.size >= 9) {
+            // ответ на «Measboards.DeviceIds»: число зондов (u32), тип зонда строкой
+            val id = str(body, 4) ?: return
+            probeId = id
+            send(JSONObject().put("e", "probe").put("id", id))
+        }
+    }
+
+    private var probeId = ""
+    /** Строка в кадре: u32 длина + ASCII. */
+    private fun str(b: ByteArray, at: Int): String? {
+        if (at + 4 > b.size) return null
+        val n = ByteBuffer.wrap(b, at, 4).order(ByteOrder.LITTLE_ENDIAN).int
+        if (n <= 0 || n > 64 || at + 4 + n > b.size) return null
+        return String(b, at + 4, n, Charsets.US_ASCII)
+    }
+    /** Зонд сменили на ходу — перечитать его номер и тип (те же кадры чтения, что при подключении). */
+    private fun reReadProbe() {
+        main.post {
+            for (hx in listOf(STARTUP[4], STARTUP[5])) {
+                val fr = hex(hx); var i = 0
+                while (i < fr.size) { queue.add(fr.copyOfRange(i, minOf(i + 20, fr.size))); i += 20 }
+                queue.add(ByteArray(0))
+            }
+            writeNext()
         }
     }
 
