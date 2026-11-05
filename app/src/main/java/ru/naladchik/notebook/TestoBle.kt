@@ -95,6 +95,14 @@ class TestoBle(private val ctx: Context, private val emit: (JSONObject) -> Unit)
         if (state != "off") setState("off")
     }
 
+    /** Отключить одну рукоятку по имени («UpHandle …»). */
+    fun stopOne(name: String) {
+        val c = conns.values.firstOrNull { it.name == name } ?: return
+        conns.remove(c.dev.address)
+        c.close()
+        sumState()
+    }
+
     private fun stopScan() {
         if (!scanning) return
         scanning = false

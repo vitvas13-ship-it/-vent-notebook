@@ -309,6 +309,9 @@ class MainActivity : AppCompatActivity() {
         fun testoStop() { runOnUiThread { testo.stop() } }
 
         @JavascriptInterface
+        fun testoStopOne(name: String) { runOnUiThread { testo.stopOne(name) } }
+
+        @JavascriptInterface
         fun testoState(): String = testo.state
 
         /** Давление с датчика телефона, гПа; пусто — датчика нет или ещё нет значения. */
