@@ -318,6 +318,16 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun baro(): String = if (baroHpa.isNaN() || baroHpa < 500f || baroHpa > 1200f) "" else String.format(java.util.Locale.US, "%.1f", baroHpa)
 
+        /** Короткая вибрация: начало и конец замера точки. */
+        @JavascriptInterface
+        fun vibrate(ms: Int) {
+            try {
+                val v: android.os.Vibrator = if (Build.VERSION.SDK_INT >= 31) (this@MainActivity.getSystemService(android.content.Context.VIBRATOR_MANAGER_SERVICE) as android.os.VibratorManager).defaultVibrator
+                        else this@MainActivity.getSystemService(android.content.Context.VIBRATOR_SERVICE) as android.os.Vibrator
+                v.vibrate(android.os.VibrationEffect.createOneShot(ms.coerceIn(10, 1000).toLong(), android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+            } catch (_: Exception) {}
+        }
+
         /** Экран не гаснет, пока открыт «Замер». */
         @JavascriptInterface
         fun keepScreen(on: Boolean) {

@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- интернет не обязателен: всё работает без сети (шрифты подгружаются, если сеть есть) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- рукоятка Testo по Bluetooth: только поиск и подключение, местоположение не используется -->
