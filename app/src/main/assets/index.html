@@ -2594,7 +2594,7 @@ const DEV_PROGS = [
   { id: 'std', t: 'Стандартный вид', d: 'живые значения, среднее за время замера' },
   { id: 'grille', t: 'Объёмный расход — решётка', d: 'на выходе из воздуховода, свободная площадь %' },
   { id: 'duct', t: 'Объёмный расход — воздуховод', d: 'замер в одной точке сечения' },
-  { id: 'funnel', t: 'Воронка', d: 'расход на диффузоре: L = k · v, k воронки', kv: true },
+  { id: 'funnel', t: 'Воронка', d: 'расход на диффузоре через воронку Testo', kv: true },
   { id: 'kfac', t: 'K-фактор решётки', d: 'L = k · v, k из паспорта решётки', kv: true },
   { id: 'gost', t: 'Сетка ГОСТ 12.3.018-79', d: 'точки по черт. 1–2', grid: true },
   { id: 'en', t: 'Сетка DIN EN 12599', d: 'равные площади', grid: true },
@@ -2663,7 +2663,7 @@ function devK(prog, c) {
   const fr = prog === 'grille' && OK(N(c.free)) && N(c.free) > 0 ? N(c.free) / 100 : 1;
   return k * fr;
 }
-const devL = (prog, c, v) => { if (devProg(prog).kv) { const k = N(c.kv); return OK(v) && k > 0 ? k * Math.abs(v) : NaN; } return OK(v) && OK(devArea(c)) ? 3600 * Math.abs(v) * devArea(c) * devK(prog, c) : NaN; };
+const devL = (prog, c, v) => { if (prog === 'funnel') return devFunnelL(c, v); if (devProg(prog).kv) { const k = N(c.kv); return OK(v) && k > 0 ? k * Math.abs(v) : NaN; } return OK(v) && OK(devArea(c)) ? 3600 * Math.abs(v) * devArea(c) * devK(prog, c) : NaN; };
 
 /* сетка: отверстия (номер, где) и точки (глубина от стенки, координаты 0..1 на схеме) */
 function devGrid(prog, c) {
@@ -2776,7 +2776,7 @@ function devSaveTo(sid, cid, quiet) {
   if (!devProg(prog).kv) { sec.shape = c.shape; if (c.shape === 'round') sec.D = c.D; else { sec.a = c.a; sec.b = c.b; } }
   if (devProg(prog).kv) {
     /* воронка / K-фактор: в точку пишется сразу расход */
-    const L = devL(prog, c, vm); if (!OK(L)) { toast('Нет коэффициента k.'); return false; }
+    const L = devL(prog, c, vm); if (!OK(L)) { toast(prog === 'funnel' ? 'Нет пересчёта воронки для этого зонда.' : 'Нет коэффициента k.'); return false; }
     sec.method = prog === 'funnel' ? 'hood' : 'grille'; sec.entry = 'L'; sec.total = String(Math.round(L)); sec.tv = {};
   } else {
     if (prog === 'grille') { sec.method = 'grille'; sec.kFree = f2(devK(prog, c)); sec.vAvg = f2(Math.abs(vm)); }
@@ -2850,11 +2850,10 @@ function devPages() {
     ${c.std === '0' ? '' : devPSrcHTML() + devTSrcHTML()}`;
   const meas = `<h3>Замер</h3><div class="dv-rows">${devSegRow('Режим', 'mode', [['time', 'По времени'], ['count', 'По числу']])}
     ${c.mode === 'count' ? '<p class="hint dv-rh">Каждое «Запустить» — одно значение в точку.</p>' : devField('ivl', p.grid ? 'Время на точку' : 'Время замера', 'с', { mode: 'numeric' })}</div>`;
+  if (DEV.prog === 'funnel') return [devFunnelCfgHTML() + flow + meas];
   if (p.kv) {
-    const fun = DEV.prog === 'funnel';
-    const kvp = `<h3>${fun ? 'Воронка' : 'Решётка'}</h3><div class="dv-rows">${fun ? devSegRow('Воронка', 'funnel', [['200', '200×200'], ['330', '330×330'], ['own', 'своя']]) : ''}
-      ${devField('kv', fun ? 'Коэффициент воронки k' : 'K-фактор решётки k', 'м³/ч на м/с')}</div>
-      <p class="hint dv-rh">L = k × скорость на крыльчатке. k — ${fun ? 'из инструкции к воронке (для своей крыльчатки)' : 'из паспорта решётки или диффузора'}.</p>`;
+    const kvp = `<h3>Решётка</h3><div class="dv-rows">${devField('kv', 'K-фактор решётки k', 'м³/ч на м/с')}</div>
+      <p class="hint dv-rh">L = k × скорость на крыльчатке, k — из паспорта решётки или диффузора.</p>`;
     return [kvp + flow.replace(devField('kcorr', 'Поправочный коэффициент', ''), '') + meas];
   }
   if (!p.grid) return DEV.prog === 'std' ? [meas] : [geo + flow + meas];
@@ -3190,7 +3189,7 @@ function devAct(act, a) {
       devFixCounts(DEV.prog, DEV.cfg); devCfgSave(); break;
     }
     case 'dv-apply': {
-      if (devProg(DEV.prog).kv ? !(N(DEV.cfg.kv) > 0) : DEV.prog !== 'std' && !OK(devArea(DEV.cfg))) { toast(devProg(DEV.prog).kv ? 'Впишите коэффициент k.' : 'Введите размеры.'); DEV.page = 0; break; }
+      if (DEV.prog === 'kfac' ? !(N(DEV.cfg.kv) > 0) : DEV.prog !== 'std' && DEV.prog !== 'funnel' && !OK(devArea(DEV.cfg))) { toast(DEV.prog === 'kfac' ? 'Впишите коэффициент k.' : 'Введите размеры.'); DEV.page = 0; break; }
       devFixCounts(DEV.prog, DEV.cfg); devCfgSave(); DEV.view = 'meas'; devNewRun(); devPaint.k = ''; testoConnect(); break;
     }
     case 'dv-start': devStart(); return;
@@ -3520,6 +3519,32 @@ setInterval(() => {
     devReconnect(`Рукоятка ${handleNo(d.name || d.h)} молчит — переподключаю…`);
   });
 }, 3000);
+
+
+/* ===== воронка Testo: L = (a·v + b) × поправочный коэффициент; a, b — для своего зонда.
+   Крыльчатка Ø100 и струна — по замерам наладчика на testo 440 dP и testo 400 (05.11.2026):
+   Ø100: 1,42 м/с → 34,5; 0,70 → 16,0; 1,34 → 32,4 м³/ч  ⇒  L ≈ 25,7·v − 2,0
+   струна: 1,08 → 23,8; 1,40 → 30,8 м³/ч  ⇒  L ≈ 22,0·v */
+const LS_DEV_FUN = 'vnb.dev.funnel';
+const DEV_FUN0 = { vane100: { a: '25,7', b: '-2,0' }, vane: { a: '', b: '' }, hot: { a: '22,0', b: '0' } };
+const FUN_NAMES = { vane100: 'Крыльчатка Ø100', vane: 'Крыльчатка Ø16', hot: 'Обогреваемая струна' };
+function devFun(kind) { const s = Object.assign({}, DEV_FUN0[kind], (lsGet(LS_DEV_FUN) || {})[kind] || {}); return { a: N(s.a), b: OK(N(s.b)) ? N(s.b) : 0, raw: s }; }
+function devFunnelL(c, v) {
+  if (!OK(v)) return NaN;
+  const f = devFun(flowKind()); if (!(f.a > 0)) return NaN;
+  const kc = OK(N(c.kcorr)) && N(c.kcorr) > 0 ? N(c.kcorr) : 1;
+  return Math.max(0, f.a * Math.abs(v) + f.b) * kc;
+}
+function devFunnelCfgHTML() {
+  const cur = TESTO.flow ? flowKind() : '';
+  const row = (k) => { const r = devFun(k).raw; return devRow(`${FUN_NAMES[k]}${k === cur ? ' <span class="si-st ok">подключена</span>' : ''}`, `<input type="text" class="num-in dv-in dv-in-s" inputmode="decimal" data-fun="${k}" data-f="a" value="${esc(r.a)}" placeholder="—" aria-label="${FUN_NAMES[k]}: множитель"><span class="dv-u dv-ua">·v +</span><input type="text" class="num-in dv-in dv-in-s" inputmode="decimal" data-fun="${k}" data-f="b" value="${esc(r.b)}" placeholder="0" aria-label="${FUN_NAMES[k]}: смещение"><span class="dv-u"></span>`); };
+  return `<h3>Воронка</h3><div class="dv-rows">${['vane100', 'vane', 'hot'].map(row).join('')}</div>
+    <p class="hint dv-rh">L, м³/ч = множитель × скорость + смещение — для той крыльчатки, что в воронке. Ø100 и струна — по вашим замерам на testo 440 и testo 400; для Ø16 пересчёта нет. Сверяйте с testo на 2–3 скоростях.</p>`;
+}
+document.addEventListener('input', function devFunInput(e) {
+  const el = e.target; if (!el.dataset || !el.dataset.fun) return;
+  const all = lsGet(LS_DEV_FUN) || {}; all[el.dataset.fun] = Object.assign({}, DEV_FUN0[el.dataset.fun], all[el.dataset.fun] || {}, { [el.dataset.f]: el.value.trim() }); lsSet(LS_DEV_FUN, all);
+});
 
 /* ---------- точки замера: сечение (ГОСТ 12.3.018, черт. 1–2) или места на решётке ---------- */
 const tvKey = (label) => String(label).replace(/\./g, '_');
