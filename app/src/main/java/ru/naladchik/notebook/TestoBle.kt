@@ -22,7 +22,8 @@ import java.nio.ByteOrder
 import java.util.UUID
 
 /**
- * Bluetooth-рукоятка Testo (0554 1111, имя «UpHandle …») с зондом-крыльчаткой.
+ * Bluetooth-рукоятки Testo (0554 1111, имя «UpHandle …») с зондами: крыльчатка, струна, влажность.
+ * Можно несколько рукояток сразу — у каждой своё подключение; события несут поле "h" (имя рукоятки).
  *
  * Только чтение замеров. При подключении посылаются ровно те кадры, что посылает
  * приложение Testo (сняты из журнала Bluetooth): начало сессии, чтение свойств,
@@ -37,11 +38,10 @@ class TestoBle(private val ctx: Context, private val emit: (JSONObject) -> Unit)
     private val main = Handler(Looper.getMainLooper())
     private val adapter: BluetoothAdapter? =
         (ctx.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)?.adapter
-    private var gatt: BluetoothGatt? = null
-    private var wr: BluetoothGattCharacteristic? = null
     private var scanning = false
-    private val queue = ArrayDeque<ByteArray>()
-    private val buf = java.io.ByteArrayOutputStream()
+    private val found = LinkedHashMap<String, BluetoothDevice>()
+    private val conns = LinkedHashMap<String, Conn>()
+    /** Общее состояние: off · scan · connecting · on · err */
     var state = "off"; private set
 
     private fun send(o: JSONObject) = main.post { emit(o) }
@@ -49,32 +49,49 @@ class TestoBle(private val ctx: Context, private val emit: (JSONObject) -> Unit)
         state = s
         send(JSONObject().put("e", "state").put("s", s).put("msg", msg))
     }
+    /** Общее состояние по всем рукояткам. */
+    private fun sumState(msg: String = "") {
+        val s = when {
+            scanning -> "scan"
+            conns.values.any { it.st == "on" } -> "on"
+            conns.values.any { it.st == "connecting" } -> "connecting"
+            else -> "off"
+        }
+        if (s != state || msg.isNotEmpty()) setState(s, msg)
+    }
 
     fun start() {
         val a = adapter
         if (a == null) { setState("err", "На телефоне нет Bluetooth."); return }
         if (!a.isEnabled) { setState("err", "Включите Bluetooth на телефоне."); return }
-        if (state == "on" || state == "connecting" || state == "scan") { setState(state); return }
+        if (scanning) { setState(state); return }
         val sc = a.bluetoothLeScanner
         if (sc == null) { setState("err", "Bluetooth не готов, попробуйте ещё раз."); return }
-        setState("scan")
+        found.clear()
         scanning = true
+        sumState()
         val settings = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
         try { sc.startScan(null, settings, scanCb) } catch (e: Exception) { scanning = false; setState("err", "Не удалось начать поиск: ${e.message}"); return }
-        main.postDelayed({
-            if (scanning) {
-                stopScan()
-                setState("err", "Рукоятка не найдена. Включите её и закройте приложение Testo на телефоне.")
-            }
-        }, 15000)
+        main.postDelayed({ if (scanning) finishScan() }, 12000)
+    }
+
+    /** Поиск закончен: подключаем все найденные рукоятки по очереди. */
+    private fun finishScan() {
+        stopScan()
+        val list = found.values.toList(); found.clear()
+        if (list.isEmpty()) {
+            if (conns.isEmpty()) setState("err", "Рукоятка не найдена. Включите её и закройте приложение Testo на телефоне (и отключите рукоятку на testo 400).")
+            else sumState("Других рукояток рядом не найдено.")
+            return
+        }
+        list.forEachIndexed { i, d -> main.postDelayed({ connect(d) }, i * 700L) }
+        sumState()
     }
 
     fun stop() {
-        stopScan()
-        queue.clear()
-        try { gatt?.disconnect() } catch (_: Exception) {}
-        try { gatt?.close() } catch (_: Exception) {}
-        gatt = null; wr = null
+        stopScan(); found.clear()
+        for (c in conns.values.toList()) c.close()
+        conns.clear()
         if (state != "off") setState("off")
     }
 
@@ -89,8 +106,11 @@ class TestoBle(private val ctx: Context, private val emit: (JSONObject) -> Unit)
             if (!scanning) return
             val name = result.scanRecord?.deviceName ?: try { result.device.name } catch (_: Exception) { null } ?: return
             if (!name.startsWith("UpHandle", ignoreCase = true)) return
-            stopScan()
-            connect(result.device)
+            val addr = result.device.address
+            if (conns.containsKey(addr) || found.containsKey(addr)) return
+            found[addr] = result.device
+            // первая найденная — ждём ещё 3 с: вдруг рядом вторая рукоятка
+            if (found.size == 1) main.postDelayed({ if (scanning) finishScan() }, 3000)
         }
         override fun onScanFailed(errorCode: Int) {
             scanning = false
@@ -98,159 +118,179 @@ class TestoBle(private val ctx: Context, private val emit: (JSONObject) -> Unit)
         }
     }
 
-    private var handleName = ""
     private fun connect(d: BluetoothDevice) {
-        handleName = try { d.name ?: "" } catch (_: Exception) { "" }
-        probeId = ""
-        setState("connecting")
-        gatt = d.connectGatt(ctx, false, cb, BluetoothDevice.TRANSPORT_LE)
+        if (conns.containsKey(d.address)) return
+        val c = Conn(d); conns[d.address] = c
+        c.hstate("connecting")
+        sumState()
+        c.gatt = d.connectGatt(ctx, false, c.cb, BluetoothDevice.TRANSPORT_LE)
     }
 
-    private val cb = object : BluetoothGattCallback() {
-        override fun onConnectionStateChange(g: BluetoothGatt, status: Int, newState: Int) {
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                main.post { g.discoverServices() }
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                try { g.close() } catch (_: Exception) {}
-                if (gatt == g) { gatt = null; wr = null }
-                queue.clear()
-                if (state != "off") setState("off", if (state == "connecting") "Не удалось подключиться к рукоятке." else "Рукоятка отключилась.")
-            }
-        }
+    /** Одна рукоятка: своё GATT-подключение, очередь записи и сборка кадров. */
+    private inner class Conn(val dev: BluetoothDevice) {
+        val name: String = try { dev.name ?: dev.address } catch (_: Exception) { dev.address }
+        var gatt: BluetoothGatt? = null
+        var wr: BluetoothGattCharacteristic? = null
+        val queue = ArrayDeque<ByteArray>()
+        val buf = java.io.ByteArrayOutputStream()
+        var st = "connecting"
+        var probeId = ""
 
-        override fun onServicesDiscovered(g: BluetoothGatt, status: Int) {
-            val s = g.getService(SVC)
-            val w = s?.getCharacteristic(CH_WR)
-            val n = s?.getCharacteristic(CH_NT)
-            if (w == null || n == null) { setState("err", "Это не рукоятка Testo (нет нужного сервиса)."); stop(); return }
-            wr = w
-            g.setCharacteristicNotification(n, true)
-            val d = n.getDescriptor(CCCD)
-            if (d == null) { setState("err", "Рукоятка не даёт подписку на замеры."); stop(); return }
-            val v = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-            if (Build.VERSION.SDK_INT >= 33) g.writeDescriptor(d, v)
-            else { @Suppress("DEPRECATION") run { d.value = v; g.writeDescriptor(d) } }
-        }
+        fun out(o: JSONObject) = send(o.put("h", name))
+        fun hstate(s: String, msg: String = "") { st = s; out(JSONObject().put("e", "hstate").put("s", s).put("msg", msg)) }
 
-        override fun onDescriptorWrite(g: BluetoothGatt, d: BluetoothGattDescriptor, status: Int) {
-            // кадры приложения Testo, порциями по 20 байт (MTU рукоятки 23)
+        fun close() {
             queue.clear()
-            for (hx in STARTUP) {
-                val fr = hex(hx)
-                var i = 0
-                while (i < fr.size) { queue.add(fr.copyOfRange(i, minOf(i + 20, fr.size))); i += 20 }
-                queue.add(ByteArray(0)) // пауза между кадрами
-            }
-            main.postDelayed({ writeNext() }, 300)
+            try { gatt?.disconnect() } catch (_: Exception) {}
+            try { gatt?.close() } catch (_: Exception) {}
+            gatt = null; wr = null
+            if (st != "off") hstate("off")
         }
 
-        override fun onCharacteristicWrite(g: BluetoothGatt, c: BluetoothGattCharacteristic, status: Int) {
-            main.post { writeNext() }
-        }
-
-        @Deprecated("до Android 13")
-        override fun onCharacteristicChanged(g: BluetoothGatt, c: BluetoothGattCharacteristic) {
-            @Suppress("DEPRECATION") c.value?.let { feed(it) }
-        }
-
-        override fun onCharacteristicChanged(g: BluetoothGatt, c: BluetoothGattCharacteristic, value: ByteArray) {
-            feed(value)
-        }
-    }
-
-    private fun writeNext() {
-        val g = gatt ?: return
-        val w = wr ?: return
-        val chunk = queue.removeFirstOrNull()
-        if (chunk == null) { if (state != "on") setState("on"); return }
-        if (chunk.isEmpty()) { main.postDelayed({ writeNext() }, 250); return }
-        val ok = if (Build.VERSION.SDK_INT >= 33) {
-            g.writeCharacteristic(w, chunk, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) == 0
-        } else {
-            @Suppress("DEPRECATION") run {
-                w.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-                w.value = chunk; g.writeCharacteristic(w)
+        fun lost(msg: String) {
+            main.post {
+                try { gatt?.close() } catch (_: Exception) {}
+                gatt = null; wr = null; queue.clear()
+                if (conns[dev.address] === this) conns.remove(dev.address)
+                hstate("off", msg)
+                sumState(msg)
             }
         }
-        if (!ok) { queue.addFirst(chunk); main.postDelayed({ writeNext() }, 200) }
-    }
 
-    /** Сборка кадров из уведомлений (кадр может прийти кусками). */
-    @Synchronized
-    private fun feed(data: ByteArray) {
-        buf.write(data)
-        var b = buf.toByteArray()
-        while (b.size >= 8) {
-            val ln = ByteBuffer.wrap(b, 2, 4).order(ByteOrder.LITTLE_ENDIAN).int
-            if (ln < 0 || ln > 100000) { b = ByteArray(0); break }
-            if (b.size < 8 + ln) break
-            val fr = b.copyOfRange(0, 8 + ln)
-            b = b.copyOfRange(8 + ln, b.size)
-            try { frame(fr) } catch (_: Exception) {}
-        }
-        buf.reset(); buf.write(b)
-    }
-
-    private fun frame(t: ByteArray) {
-        val cmd = t[0].toInt() and 0xFF
-        val ln = ByteBuffer.wrap(t, 2, 4).order(ByteOrder.LITTLE_ENDIAN).int
-        if (ln < 2) return
-        val body = t.copyOfRange(8, t.size - 2)
-        val bb = ByteBuffer.wrap(body).order(ByteOrder.LITTLE_ENDIAN)
-        if (cmd == 0x22 && body.size >= 6) {
-            // плата, 0x10, имя, float32, статус
-            val n = bb.getInt(2)
-            if (n <= 0 || 6 + n + 6 > body.size) return
-            val name = String(body, 6, n, Charsets.US_ASCII)
-            val v = bb.getFloat(6 + n)
-            val st = bb.getShort(6 + n + 4).toInt() and 0xFFFF
-            send(JSONObject().put("e", "val").put("n", name).put("v", v.toDouble()).put("st", st))
-        } else if (cmd == 0x10 && body.size >= 5) {
-            val n = bb.getInt(0)
-            if (n <= 0 || 4 + n > body.size) return
-            val name = String(body, 4, n, Charsets.US_ASCII)
-            when (name) {
-                // оранжевая кнопка на рукоятке
-                "ButtonClick" -> send(JSONObject().put("e", "btn"))
-                "BatteryLevel" -> if (4 + n + 4 <= body.size) send(JSONObject().put("e", "bat").put("v", bb.getFloat(4 + n).toDouble()))
-                // тип зонда: строка (u32 длина + текст), напр. «UP_Vane_vt»; приходит и при смене зонда
-                "SensorType" -> {
-                    val id = str(body, 4 + n) ?: return
-                    val was = probeId; probeId = id
-                    send(JSONObject().put("e", "probe").put("id", id))
-                    if (was.isNotEmpty() && was != id) reReadProbe()
+        val cb = object : BluetoothGattCallback() {
+            override fun onConnectionStateChange(g: BluetoothGatt, status: Int, newState: Int) {
+                if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    main.post { g.discoverServices() }
+                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    val hn = name.replace("UpHandle", "Рукоятка").trim()
+                    lost(if (st == "connecting") "$hn: не удалось подключиться." else "$hn отключилась.")
                 }
             }
-        } else if (cmd == 0x07 && (t[1].toInt() and 0xFF) == 0x04 && body.size >= 12) {
-            // ответ на «Measboards.Serials»: число зондов (u32), заводской номер (u64)
-            val sn = bb.getLong(4)
-            if (sn > 0) send(JSONObject().put("e", "dev").put("sn", sn.toString()).put("handle", handleName))
-        } else if (cmd == 0x07 && (t[1].toInt() and 0xFF) == 0x05 && body.size >= 9) {
-            // ответ на «Measboards.DeviceIds»: число зондов (u32), тип зонда строкой
-            val id = str(body, 4) ?: return
-            probeId = id
-            send(JSONObject().put("e", "probe").put("id", id))
+
+            override fun onServicesDiscovered(g: BluetoothGatt, status: Int) {
+                val s = g.getService(SVC)
+                val w = s?.getCharacteristic(CH_WR)
+                val n = s?.getCharacteristic(CH_NT)
+                if (w == null || n == null) { main.post { close(); conns.remove(dev.address); sumState("Это не рукоятка Testo (нет нужного сервиса).") }; return }
+                wr = w
+                g.setCharacteristicNotification(n, true)
+                val d = n.getDescriptor(CCCD)
+                if (d == null) { main.post { close(); conns.remove(dev.address); sumState("Рукоятка не даёт подписку на замеры.") }; return }
+                val v = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                if (Build.VERSION.SDK_INT >= 33) g.writeDescriptor(d, v)
+                else { @Suppress("DEPRECATION") run { d.value = v; g.writeDescriptor(d) } }
+            }
+
+            override fun onDescriptorWrite(g: BluetoothGatt, d: BluetoothGattDescriptor, status: Int) {
+                main.post {
+                    queue.clear()
+                    for (hx in STARTUP) enqueue(hx)
+                    main.postDelayed({ writeNext() }, 300)
+                }
+            }
+
+            override fun onCharacteristicWrite(g: BluetoothGatt, c: BluetoothGattCharacteristic, status: Int) {
+                main.post { writeNext() }
+            }
+
+            @Deprecated("до Android 13")
+            override fun onCharacteristicChanged(g: BluetoothGatt, c: BluetoothGattCharacteristic) {
+                @Suppress("DEPRECATION") c.value?.let { feed(it) }
+            }
+
+            override fun onCharacteristicChanged(g: BluetoothGatt, c: BluetoothGattCharacteristic, value: ByteArray) {
+                feed(value)
+            }
+        }
+
+        /** Кадр порциями по 20 байт (MTU рукоятки 23), пустая порция — пауза между кадрами. */
+        fun enqueue(hx: String) {
+            val fr = hex(hx); var i = 0
+            while (i < fr.size) { queue.add(fr.copyOfRange(i, minOf(i + 20, fr.size))); i += 20 }
+            queue.add(ByteArray(0))
+        }
+
+        fun writeNext() {
+            val g = gatt ?: return
+            val w = wr ?: return
+            val chunk = queue.removeFirstOrNull()
+            if (chunk == null) { if (st != "on") { hstate("on"); sumState() }; return }
+            if (chunk.isEmpty()) { main.postDelayed({ writeNext() }, 250); return }
+            val ok = if (Build.VERSION.SDK_INT >= 33) {
+                g.writeCharacteristic(w, chunk, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) == 0
+            } else {
+                @Suppress("DEPRECATION") run {
+                    w.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                    w.value = chunk; g.writeCharacteristic(w)
+                }
+            }
+            if (!ok) { queue.addFirst(chunk); main.postDelayed({ writeNext() }, 200) }
+        }
+
+        /** Сборка кадров из уведомлений (кадр может прийти кусками). */
+        @Synchronized
+        fun feed(data: ByteArray) {
+            buf.write(data)
+            var b = buf.toByteArray()
+            while (b.size >= 8) {
+                val ln = ByteBuffer.wrap(b, 2, 4).order(ByteOrder.LITTLE_ENDIAN).int
+                if (ln < 0 || ln > 100000) { b = ByteArray(0); break }
+                if (b.size < 8 + ln) break
+                val fr = b.copyOfRange(0, 8 + ln)
+                b = b.copyOfRange(8 + ln, b.size)
+                try { frame(fr) } catch (_: Exception) {}
+            }
+            buf.reset(); buf.write(b)
+        }
+
+        fun frame(t: ByteArray) {
+            val cmd = t[0].toInt() and 0xFF
+            val ln = ByteBuffer.wrap(t, 2, 4).order(ByteOrder.LITTLE_ENDIAN).int
+            if (ln < 2) return
+            val body = t.copyOfRange(8, t.size - 2)
+            val bb = ByteBuffer.wrap(body).order(ByteOrder.LITTLE_ENDIAN)
+            if (cmd == 0x22 && body.size >= 6) {
+                // плата, 0x10, имя, float32, статус
+                val n = bb.getInt(2)
+                if (n <= 0 || 6 + n + 6 > body.size) return
+                val nm = String(body, 6, n, Charsets.US_ASCII)
+                val v = bb.getFloat(6 + n)
+                val stt = bb.getShort(6 + n + 4).toInt() and 0xFFFF
+                out(JSONObject().put("e", "val").put("n", nm).put("v", v.toDouble()).put("st", stt))
+            } else if (cmd == 0x10 && body.size >= 5) {
+                val n = bb.getInt(0)
+                if (n <= 0 || 4 + n > body.size) return
+                when (String(body, 4, n, Charsets.US_ASCII)) {
+                    // оранжевая кнопка на рукоятке
+                    "ButtonClick" -> out(JSONObject().put("e", "btn"))
+                    "BatteryLevel" -> if (4 + n + 4 <= body.size) out(JSONObject().put("e", "bat").put("v", bb.getFloat(4 + n).toDouble()))
+                    // тип зонда строкой, приходит и при смене зонда
+                    "SensorType" -> {
+                        val id = str(body, 4 + n) ?: return
+                        val was = probeId; probeId = id
+                        out(JSONObject().put("e", "probe").put("id", id))
+                        if (was.isNotEmpty() && was != id) main.post { enqueue(STARTUP[4]); enqueue(STARTUP[5]); writeNext() }
+                    }
+                }
+            } else if (cmd == 0x07 && (t[1].toInt() and 0xFF) == 0x04 && body.size >= 12) {
+                // ответ на «Measboards.Serials»: число зондов (u32), заводской номер (u64)
+                val sn = bb.getLong(4)
+                if (sn > 0) out(JSONObject().put("e", "dev").put("sn", sn.toString()).put("handle", name))
+            } else if (cmd == 0x07 && (t[1].toInt() and 0xFF) == 0x05 && body.size >= 9) {
+                // ответ на «Measboards.DeviceIds»: число зондов (u32), тип зонда строкой
+                val id = str(body, 4) ?: return
+                probeId = id
+                out(JSONObject().put("e", "probe").put("id", id))
+            }
         }
     }
 
-    private var probeId = ""
     /** Строка в кадре: u32 длина + ASCII. */
     private fun str(b: ByteArray, at: Int): String? {
         if (at + 4 > b.size) return null
         val n = ByteBuffer.wrap(b, at, 4).order(ByteOrder.LITTLE_ENDIAN).int
         if (n <= 0 || n > 64 || at + 4 + n > b.size) return null
         return String(b, at + 4, n, Charsets.US_ASCII)
-    }
-    /** Зонд сменили на ходу — перечитать его номер и тип (те же кадры чтения, что при подключении). */
-    private fun reReadProbe() {
-        main.post {
-            for (hx in listOf(STARTUP[4], STARTUP[5])) {
-                val fr = hex(hx); var i = 0
-                while (i < fr.size) { queue.add(fr.copyOfRange(i, minOf(i + 20, fr.size))); i += 20 }
-                queue.add(ByteArray(0))
-            }
-            writeNext()
-        }
     }
 
     companion object {
