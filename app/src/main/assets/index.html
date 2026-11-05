@@ -1027,6 +1027,17 @@ body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;ba
 /* ⚙ общие настройки в строке вкладок */
 .tabs .tab.tab-set{flex:0 0 auto;padding-left:10px;padding-right:10px;font-size:18px;line-height:1}
 .dv-rlink{width:100%;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:4px 0}
+/* шестерёнка в углу карточки (вместо заголовка) */
+.dv-chl{flex:1 1 0;min-width:0;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 8px;align-items:center}
+.dv-cg{flex:0 0 auto;background:none;border:0;font-size:20px;line-height:1;color:var(--ink-2);width:36px;height:32px;margin:-6px -8px -4px 0;cursor:pointer;border-radius:8px}
+.dv-cg:active{background:color-mix(in srgb, var(--ink) 10%, transparent)}
+.dv-cfgp{position:relative}
+.dv-cg-abs{position:absolute;top:15px;right:10px;margin:0;width:40px;height:40px;font-size:22px}
+.dv-cfgp > h3:first-of-type{padding-right:40px}
+.dv-arc path{fill:none;stroke:var(--ink-2);stroke-width:1.2;stroke-dasharray:3 3}
+.dv-arc rect{fill:var(--sheet);stroke:var(--rule)}
+.dv-arc text{font-size:12px;font-weight:700;text-anchor:middle;fill:var(--ink)}
+.dv-arc text.s{font-size:10px;font-weight:500;fill:var(--ink-2)}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -2725,7 +2736,7 @@ function devGrid(prog, c) {
     const D = N(c.D), base = c.orient === 'h' ? 90 : 0;
     for (let h = 0; h < H; h++) {
       const ang = base + 180 * h / H, rad = ang * Math.PI / 180, ex = Math.sin(rad), ey = -Math.cos(rad);
-      holes.push({ n: h + 1, ang, lab: ang === 0 ? 'сверху' : ang === 90 ? 'сбоку' : `${Math.round(ang)}°`, ex, ey,
+      holes.push({ n: h + 1, ang, lab: ang === 0 ? 'сверху' : ang === 90 ? 'сбоку' : ang === 180 ? 'снизу' : `${Math.round(ang)}°`, ex, ey,
         pts: cp.map((k, i) => ({ key: `${h + 1}-${i + 1}`, depth: k * D, x: 0.5 + 0.5 * ex * (1 - 2 * k), y: 0.5 + 0.5 * ey * (1 - 2 * k) })) });
     }
   } else {
@@ -2935,7 +2946,7 @@ function devCfgHTML() {
   const pages = devPages(), last = DEV.page >= pages.length - 1;
   return `<div class="stack dv">
     <div class="dv-top"><button class="lnk" data-act="dv-list">‹ Программы</button><b>${esc(devProg(DEV.prog).t)}</b></div>
-    <section class="card dv-cfg">${pages[DEV.page]}</section>
+    <section class="card dv-cfg dv-cfgp"><button type="button" class="dv-cg dv-cg-abs" data-act="dv-sopen" aria-label="Настройки замера">⚙</button>${pages[DEV.page]}</section>
     <div class="dv-nav">${DEV.page > 0 ? '<button class="btn" data-act="dv-page" data-v="-1">‹ Назад</button>' : '<span></span>'}
       ${pages.length > 1 ? `<span class="dv-dots">${pages.map((_, i) => `<i class="${i === DEV.page ? 'on' : ''}"></i>`).join('')}</span>` : '<span></span>'}
       ${last ? '<button class="btn primary" data-act="dv-apply">Запустить ✓</button>' : '<button class="btn primary" data-act="dv-page" data-v="1">Далее ›</button>'}</div>
@@ -2954,7 +2965,8 @@ function devSVG(live) {
   const tip = (x, y, t) => `<g class="dv-tip"><rect x="${(x - 30).toFixed(1)}" y="${(y + 11).toFixed(1)}" width="60" height="20" rx="4"/><text x="${x.toFixed(1)}" y="${(y + 25).toFixed(1)}">${t}</text></g>`;
   if (c.shape === 'round') {
     const W = 340, cx = 170, cy = 172, R = 112;
-    let s = `<svg viewBox="0 0 ${W} 310" class="dv-svg" role="img" aria-label="Сечение и точки замера"><circle class="dv-wall" cx="${cx}" cy="${cy}" r="${R}"/>`;
+    const VH = G.holes.some((h) => h.ey > 0.9) ? 352 : 310;
+    let s = `<svg viewBox="0 0 ${W} ${VH}" class="dv-svg" role="img" aria-label="Сечение и точки замера"><circle class="dv-wall" cx="${cx}" cy="${cy}" r="${R}"/>`;
     G.holes.forEach((h) => { s += `<line class="dv-ax" x1="${(cx + h.ex * R).toFixed(1)}" y1="${(cy + h.ey * R).toFixed(1)}" x2="${(cx - h.ex * R).toFixed(1)}" y2="${(cy - h.ey * R).toFixed(1)}"/>`; });
     G.holes.forEach((h) => h.pts.forEach((p) => { s += dot(cx - R + p.x * 2 * R, cy - R + p.y * 2 * R, p.key); }));
     G.holes.forEach((h) => {
@@ -2963,6 +2975,11 @@ function devSVG(live) {
       const side = Math.abs(h.ey) < 0.3, bx = Math.min(W - 24, Math.max(24, cx + h.ex * (R + (side ? 30 : 46)))), by = cy + h.ey * (R + (side ? 24 : 34)) - (side ? 30 : 0);
       s += `<g class="dv-flag${on ? ' on' : ''}"><line class="dv-lead" x1="${ex0.toFixed(1)}" y1="${ey0.toFixed(1)}" x2="${bx.toFixed(1)}" y2="${by.toFixed(1)}"/><rect x="${(bx - 22).toFixed(1)}" y="${(by - 13).toFixed(1)}" width="44" height="26" rx="5"/><text x="${bx.toFixed(1)}" y="${(by - 2).toFixed(1)}">${h.n}</text><text class="s" x="${bx.toFixed(1)}" y="${(by + 9).toFixed(1)}">${esc(h.lab)}</text></g>`;
     });
+    if (G.holes.length > 1) {
+      const a1 = G.holes[0].ang, a2 = G.holes[1].ang, ra = R + 9, P = (a, r) => [cx + r * Math.sin(a * Math.PI / 180), cy - r * Math.cos(a * Math.PI / 180)];
+      const [x1, y1] = P(a1 + 4, ra), [x2, y2] = P(a2 - 4, ra), [lx, ly] = P((a1 + a2) / 2, R + 40), arc = Math.PI * N(c.D) / (2 * G.holes.length);
+      s += `<g class="dv-arc"><path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${ra},${ra} 0 0 1 ${x2.toFixed(1)},${y2.toFixed(1)}"/><rect x="${(lx - 34).toFixed(1)}" y="${(ly - 15).toFixed(1)}" width="68" height="30" rx="5"/><text x="${lx.toFixed(1)}" y="${(ly - 2).toFixed(1)}">${F(arc, 0)} мм</text><text class="s" x="${lx.toFixed(1)}" y="${(ly + 10).toFixed(1)}">по дуге</text></g>`;
+    }
     if (cp) s += tip(cx - R + cp.p.x * 2 * R, cy - R + cp.p.y * 2 * R, `${F(cp.p.depth, 0)} мм`);
     return s + '</svg>';
   }
@@ -3023,7 +3040,7 @@ function devCurHTML() {
   const v = TESTO.v == null ? null : Math.abs(TESTO.v);
   const mean = j && j.n ? Math.abs(j.sum / j.n) : null;
   const row = (l, val, u) => `<div class="dv-cr"><span>${l}</span><b>${val} <small>${u}</small></b></div>`;
-  return `<div class="dv-ch"><span>Текущее значение</span><span class="dv-conn2">${devConnHTML()}</span></div>
+  return `<div class="dv-ch"><span class="dv-chl"><span>Текущее значение</span><span class="dv-conn2">${devConnHTML()}</span></span><button type="button" class="dv-cg" data-act="dv-cfg" aria-label="Настройка программы">⚙</button></div>
     ${TESTO.flow ? probeHead(TESTO.flow) : ''}
     ${isHum() ? '' : `${p !== 'std' ? row('Объёмный поток', OK(devL(p, c, v)) ? fQ(devL(p, c, v)) : '0', qU()[0]) : ''}
     ${row('Скорость потока', tF(v, 2), 'м/с')}
@@ -3066,7 +3083,7 @@ function devMeasHTML() {
     if (sec) banner = `<div class="dv-link">→ ${esc(sys.name || 'Система')} · точка ${esc(sec.no || '')}${sec.place ? ' · ' + esc(sec.place) : ''}${DEV.run && DEV.run.saved ? ' · <b class="ok-t">записано</b>' : ''} <button class="lnk" data-act="dv-topt">к точке</button></div>`;
   }
   return `<div class="stack dv dv-meas">
-    <div class="dv-top"><button class="lnk" data-act="dv-list">‹ Программы</button><b>${esc(p.t)}</b><button class="dv-gear" data-act="dv-cfg" aria-label="Настройка">⚙</button></div>
+    <div class="dv-top"><button class="lnk" data-act="dv-list">‹ Программы</button><b>${esc(p.t)}</b></div>
     ${banner}
     <div class="dv-pillrow" id="dv-pill">${devPillHTML()}</div>
     <div class="dv-res" id="dv-res">${devResHTML()}</div>
@@ -3712,7 +3729,7 @@ function devKfacCfgHTML() {
 }
 function devKfacInHTML() {
   const c = DEV.cfg, r = DEV.run || {}, dp = r.dp || [], pu = (KF_PU[c.kpu] || KF_PU.Pa)[0];
-  return `<div class="dv-cur"><div class="dv-ch"><span>Δp, ${esc(pu)} — по манометру</span><span>${esc(KF_EQ[c.keq] || KF_EQ[1])} · k ${esc(String(c.kv || '—'))}</span></div>
+  return `<div class="dv-cur"><div class="dv-ch"><span class="dv-chl"><span>Δp, ${esc(pu)} — по манометру</span><span>${esc(KF_EQ[c.keq] || KF_EQ[1])} · k ${esc(String(c.kv || '—'))}</span></span><button type="button" class="dv-cg" data-act="dv-cfg" aria-label="Настройка программы">⚙</button></div>
     <div class="dv-kin-r"><input type="text" class="num-in dv-in" id="dv-dpin" inputmode="decimal" autocomplete="off" placeholder="Δp" aria-label="Δp"><button type="button" class="btn primary" data-act="dv-dpadd">Добавить</button></div>
     ${dp.length ? `<div class="dv-vals">${dp.map((x, i) => `<div><span>${i + 1}.</span> ${tF(x, x < 10 ? 2 : 1)} ${esc(pu)} <button class="lnk" data-act="dv-dpdel" data-i="${i}" aria-label="Удалить ${i + 1}">✕</button></div>`).join('')}</div>` : '<p class="hint">Впишите показание Δp и нажмите «Добавить». Несколько значений — расход по среднему.</p>'}
     ${c.keq === '2' ? `<p class="hint">ρ = ${tF(devRho(c), 3)} кг/м³ (t ${tF(devTamb().t, 1)} °C, p ${fPa(devP())} ${pU()[0]})</p>` : ''}</div>`;
