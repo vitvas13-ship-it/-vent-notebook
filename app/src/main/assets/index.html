@@ -918,19 +918,66 @@ body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;ba
 
 .dv-humc{border-top:1px solid var(--line);padding-top:10px}
 
-.dv-src{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.dv-src{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
 .dv-src-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px;font-size:14px;color:var(--muted)}
 :root body .dv-src-l{text-transform:uppercase;font-size:13px;letter-spacing:.02em;white-space:nowrap}
-:root body .dv-dcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 12px;margin:0 0 8px;border:1px solid rgba(127,127,127,.35);border-radius:10px;background:rgba(127,127,127,.07);color:var(--ink);font:inherit;min-height:0;box-shadow:none}
+:root body .dv-dcard{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:7px 10px;margin:0 0 6px;border:1px solid rgba(127,127,127,.35);border-radius:10px;background:rgba(127,127,127,.07);color:var(--ink);font:inherit;min-height:0;box-shadow:none}
 :root body button.dv-dcard{cursor:pointer}
 :root body .dv-dcard.on{border-color:var(--ok);background:rgba(46,180,100,.08)}
-.dv-di{flex:none;width:36px;height:36px;display:grid;place-items:center;border-radius:8px;background:rgba(127,127,127,.18);color:var(--ink)}
+.dv-di{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:8px;background:rgba(127,127,127,.18);color:var(--ink)}
 .dv-dt{display:flex;flex-direction:column;gap:1px;min-width:0;font-size:13px;color:var(--muted)}
 .dv-dt b{color:var(--ink)}
 .dv-dt>b{font-size:15px}
 .dv-dr{margin-left:auto;flex:none;width:20px;height:20px;border-radius:50%;border:2px solid rgba(127,127,127,.7)}
 .dv-dcard.on .dv-dr{border-color:var(--ok);background:radial-gradient(circle,var(--ok) 0 45%,transparent 50%)}
 .dv-hum-o{grid-template-columns:1fr}
+
+:root body .dv-instr-b{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border:1px solid rgba(127,127,127,.35);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;min-height:0;box-shadow:none}
+.dv-instr-b .chev-r{margin-left:auto;font-size:24px;color:var(--muted)}
+.dv-icard{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(127,127,127,.25)}
+.dv-icard:last-of-type{border-bottom:0}
+.dv-icard .btn{margin-left:auto;flex:none}
+.dv-icard.off{opacity:.75}
+.dv-newo{display:flex;gap:8px;margin:-2px 0 10px}
+.dv-newo input{flex:1;min-width:0}
+
+/* настройка прибора — строками */
+.dv-rows{display:flex;flex-direction:column}
+.dv-r{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:50px;padding:5px 0;border-bottom:1px solid rgba(127,127,127,.2)}
+.dv-rows>.dv-r:last-child{border-bottom:0}
+.dv-rl{flex:1;min-width:0;font-size:15px;line-height:1.25}
+.dv-rc{flex:none;display:flex;align-items:center;gap:6px}
+:root body .dv-in{width:92px;height:40px;padding:6px 10px;text-align:right;font-size:16px}
+:root body .dv-sel{width:92px;height:40px;padding:4px 8px;font-size:16px}
+.dv-u{width:34px;font-size:13px;color:var(--muted)}
+.dv-rh{margin:2px 0 6px}
+.dv-rh2{margin-top:6px}
+.dv-rh2 .dv-rl b{font-size:16px}
+:root body .dv-sw{position:relative;flex:none;width:52px;height:30px;min-height:0;padding:0;border-radius:15px;border:0;background:rgba(127,127,127,.45);cursor:pointer;box-shadow:none}
+:root body .dv-sw i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
+:root body .dv-sw[aria-checked="true"]{background:#2F7DF6}
+:root body .dv-sw[aria-checked="true"] i{left:25px}
+.dv-cfg h3{margin:4px 0 2px}
+
+:root body .dv-in-s{width:62px}
+.dv-unc.bad{color:var(--bad,#C62828)}
+.dv-ua{width:auto;white-space:nowrap}
+
+.si-card{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid rgba(127,127,127,.25);font-size:13px;color:var(--muted)}
+.si-card b{color:var(--ink);font-size:15px}
+.si-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.si-st{font-weight:700;font-size:13px}
+.si-st.ok{color:var(--ok)}
+.si-st.soon{color:#D9822B}
+.si-st.bad{color:#C62828}
+.si-form{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid rgba(127,127,127,.25)}
+.si-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.si-form input{width:100%}
+
+.si-blk{display:block}
+
+.dv-pline{margin:4px 0 10px;font-size:14px;color:var(--muted)}
+.dv-pline b{color:var(--ink)}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -997,8 +1044,8 @@ body .crumbs.ocrumbs > .ocr-e,.oc-e{flex:none;text-decoration:none;border:1px so
       </div>
     </div>
     <nav class="tabs" role="tablist" aria-label="Разделы">
-      <button class="tab" role="tab" id="tab-journal" data-tab="journal" aria-selected="true">Журнал</button>
       <button class="tab" role="tab" id="tab-dev" data-tab="dev" aria-selected="false" hidden>Прибор</button>
+      <button class="tab" role="tab" id="tab-journal" data-tab="journal" aria-selected="true">Журнал</button>
       <button class="tab" role="tab" id="tab-calc" data-tab="calc" aria-selected="false">Расчёты</button>
       <button class="tab" role="tab" id="tab-ref" data-tab="ref" aria-selected="false">Справка</button>
     </nav>
@@ -2514,7 +2561,7 @@ const hasHum = () => !!TESTO.hum;
 const isHum = () => !!TESTO.hum && !TESTO.flow;
 /* короткая подпись зонда, как в testo 400: «Крыльчатка · 973» */
 /* заголовок зонда на экране замера: «Крыльчатка [973] 99 %»; номер выделен, полный — в подсказке */
-const probeHead = (d) => { if (!d) return ''; const n = probeName(d.probe) || 'зонд'; return `<div class="dv-ch2"><span>${esc(n.charAt(0).toUpperCase() + n.slice(1))}</span>${d.sn ? `<b class="dv-sn" title="Зонд № ${esc(d.sn)}, рукоятка ${esc(handleNo(d.name || d.h))}">${esc(String(d.sn).slice(-3))}</b>` : ''}${d.bat != null ? `<span class="dv-bat">заряд ${Math.round(d.bat)} %</span>` : ''}</div>`; };
+const probeHead = (d) => { if (!d) return ''; const n = (typeof siPartName === 'function' && siPartName(d.sn)) || probeName(d.probe) || 'зонд'; return `<div class="dv-ch2"><span>${esc(n.charAt(0).toUpperCase() + n.slice(1))}</span>${d.sn ? `<b class="dv-sn" title="Зонд № ${esc(d.sn)}, рукоятка ${esc(handleNo(d.name || d.h))}">${esc(String(d.sn).slice(-3))}</b>` : ''}${siState(siFind(d.sn)) === 'bad' ? '<span class="si-st bad">поверка истекла</span>' : ''}${d.bat != null ? `<span class="dv-bat">заряд ${Math.round(d.bat)} %</span>` : ''}</div>`; };
 const probeShort = (d) => { const n = probeName(d.probe) || 'зонд'; return n.charAt(0).toUpperCase() + n.slice(1) + (d.sn ? ' · ' + String(d.sn).slice(-3) : ''); };
 /* тип зонда по коду с рукоятки: «UP_Vane_vt» → крыльчатка */
 function probeName(id) {
@@ -2530,12 +2577,13 @@ const handleNo = (h) => (String(h || '').match(/\d{5,}/) || [''])[0];
 /* «рукоятка № 63186270 · крыльчатка № 20919973» — для точки и отчёта */
 function devInstr(src) {
   if (!src) return '';
-  const h = handleNo(src.handle), pn = probeName(src.probe);
-  return [h ? `рукоятка № ${h}` : '', pn || src.sn ? `${pn || 'зонд'}${src.sn ? ' № ' + src.sn : ''}` : ''].filter(Boolean).join(' · ');
+  const h = handleNo(src.handle), pn = (typeof siPartName === 'function' && siPartName(src.sn)) || probeName(src.probe), si = typeof siFind === 'function' ? siFind(src.sn) : null;
+  return [h ? `рукоятка № ${h}` : '', pn || src.sn ? `${pn || 'зонд'}${src.sn ? ' № ' + src.sn : ''}` : '', si ? siRef(si) : ''].filter(Boolean).join(' · ');
 }
 function hasTesto() { try { return !!(window.AndroidBridge && AndroidBridge.testoStart); } catch (e) { return false; } }
 const tF = (x, d = 2) => (x == null || !isFinite(x) ? '—' : x.toFixed(d).replace('.', ',').replace('-', '−'));
 function testoBeep(hi) {
+  try { if (window.AndroidBridge && AndroidBridge.vibrate) AndroidBridge.vibrate(hi ? 220 : 60); else if (navigator.vibrate) navigator.vibrate(hi ? 220 : 60); } catch (e) { /* без вибрации */ }
   try { const C = window.AudioContext || window.webkitAudioContext; if (!C) return; const ac = testoBeep.ac || (testoBeep.ac = new C());
     const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = hi ? 1500 : 1000; g.gain.value = 0.18; o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + (hi ? 0.25 : 0.12)); } catch (e) { /* без звука */ }
 }
@@ -2546,6 +2594,8 @@ const DEV_PROGS = [
   { id: 'std', t: 'Стандартный вид', d: 'живые значения, среднее за время замера' },
   { id: 'grille', t: 'Объёмный расход — решётка', d: 'на выходе из воздуховода, свободная площадь %' },
   { id: 'duct', t: 'Объёмный расход — воздуховод', d: 'замер в одной точке сечения' },
+  { id: 'funnel', t: 'Воронка', d: 'расход на диффузоре: L = k · v, k воронки', kv: true },
+  { id: 'kfac', t: 'K-фактор решётки', d: 'L = k · v, k из паспорта решётки', kv: true },
   { id: 'gost', t: 'Сетка ГОСТ 12.3.018-79', d: 'точки по черт. 1–2', grid: true },
   { id: 'en', t: 'Сетка DIN EN 12599', d: 'равные площади', grid: true },
   { id: 'ashrae', t: 'Сетка ASHRAE 111', d: 'лог-Чебышёв / лог-линейный', grid: true },
@@ -2597,7 +2647,7 @@ function devFixCounts(prog, c) {
 
 /* настройка программы: запоминается отдельно для каждой программы */
 const LS_DEV_CFG = 'vnb.dev.cfg.', LS_DEV_PROG = 'vnb.dev.prog', LS_DEV_HIST = 'vnb.dev.hist';
-function devCfgDefault() { return { shape: 'rect', a: '', b: '', D: '', holes: 0, pts: 0, orient: 'v', air: 'supply', Lp: '', kcorr: '1,00', free: '100', mode: 'time', ivl: '5', std: '1', pstd: '101325', tstd: '20', tsrc: 'flow', tman: '20' }; }
+function devCfgDefault() { return { shape: 'rect', a: '', b: '', D: '', holes: 0, pts: 0, orient: 'v', air: 'supply', Lp: '', kcorr: '1,00', free: '100', mode: 'time', ivl: '5', std: '1', pstd: '101325', tstd: '20', tsrc: 'flow', tman: '20', l1: '', l2: '', kv: '', funnel: '200' }; }
 function devCfgLoad(prog) { const c = Object.assign(devCfgDefault(), lsGet(LS_DEV_CFG + prog) || {}); devFixCounts(prog, c); return c; }
 function devCfgSave() { if (DEV.prog) lsSet(LS_DEV_CFG + DEV.prog, DEV.cfg); }
 
@@ -2613,7 +2663,7 @@ function devK(prog, c) {
   const fr = prog === 'grille' && OK(N(c.free)) && N(c.free) > 0 ? N(c.free) / 100 : 1;
   return k * fr;
 }
-const devL = (prog, c, v) => (OK(v) && OK(devArea(c)) ? 3600 * Math.abs(v) * devArea(c) * devK(prog, c) : NaN);
+const devL = (prog, c, v) => { if (devProg(prog).kv) { const k = N(c.kv); return OK(v) && k > 0 ? k * Math.abs(v) : NaN; } return OK(v) && OK(devArea(c)) ? 3600 * Math.abs(v) * devArea(c) * devK(prog, c) : NaN; };
 
 /* сетка: отверстия (номер, где) и точки (глубина от стенки, координаты 0..1 на схеме) */
 function devGrid(prog, c) {
@@ -2723,15 +2773,21 @@ function devSaveTo(sid, cid, quiet) {
   const vm = devMean(); if (!OK(vm)) return false;
   const kc = OK(N(c.kcorr)) && N(c.kcorr) > 0 ? N(c.kcorr) : 1;
   const f2 = (x) => (Math.round(x * 100) / 100).toFixed(2).replace('.', ',');
-  sec.shape = c.shape; if (c.shape === 'round') sec.D = c.D; else { sec.a = c.a; sec.b = c.b; }
-  if (prog === 'grille') { sec.method = 'grille'; sec.kFree = f2(devK(prog, c)); sec.vAvg = f2(Math.abs(vm)); }
-  else { sec.method = 'anemo'; sec.vAvg = f2(Math.abs(vm) * kc); }
-  sec.entry = 'V'; sec.tv = {};
+  if (!devProg(prog).kv) { sec.shape = c.shape; if (c.shape === 'round') sec.D = c.D; else { sec.a = c.a; sec.b = c.b; } }
+  if (devProg(prog).kv) {
+    /* воронка / K-фактор: в точку пишется сразу расход */
+    const L = devL(prog, c, vm); if (!OK(L)) { toast('Нет коэффициента k.'); return false; }
+    sec.method = prog === 'funnel' ? 'hood' : 'grille'; sec.entry = 'L'; sec.total = String(Math.round(L)); sec.tv = {};
+  } else {
+    if (prog === 'grille') { sec.method = 'grille'; sec.kFree = f2(devK(prog, c)); sec.vAvg = f2(Math.abs(vm)); }
+    else { sec.method = 'anemo'; sec.vAvg = f2(Math.abs(vm) * kc); }
+    sec.entry = 'V'; sec.tv = {};
+  }
   if (!String(sec.Lp || '').trim() && String(c.Lp || '').trim()) sec.Lp = c.Lp;
   if ((sec.role === 'fan_in' || sec.role === 'fan_out') && OK(DEV.run.t)) sec.t = (Math.round(DEV.run.t * 10) / 10).toFixed(1).replace('.', ',');
   const pr = devProg(prog);
   sec.src = { dev: 'Testo', sn: TESTO.sn || '', handle: TESTO.handle || '', probe: TESTO.probe || '', at: new Date().toISOString(), prog: pr.t, grid: pr.grid ? `${c.holes}×${c.pts}` : '' };
-  sec.meas = { prog, cfg: Object.assign({}, c), vals: DEV.run.vals, det: DEV.run.det || {}, t: OK(DEV.run.t) ? Math.round(DEV.run.t * 10) / 10 : null, p: OK(devP(true)) ? Math.round(devP(true)) : null };
+  sec.meas = { prog, cfg: Object.assign({}, c), vals: DEV.run.vals, det: DEV.run.det || {}, t: OK(DEV.run.t) ? Math.round(DEV.run.t * 10) / 10 : null, p: OK(devP(true)) ? Math.round(devP(true)) : null, unc: (() => { const u = devUnc(); return u ? { tot: Math.round(u.tot * 10) / 10, prof: OK(u.prof) ? Math.round(u.prof * 10) / 10 : null, inst: Math.round(u.inst * 10) / 10, U: OK(u.U) ? Math.round(u.U) : null } : null; })() };
   sec.u = Date.now(); Store.save(sys);
   DEV.run.saved = true;
   devHistAdd(`${sys.name || 'Система'} · точка ${sec.no || ''}`);
@@ -2751,7 +2807,7 @@ function devConnHTML() {
   if (st === 'on') {
     const wait = Object.values(TESTO.devs).filter((d) => d.st === 'connecting').length;
     const n = Object.values(TESTO.devs).filter((d) => d.st === 'on').length;
-    return `${DEV.view === 'meas' ? '' : `<span class="tst-on">● Testo</span> ${n} ${n === 1 ? 'рукоятка' : 'рукоятки'} · `}<button class="lnk" data-act="dv-more">${TESTO.agg === 'scan' ? 'ищу…' : wait ? 'подключаю…' : '+ рукоятка'}</button> <button class="lnk" data-act="dv-off">Отключить</button>`;
+    return `${DEV.view === 'meas' ? '' : `<span class="tst-on">● Testo</span> ${n} ${n === 1 ? 'рукоятка' : 'рукоятки'} · `}<button class="lnk" data-act="dv-instr">${TESTO.agg === 'scan' ? 'ищу…' : wait ? 'подключаю…' : 'Приборы ›'}</button>`;
   }
   if (st === 'scan') return 'Ищу рукоятку…';
   if (st === 'connecting') return 'Подключаюсь…';
@@ -2761,7 +2817,7 @@ function devListHTML() {
   const last = lsGet(LS_DEV_PROG);
   const hist = (lsGet(LS_DEV_HIST) || []).slice(0, 10);
   return `<div class="stack dv">
-    <div class="dv-conn" id="dv-conn">${devConnHTML()}</div>
+    <button type="button" class="dv-instr-b" data-act="dv-instr"><span class="dv-di" aria-hidden="true">${ICON_PROBE}</span><span class="dv-dt"><b>Измерительные приборы</b><span id="dv-conn">${devInstrSum()}</span></span><span class="chev-r" aria-hidden="true">›</span></button>
     <section class="card dv-progs"><h2>Программы измерения</h2>
       ${DEV_PROGS.map((p) => `<button class="dv-prog${p.id === last ? ' last' : ''}" data-act="dv-prog" data-v="${p.id}"><b>${esc(p.t)}</b><small>${esc(p.d)}</small></button>`).join('')}
     </section>
@@ -2769,30 +2825,43 @@ function devListHTML() {
     <p class="hint">Замер можно начать и из точки журнала — кнопка «Замер с Testo»: размеры подставятся, результат запишется в точку.</p>
   </div>`;
 }
+/* настройка строками, как в testo 400: подпись слева, короткое поле с единицей справа */
+const devRow = (label, ctl, forId) => `<div class="dv-r">${forId ? `<label class="dv-rl" for="${forId}">${label}</label>` : `<span class="dv-rl">${label}</span>`}<span class="dv-rc">${ctl}</span></div>`;
+const devIn = (id, attrs, val, unit, ph = '') => `<input type="text" class="num-in dv-in" id="${id}" ${attrs} value="${esc(val ?? '')}" placeholder="${esc(ph)}" autocomplete="off"><span class="dv-u">${unit || ''}</span>`;
 function devField(k, label, unit, o = {}) {
-  return `<div class="f${o.cls ? ' ' + o.cls : ''}"><label for="dv-${k}">${label}${unit ? ` <span class="u">${unit}</span>` : ''}</label><input type="text" inputmode="${o.mode || 'decimal'}" class="num-in" id="dv-${k}" data-dcfg="${k}" value="${esc(DEV.cfg[k] ?? '')}" autocomplete="off">${o.hint ? `<span class="hint">${o.hint}</span>` : ''}</div>`;
+  return devRow(label, devIn(`dv-${k}`, `inputmode="${o.mode || 'decimal'}" data-dcfg="${k}"`, DEV.cfg[k], unit), `dv-${k}`) + (o.hint ? `<p class="hint dv-rh">${o.hint}</p>` : '');
 }
 const devSeg = (k, opts) => `<div class="seg seg-sm" role="group">${opts.map(([v, t]) => `<button data-act="dv-set" data-k="${k}" data-v="${v}" aria-pressed="${String(DEV.cfg[k]) === String(v)}">${t}</button>`).join('')}</div>`;
+const devSegRow = (label, k, opts) => devRow(label, devSeg(k, opts));
 function devSel(k, label, opts) {
-  return `<div class="f"><label for="dv-${k}">${label}</label><select id="dv-${k}" data-dcfg="${k}">${opts.map((v) => `<option value="${v}"${+DEV.cfg[k] === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>`;
+  return devRow(label, `<select class="dv-sel" id="dv-${k}" data-dcfg="${k}">${opts.map((v) => `<option value="${v}"${+DEV.cfg[k] === v ? ' selected' : ''}>${v}</option>`).join('')}</select><span class="dv-u"></span>`, `dv-${k}`);
 }
+/* переключатель в строке заголовка */
+const devSwitch = (k, label) => { const on = DEV.cfg[k] !== '0'; return `<div class="dv-r dv-rh2"><span class="dv-rl"><b>${label}</b></span><button type="button" class="dv-sw" role="switch" aria-checked="${on}" aria-label="${label}" data-act="dv-set" data-k="${k}" data-v="${on ? '0' : '1'}"><i></i></button></div>`; };
 function devPages() {
   const p = devProg(DEV.prog), c = DEV.cfg;
-  const geo = `<h3>Геометрия</h3>${devSeg('shape', [['rect', 'Прямоугольный'], ['round', 'Круглый']])}
-    <div class="fields fields-dims" style="margin-top:10px">${c.shape === 'round' ? devField('D', 'Диаметр D', 'мм') : devField('b', 'Высота b', 'мм') + devField('a', 'Ширина a', 'мм')}</div>`;
-  const flow = `<h3>Расход</h3>${devSeg('air', [['supply', 'Приток'], ['exhaust', 'Вытяжка']])}
-    <div class="fields" style="margin-top:10px">${devField('Lp', 'Заданный расход', 'м³/ч')}${devField('kcorr', 'Поправочный коэффициент', '')}${DEV.prog === 'grille' ? devField('free', 'Свободная площадь', '%', { hint: 'живое сечение решётки' }) : ''}</div>
-    <h3 style="margin-top:14px">Стандартный объёмный расход</h3>${devSeg('std', [['1', 'Вкл.'], ['0', 'Выкл.']])}
-    ${c.std === '0' ? '' : `<div class="fields" style="margin-top:10px">${devField('pstd', 'Стандартное давление', 'Па', { mode: 'numeric' })}${devField('tstd', 'Стандартная температура', '°C')}</div>
-    ${devPSrcHTML()}${devTSrcHTML()}`}`;
-  const meas = `<h3>Замер</h3>${devSeg('mode', [['time', 'По времени'], ['count', 'По числу замеров']])}
-    <div class="fields" style="margin-top:10px">${c.mode === 'count' ? '<p class="hint">Каждое «Запустить» — одно значение в точку.</p>' : devField('ivl', p.grid ? 'Интервал на точку' : 'Время замера', 'с', { mode: 'numeric', hint: '0 — до «Остановить»' })}</div>
-    <p class="hint">Зонд: крыльчатка Testo по Bluetooth.</p>`;
+  const geo = `<h3>Геометрия</h3><div class="dv-rows">${devSegRow('Сечение', 'shape', [['rect', 'Прямоуг.'], ['round', 'Круглое']])}
+    ${c.shape === 'round' ? devField('D', 'Диаметр D', 'мм') : devField('b', 'Высота b', 'мм') + devField('a', 'Ширина a', 'мм')}
+    ${p.grid ? `${devField('l1', 'От возмущения до сечения', 'м')}${devField('l2', 'От сечения до возмущения', 'м')}<div id="dv-dist">${devDistHTML()}</div>` : ''}</div>`;
+  const flow = `<h3>Расход</h3><div class="dv-rows">${devSegRow('Воздух', 'air', [['supply', 'Приток'], ['exhaust', 'Вытяжка']])}
+    ${devField('Lp', 'Заданный расход', 'м³/ч')}${devField('kcorr', 'Поправочный коэффициент', '')}${DEV.prog === 'grille' ? devField('free', 'Живое сечение решётки', '%') : ''}
+    ${devSwitch('std', 'Стандартный объёмный расход')}
+    ${c.std === '0' ? '' : `${devField('pstd', 'Стандартное давление', 'Па', { mode: 'numeric' })}${devField('tstd', 'Стандартная температура', '°C')}`}</div>
+    ${c.std === '0' ? '' : devPSrcHTML() + devTSrcHTML()}`;
+  const meas = `<h3>Замер</h3><div class="dv-rows">${devSegRow('Режим', 'mode', [['time', 'По времени'], ['count', 'По числу']])}
+    ${c.mode === 'count' ? '<p class="hint dv-rh">Каждое «Запустить» — одно значение в точку.</p>' : devField('ivl', p.grid ? 'Время на точку' : 'Время замера', 'с', { mode: 'numeric' })}</div>`;
+  if (p.kv) {
+    const fun = DEV.prog === 'funnel';
+    const kvp = `<h3>${fun ? 'Воронка' : 'Решётка'}</h3><div class="dv-rows">${fun ? devSegRow('Воронка', 'funnel', [['200', '200×200'], ['330', '330×330'], ['own', 'своя']]) : ''}
+      ${devField('kv', fun ? 'Коэффициент воронки k' : 'K-фактор решётки k', 'м³/ч на м/с')}</div>
+      <p class="hint dv-rh">L = k × скорость на крыльчатке. k — ${fun ? 'из инструкции к воронке (для своей крыльчатки)' : 'из паспорта решётки или диффузора'}.</p>`;
+    return [kvp + flow.replace(devField('kcorr', 'Поправочный коэффициент', ''), '') + meas];
+  }
   if (!p.grid) return DEV.prog === 'std' ? [meas] : [geo + flow + meas];
   const ho = devHolesOpts(DEV.prog, c.shape), po = devPtsOpts(DEV.prog, c.shape);
   const grid = `<h3>Сетка · ${esc(p.t.replace('Сетка ', ''))}</h3>
-    <div class="fields">${devSel('holes', 'Контрольных отверстий', ho)}${devSel('pts', 'Точек в отверстии', po)}</div>
-    <div class="lrow" style="margin:10px 0"><span class="lbl">Положение отверстий</span>${devSeg('orient', [['v', 'Вертикально'], ['h', 'Горизонтально']])}</div>
+    <div class="dv-rows">${devSel('holes', 'Контрольных отверстий', ho)}${devSel('pts', 'Точек в отверстии', po)}
+    ${devSegRow('Отверстия', 'orient', [['v', 'Вертик.'], ['h', 'Горизонт.']])}</div>
     <div id="dv-prev">${devSVG(false)}</div>`;
   return [geo, grid, flow, meas];
 }
@@ -2871,13 +2940,15 @@ function devResHTML() {
   if (p === 'std') {
     const r = DEV.run, arr = r ? r.vals : [];
     const last = arr[arr.length - 1];
-    return `<div class="dv-rl">Среднее за замер</div><div class="dv-rv">${last ? tF(Math.abs(last.v)) : '---'} <span>м/с</span></div>${last ? `<div class="dv-rs">мин ${tF(devLo(last))} · макс ${tF(devHi(last))} · ${last.s} с${OK(last.t) ? ` · ${tF(last.t, 1)} °C` : ''}</div>` : ''}`;
+    if (!last) return '';
+    return `<div class="dv-rl">Среднее за замер</div><div class="dv-rv">${tF(Math.abs(last.v))} <span>м/с</span></div>${last ? `<div class="dv-rs">мин ${tF(devLo(last))} · макс ${tF(devHi(last))} · ${last.s} с${OK(last.t) ? ` · ${tF(last.t, 1)} °C` : ''}</div>` : ''}`;
   }
   const L = devL(p, c, vm), Lp = N(c.Lp), dev = OK(L) && OK(Lp) && Lp > 0 ? (L - Lp) / Lp * 100 : NaN;
   const okc = OK(dev) ? (Math.abs(dev) <= 10 ? 'ok-t' : 'bad-t') : '';
   const ta = devTamb(), tt = ta.t, pp = devP(), Ls = c.std === '0' ? NaN : devLstd(L, tt, pp);
   return `<div class="dv-rl">Рабочий объёмный расход</div><div class="dv-rv">${OK(L) ? F(L) : '---'} <span>м³/ч</span></div>
     <div class="dv-rs">${[OK(vm) ? `V ср. ${tF(Math.abs(vm))} м/с` : '', OK(Lp) ? `заданный ${F(Lp)} м³/ч` : '', OK(dev) ? `<b class="${okc}">${M.fmtSigned(dev, 1)} %</b>` : ''].filter(Boolean).join(' · ')}</div>
+    ${devUncHTML()}${(() => { const d = devProg(p).grid ? devDist(c) : null; return d && ((OK(d.k1) && d.k1 < 6) || (OK(d.k2) && d.k2 < 2)) ? `<div class="dv-rs bad-t">сечение близко к возмущению: ${[OK(d.k1) && d.k1 < 6 ? `${tF(d.k1, 1)} Dh после (нужно ≥ 6)` : '', OK(d.k2) && d.k2 < 2 ? `${tF(d.k2, 1)} Dh до (нужно ≥ 2)` : ''].filter(Boolean).join(', ')}</div>` : ''; })()}
     ${OK(Ls) ? `<div class="dv-rs dv-std">стандартный <b>${F(Ls)}</b> м³/ч · ${tF(tt, 1)} °C (${esc(ta.src)}), ${F(pp)} гПа (${devPsrc() || 'принято'})</div>` : c.std !== '0' && OK(L) && !OK(tt) ? `<div class="dv-rs dv-std">стандартный — нет температуры: ${esc(ta.src)}</div>` : ''}`;
 }
 function devCurHTML() {
@@ -2937,8 +3008,51 @@ function devMeasHTML() {
     <div class="dv-foot" id="dv-foot">${devFootHTML()}</div>
   </div>`;
 }
+function devInstrSum() {
+  const exp = siList().filter((x) => siState(x) !== 'ok');
+  const warn = exp.length ? `<span class="si-st si-blk ${exp.some((x) => siState(x) === 'bad') ? 'bad' : 'soon'}">⚠ поверка: ${exp.map((x) => esc(x.short || x.name)).join(', ')}</span>` : '';
+  return warn + devInstrSum0();
+}
+function devInstrSum0() {
+  const on = Object.values(TESTO.devs).filter((d) => d.st === 'on');
+  if (TESTO.agg === 'scan' && !on.length) return 'Ищу рукоятку…';
+  if (!on.length) return TESTO.st === 'connecting' ? 'Подключаюсь…' : 'не подключены — нажмите, чтобы подключить';
+  return `<span class="tst-on">●</span> ${on.map((d) => `${esc(probeName(d.probe) || 'зонд')}${d.sn ? ' ' + esc(String(d.sn).slice(-3)) : ''}`).join(' · ')}`;
+}
+/* ===== «Измерительные приборы», как в testo 400: подключённые рукоятки с зондами, телефон, недавние ===== */
+const LS_DEV_SEEN = 'vnb.dev.seen';
+function devSeen(d) {
+  if (!d || !d.sn) return;
+  const h = handleNo(d.name || d.h), list = (lsGet(LS_DEV_SEEN) || []).filter((x) => !(x.h === h && x.sn === d.sn));
+  list.unshift({ h, sn: d.sn, probe: d.probe || '', at: new Date().toISOString() });
+  lsSet(LS_DEV_SEEN, list.slice(0, 12));
+}
+function devInstrHTML() {
+  const on = Object.values(TESTO.devs).filter((d) => d.st === 'on' || d.st === 'connecting');
+  const onKeys = new Set(on.filter((d) => d.sn).map((d) => handleNo(d.name || d.h) + '|' + d.sn));
+  const seen = (lsGet(LS_DEV_SEEN) || []).filter((x) => !onKeys.has(x.h + '|' + x.sn));
+  const b = phoneBaro(), cap = (n) => n.charAt(0).toUpperCase() + n.slice(1);
+  const card = (d) => `<div class="dv-icard"><span class="dv-di" aria-hidden="true">${ICON_PROBE}</span><span class="dv-dt"><b>Рукоятка ${esc(handleNo(d.name || d.h) || d.h)}</b>${d.st === 'on'
+      ? `<span>${esc(cap(siPartName(d.sn) || probeName(d.probe) || 'зонд'))}${d.sn ? ` · № ${esc(d.sn)}` : ''}</span>${d.bat != null ? `<span>заряд ${Math.round(d.bat)} %</span>` : ''}${siBadge(d.sn)}` : '<span>подключаюсь…</span>'}</span>
+    <button type="button" class="btn sm" data-act="dv-off1" data-h="${esc(d.h)}">Отключить</button></div>`;
+  return `<div class="stack dv">
+    <div class="dv-top"><button class="lnk" data-act="dv-instr-x">‹ Назад</button><b>Измерительные приборы</b><span></span></div>
+    <section class="card"><h2>Телефон</h2>${dvCard(OK(b), ICON_PHONE, 'Этот телефон', [OK(b) ? `датчик давления · <b>${tF(b, 1)} гПа</b>` : 'датчика давления нет — давление вписывается вручную'])}</section>
+    <section class="card"><h2>Подключены сейчас</h2>
+      ${on.length ? on.map(card).join('') : '<p class="muted">Ни одной рукоятки. Включите рукоятку и нажмите «Подключить».</p>'}
+      <div class="head-actions"><button class="btn primary" data-act="dv-more">${TESTO.agg === 'scan' ? 'Ищу рукоятки…' : on.length ? '+ Подключить ещё' : 'Подключить'}</button>${on.length > 1 ? '<button class="btn" data-act="dv-off">Отключить все</button>' : ''}</div>
+      <p class="hint">Рукоятка работает только с одним прибором: перед подключением отключите её на testo 400 и закройте приложение Testo.</p></section>
+    <section class="card"><h2>Точность зондов</h2><div class="dv-rows">
+      ${[['vane', 'Крыльчатка Ø16'], ['vane100', 'Крыльчатка Ø100'], ['hot', 'Обогреваемая струна']].map(([k, t]) => { const r = devAcc(k).raw; return devRow(t, `± <input type="text" class="num-in dv-in dv-in-s" inputmode="decimal" data-acc="${k}" data-f="a" value="${esc(r.a)}" aria-label="${t}: м/с"><span class="dv-u dv-ua">м/с +</span><input type="text" class="num-in dv-in dv-in-s" inputmode="decimal" data-acc="${k}" data-f="b" value="${esc(r.b)}" aria-label="${t}: %"><span class="dv-u">%</span>`); }).join('')}</div>
+      <p class="hint">Из паспорта зонда, идёт в погрешность замера. Ø16 — ±(0,2 м/с + 1 %) по данным Testo; Ø100 — ±(0,1 м/с + 1,5 %) по аналогичному зонду Testo, сверьте с паспортом.</p></section>
+    ${siSectionHTML()}
+    ${seen.length ? `<section class="card"><h2>Недавно подключались</h2>${seen.map((x) => `<div class="dv-icard off"><span class="dv-di" aria-hidden="true">${ICON_PROBE}</span><span class="dv-dt"><b>Рукоятка ${esc(x.h)}</b><span>${esc(cap(probeName(x.probe) || 'зонд'))} · № ${esc(x.sn)}</span><span>${esc(fmtDate(x.at.slice(0, 10)))} ${esc(new Date(x.at).toTimeString().slice(0, 5))}</span></span></div>`).join('')}</section>` : ''}
+  </div>`;
+}
 function viewDev() {
+  setTimeout(devAutoConnect, 300);
   if (!hasTesto()) return '<div class="stack"><div class="empty"><h2>Прибор</h2><p class="muted">Вкладка работает в приложении на телефоне: браузер не подключается к рукоятке Testo по Bluetooth.</p></div></div>';
+  if (DEV.view === 'instr') return devInstrHTML();
   if (DEV.view === 'cfg' && DEV.prog) return devCfgHTML();
   if (DEV.view === 'meas' && DEV.prog) return devMeasHTML();
   return devListHTML();
@@ -2946,7 +3060,8 @@ function viewDev() {
 function devPaint() {
   if (UI.tab !== 'dev') return;
   const set = (id, h) => { const e = document.getElementById(id); if (e) e.innerHTML = h; };
-  if (DEV.view === 'list') { set('dv-conn', devConnHTML()); return; }
+  if (DEV.view === 'list') { set('dv-conn', devInstrSum()); return; }
+  if (DEV.view === 'instr') { const k = JSON.stringify([TESTO.agg, Object.values(TESTO.devs).map((d) => [d.h, d.st, d.sn, d.probe, d.bat != null ? Math.round(d.bat) : null])]); if (devPaint.ik !== k) { devPaint.ik = k; const r = document.getElementById('view'); if (r) render(); } return; }
   if (DEV.view !== 'meas') return;
   if (devPaint.hum !== hasHum()) { devPaint.hum = hasHum(); set('dv-hum', devPaint.hum ? devHumHTML() : ''); }
   set('dv-pill', devPillHTML()); set('dv-res', devResHTML()); set('dv-cur', devCurHTML()); set('dv-foot', devFootHTML());
@@ -2960,7 +3075,7 @@ function devOpen(prog, view) {
   devNewRun(); devPaint.k = '';
 }
 function devFromPoint(sys, sec) {
-  const prog = sec.method === 'grille' ? 'grille' : ((sec.meas && sec.meas.prog && devProg(sec.meas.prog).grid) ? sec.meas.prog : (lsGet('vnb.dev.grid') || 'gost'));
+  const prog = sec.method === 'hood' ? 'funnel' : sec.method === 'grille' ? 'grille' : ((sec.meas && sec.meas.prog && devProg(sec.meas.prog).grid) ? sec.meas.prog : (lsGet('vnb.dev.grid') || 'gost'));
   DEV.link = { sid: sys.id, cid: sec.id };
   DEV.prog = prog; lsSet(LS_DEV_PROG, prog);
   const c = devCfgLoad(prog);
@@ -2986,6 +3101,8 @@ window.__testo = (e) => {
   if (!e) return;
   /* рукоятка события; старое приложение без поля h — одна рукоятка «Testo» */
   const hk = e.h || 'Testo';
+  /* запоздалые значения от уже отключённой рукоятки — пропускаем */
+  if (e.h && (e.e === 'val' || e.e === 'bat') && !TESTO.devs[hk]) return;
   const D = () => TESTO.devs[hk] || (TESTO.devs[hk] = { h: hk, st: e.h ? 'connecting' : 'on', v: null, t: null, rh: null, bat: null, sn: '', probe: '' });
   if (e.e === 'state') {
     TESTO.agg = e.s;
@@ -2995,21 +3112,22 @@ window.__testo = (e) => {
     testoSync();
     if (TESTO.st !== 'on' && DEV.run) DEV.run.job = null;
   } else if (e.e === 'hstate') {
-    if (e.s === 'off') delete TESTO.devs[hk]; else D().st = e.s;
+    if (e.s === 'off') { const was = TESTO.devs[hk]; delete TESTO.devs[hk]; if (was && was.st === 'on' && !DEV.manualOff) devReconnect('Рукоятка ' + handleNo(hk) + ' отключилась — подключаю снова…'); }
+    else D().st = e.s;
   } else if (e.e === 'val') {
-    const d = D(); if (!e.h) d.st = 'on';
+    const d = D(); if (!e.h) d.st = 'on'; d.lastVal = Date.now();
     testoSync();
     const isFlow = TESTO.flow === d;
     if (e.n === 'Velocity') { d.v = e.v; if (isFlow || !TESTO.flow) { TESTO.hist.push(e.v); if (TESTO.hist.length > 40) TESTO.hist.shift(); testoSync(); devOnVal(e.v); } }
     else if (e.n === 'Humidity') d.rh = e.v;
     else if (e.n === 'Temperature') { d.t = e.v; if (isFlow) { const j = DEV.run && DEV.run.job; if (j && j.t0) { j.tsum += e.v; j.tn++; } } }
   } else if (e.e === 'bat') D().bat = e.v;
-  else if (e.e === 'dev') { const d = D(); d.sn = e.sn || ''; if (e.handle) d.name = e.handle; }
+  else if (e.e === 'dev') { const d = D(); d.sn = e.sn || ''; if (e.handle) d.name = e.handle; devSeen(d); }
   else if (e.e === 'probe') {
     /* зонд сменили на рукоятке — номер перечитывается, тип показываем сразу */
     const d = D();
     if (d.probe && e.id && d.probe !== e.id) { d.sn = ''; d.v = null; d.rh = null; toast(`Рукоятка ${handleNo(hk)}: ${probeName(e.id)}`); }
-    d.probe = e.id || '';
+    d.probe = e.id || ''; devSeen(d);
   }
   testoSync();
   if (e.e === 'btn') {
@@ -3057,6 +3175,7 @@ document.addEventListener('input', (e) => {
   const el = e.target; if (!el.dataset || !el.dataset.dcfg || el.tagName === 'SELECT') return;
   DEV.cfg[el.dataset.dcfg] = el.value;
   if (['a', 'b', 'D'].includes(el.dataset.dcfg) && DEV.prog === 'gost') { const d = devDefaults('gost', DEV.cfg); DEV.cfg.holes = d.holes; DEV.cfg.pts = d.pts; }
+  if (['a', 'b', 'D', 'l1', 'l2'].includes(el.dataset.dcfg)) { const x = document.getElementById('dv-dist'); if (x) x.innerHTML = devDistHTML(); }
   devCfgSave();
 });
 function devAct(act, a) {
@@ -3071,7 +3190,7 @@ function devAct(act, a) {
       devFixCounts(DEV.prog, DEV.cfg); devCfgSave(); break;
     }
     case 'dv-apply': {
-      if (DEV.prog !== 'std' && !OK(devArea(DEV.cfg))) { toast('Введите размеры.'); DEV.page = 0; break; }
+      if (devProg(DEV.prog).kv ? !(N(DEV.cfg.kv) > 0) : DEV.prog !== 'std' && !OK(devArea(DEV.cfg))) { toast(devProg(DEV.prog).kv ? 'Впишите коэффициент k.' : 'Введите размеры.'); DEV.page = 0; break; }
       devFixCounts(DEV.prog, DEV.cfg); devCfgSave(); DEV.view = 'meas'; devNewRun(); devPaint.k = ''; testoConnect(); break;
     }
     case 'dv-start': devStart(); return;
@@ -3089,10 +3208,22 @@ function devAct(act, a) {
     case 'dv-ptdel': { const r = DEV.run; if (!r || !r.sel || r.job) return; delete r.vals[r.sel]; delete r.det[r.sel]; r.cur = r.sel; r.sel = null; r.saved = false; devPaint.k = ''; devPaint(); return; }
     case 'dv-new': devNewRun(); devPaint.k = ''; break;
     case 'dv-del': { if (DEV.run && Array.isArray(DEV.run.vals)) DEV.run.vals.splice(+a.dataset.i, 1); devPaint(); return; }
-    case 'dv-conn': testoConnect(); return;
+    case 'dv-conn': DEV.manualOff = false; testoConnect(); return;
     case 'dv-psrc': { if (a.dataset.v === 'man') { const b = phoneBaro(); lsSet(LS_DEV_P, OK(b) ? tF(b, 1) : ''); } else lsSet(LS_DEV_P, ''); break; }
-    case 'dv-more': try { AndroidBridge.testoStart(); } catch (err) { /* нет моста */ } return;
-    case 'dv-off': try { AndroidBridge.testoStop(); } catch (e) { /* нет моста */ } return;
+    case 'dv-newobj': {
+      const i = document.getElementById('dv-newname'), name = i ? i.value.trim() : '';
+      if (!name) { toast('Впишите название объекта.'); if (i) i.focus(); return; }
+      const o = newObject(); o.name = name; Store.save(o);
+      lsSet('vnb.dev.pick', Object.assign(lsGet('vnb.dev.pick') || {}, { oid: o.id }));
+      const h = document.getElementById('dv-hum'); if (h) h.innerHTML = devHumHTML();
+      toast(`Объект «${name}» создан — он есть и в Журнале.`); return;
+    }
+    case 'dv-instr': DEV.back = DEV.view; DEV.view = 'instr'; break;
+    case 'dv-si-edit': case 'dv-si-x': case 'dv-si-del': case 'dv-si-save': siAct(act, a); break;
+    case 'dv-instr-x': DEV.view = DEV.back && DEV.back !== 'instr' ? DEV.back : 'list'; break;
+    case 'dv-off1': { const h = a.dataset.h; DEV.manualOff = true; try { if (AndroidBridge.testoStopOne) AndroidBridge.testoStopOne(h); else AndroidBridge.testoStop(); } catch (err) { /* нет моста */ } return; }
+    case 'dv-more': DEV.manualOff = false; try { AndroidBridge.testoStart(); } catch (err) { /* нет моста */ } return;
+    case 'dv-off': DEV.manualOff = true; try { AndroidBridge.testoStop(); } catch (e) { /* нет моста */ } return;
     case 'dv-topt': { const l = DEV.link; if (!l) break; UI.tab = 'journal'; keepScreen(false); go({ name: 'section', sid: l.sid, cid: l.cid }); return; }
     case 'dv-next': {
       const nx = devNextSec(); if (!nx) return;
@@ -3111,7 +3242,7 @@ function devAct(act, a) {
     case 'dv-pick-x': oeditRoot().innerHTML = ''; return;
     case 'dv-pick-ok': {
       const pk = DEV.pick || {}; let cid = pk.cid; const sys = Store.get(pk.sid); if (!sys) return;
-      if (cid === '__new') { const c = newSection(sys, null, DEV.prog === 'grille' ? 'grille' : 'anemo', 'V'); cid = c.id; }
+      if (cid === '__new') { const c = newSection(sys, null, DEV.prog === 'funnel' ? 'hood' : DEV.prog === 'grille' || DEV.prog === 'kfac' ? 'grille' : 'anemo', devProg(DEV.prog).kv ? 'L' : 'V'); cid = c.id; }
       oeditRoot().innerHTML = '';
       if (pk.mode === 'air') { devAirTo(sys.id, cid); DEV.pick.mode = ''; return; }
       if (devSaveTo(sys.id, cid)) { DEV.link = { sid: sys.id, cid }; }
@@ -3156,13 +3287,25 @@ function condObjDefault() {
 }
 function devHumHTML() {
   const objs = Store.all('object').sort((a, b) => natCmp(a.name, b.name)), cur = condObjDefault();
+  const pp = devP(true);
   return `<div class="dv-humc">
-    ${devPSrcHTML()}
+    <p class="dv-pline">Давление <b>${OK(pp) ? tF(pp, 1) + ' гПа' : 'не задано'}</b> · ${devPsrc() || 'принято 1013'} <button type="button" class="lnk" data-act="dv-cfg">изменить</button></p>
     <div class="row dv-hum-f dv-hum-o">
-    <div class="f"><label for="dv-coid">Объект</label><select id="dv-coid">${objs.map((o) => `<option value="${esc(o.id)}"${o.id === cur ? ' selected' : ''}>${esc(o.name || 'Объект')}</option>`).join('')}</select></div></div>
+    <div class="f"><label for="dv-coid">Объект</label><select id="dv-coid">${objs.map((o) => `<option value="${esc(o.id)}"${o.id === cur ? ' selected' : ''}>${esc(o.name || 'Объект')}</option>`).join('')}<option value="__new">+ Новый объект…</option></select></div></div>
+    <div class="dv-newo" id="dv-newo" hidden><input id="dv-newname" type="text" autocomplete="off" placeholder="Название нового объекта" aria-label="Название нового объекта"><button type="button" class="btn" data-act="dv-newobj">Создать</button></div>
     <div class="dv-foot2 row"><button class="btn primary" data-act="dv-cond">Записать как улицу</button><button class="btn" data-act="dv-air">В точку…</button></div>
     <p class="hint">«Улица» — в условия замера объекта и в отчёт. «В точку» — воздух в помещении или в воздуховоде у этой точки.</p></div>`;
 }
+document.addEventListener('input', function devAccInput(e) {
+  const el = e.target; if (!el.dataset || !el.dataset.acc) return;
+  const all = lsGet(LS_DEV_ACC) || {}; all[el.dataset.acc] = Object.assign({}, DEV_ACC0[el.dataset.acc], all[el.dataset.acc] || {}, { [el.dataset.f]: el.value.trim() }); lsSet(LS_DEV_ACC, all);
+});
+document.addEventListener('change', function devCoidChange(e) {
+  const el = e.target; if (!el || el.id !== 'dv-coid') return;
+  const box = document.getElementById('dv-newo'); if (!box) return;
+  box.hidden = el.value !== '__new';
+  if (!box.hidden) { const i = document.getElementById('dv-newname'); if (i) i.focus(); }
+});
 document.addEventListener('input', function devPInput(e) {
   const el = e.target; if (!el.matches || !el.matches('[data-dp]')) return;
   lsSet(LS_DEV_P, el.value.trim());
@@ -3224,20 +3367,159 @@ const ICON_PROBE = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M12
 function devPSrcHTML() {
   const b = phoneBaro(), man = OK(devPman()) || !OK(b);
   return `<div class="dv-src"><div class="dv-src-h"><span>Абсолютное рабочее давление</span>${OK(b) ? `<button type="button" class="lnk dv-src-l" data-act="dv-psrc" data-v="${man ? 'phone' : 'man'}">${man ? 'С телефона' : 'Ввод вручную'}</button>` : ''}</div>
-    ${man ? `<div class="fields"><div class="f"><label for="dv-p">Ввод вручную <span class="u">гПа</span></label><input id="dv-p" data-dp type="text" class="num-in" inputmode="decimal" autocomplete="off" placeholder="1013" value="${esc(String(lsGet(LS_DEV_P) || ''))}">${OK(b) ? '' : '<span class="hint">датчика давления в телефоне нет</span>'}</div></div>` : dvCard(true, ICON_PHONE, 'Телефон', ['датчик давления', `Параметр: давление · <b>${tF(b, 1)} гПа</b>`])}</div>`;
+    ${man ? `<div class="dv-rows">${devRow('Давление', devIn('dv-p', 'data-dp inputmode="decimal"', lsGet(LS_DEV_P) || '', 'гПа', '1013'), 'dv-p')}${OK(b) ? '' : '<p class="hint dv-rh">датчика давления в телефоне нет</p>'}</div>` : dvCard(true, ICON_PHONE, `Телефон · <b>${tF(b, 1)} гПа</b>`, ['датчик давления'])}</div>`;
 }
 function devTSrcHTML() {
   const c = DEV.cfg, man = c.tsrc === 'man';
   const card = (k) => {
     const d = k === 'hum' ? TESTO.hum : TESTO.flow;
     const t = d ? d.t : null;
-    return dvCard(c.tsrc === k, ICON_PROBE, d ? esc(probeShort(d)) : (k === 'hum' ? 'Зонд влажности' : 'Зонд расхода'),
-      [d ? (d.sn ? `Серийный номер: ${esc(d.sn)}` : '') : '<span class="muted">не подключён</span>', `Параметр: температура${OK(t) ? ` · <b>${tF(t, 1)} °C</b>` : ''}`, k === 'hum' ? 'например, уличный воздух' : 'температура потока'],
+    return dvCard(c.tsrc === k, ICON_PROBE, `${d ? esc(probeShort(d)) : (k === 'hum' ? 'Зонд влажности' : 'Зонд расхода')}${OK(t) ? ` · ${tF(t, 1)} °C` : ''}`,
+      [d ? (k === 'hum' ? 'например, уличный воздух' : 'температура потока') : 'не подключён'],
       ` data-act="dv-set" data-k="tsrc" data-v="${k}" aria-pressed="${c.tsrc === k}"`);
   };
   return `<div class="dv-src"><div class="dv-src-h"><span>Температура окружающей среды</span><button type="button" class="lnk dv-src-l" data-act="dv-set" data-k="tsrc" data-v="${man ? 'flow' : 'man'}">${man ? 'Выбрать зонд' : 'Ввод вручную'}</button></div>
-    ${man ? `<div class="fields">${devField('tman', 'Ввод вручную', '°C')}</div>` : card('flow') + card('hum')}</div>`;
+    ${man ? `<div class="dv-rows">${devField('tman', 'Температура', '°C')}</div>` : card('flow') + card('hum')}</div>`;
 }
+
+
+/* ===== погрешность сеточного замера (DIN EN 12599, по практическому руководству Testo) =====
+   1) неравномерность профиля U = (v макс − v мин по квадрантам) / v ср · 100 %;
+   2) погрешность из-за профиля τU — по таблице «число точек × U»;
+   3) погрешность зонда ±(a м/с + b %) — из паспорта зонда;
+   общая — корень из суммы квадратов. */
+const DV_TAU = { n: [4, 5, 6, 8, 10, 20, 30, 50, 100, 200], U: [2, 10, 20, 30, 40, 50],
+  t: [[6, 12, 20, 28, 36, 42], [5, 11, 17, 24, 31, 36], [5, 10, 15, 21, 27, 32], [4, 8, 13, 18, 23, 27], [3, 7, 12, 16, 20, 24], [2, 5, 8, 11, 14, 16], [2, 4, 7, 9, 11, 14], [1, 3, 5, 7, 8, 10], [1, 2, 3, 5, 6, 7], [1, 1, 2, 3, 4, 5]] };
+function tauU(n, U) {
+  const T = DV_TAU, cl = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lin = (arr, v) => { let i = 0; while (i < arr.length - 2 && v > arr[i + 1]) i++; return [i, (v - arr[i]) / (arr[i + 1] - arr[i])]; };
+  const ln = T.n.map(Math.log), [i, fi] = lin(ln, Math.log(cl(n, 4, 200))), [j, fj] = lin(T.U, cl(U, 2, 50));
+  const r = (k) => T.t[k][j] + (T.t[k][j + 1] - T.t[k][j]) * fj;
+  return r(i) + (r(i + 1) - r(i)) * cl(fi, 0, 1);
+}
+/* неравномерность по четырём квадрантам сечения; точка на оси идёт в оба соседних */
+function devIrreg(G, vals) {
+  const q = [[], [], [], []];
+  G.holes.forEach((h) => h.pts.forEach((pt) => {
+    if (!(pt.key in vals)) return;
+    const v = Math.abs(vals[pt.key]), xs = pt.x < 0.499 ? [0] : pt.x > 0.501 ? [1] : [0, 1], ys = pt.y < 0.499 ? [0] : pt.y > 0.501 ? [1] : [0, 1];
+    xs.forEach((x) => ys.forEach((y) => q[y * 2 + x].push(v)));
+  }));
+  if (q.some((a) => !a.length)) return NaN;
+  const m = q.map((a) => a.reduce((x, y) => x + y, 0) / a.length), all = Object.values(vals).map(Math.abs), vm = all.reduce((x, y) => x + y, 0) / all.length;
+  return vm > 0 ? (Math.max(...m) - Math.min(...m)) / vm * 100 : NaN;
+}
+/* точность зондов: крыльчатка Ø16 — ±(0,2 м/с + 1 %) по паспорту Testo; струна — проверить по паспорту */
+const LS_DEV_ACC = 'vnb.dev.acc';
+const DEV_ACC0 = { vane: { a: '0,2', b: '1' }, vane100: { a: '0,1', b: '1,5' }, hot: { a: '0,03', b: '5' } };
+function devAcc(kind) { const s = Object.assign({}, DEV_ACC0[kind], (lsGet(LS_DEV_ACC) || {})[kind] || {}); return { a: N(s.a), b: N(s.b), raw: s }; }
+/* вид зонда расхода: по номеру из реестра СИ (Ø100 / Ø16), иначе по типу с рукоятки */
+const flowKind = () => { const d = TESTO.flow; const part = d && siPart(d.sn); if (part && part.kind) return part.kind; return /струна/.test(probeName(d && d.probe)) ? 'hot' : 'vane'; };
+function devUnc() {
+  const p = devProg(DEV.prog); if (!p.grid || !DEV.run || !devDone()) return null;
+  const G = devGrid(DEV.prog, DEV.cfg); if (!G) return null;
+  const vals = DEV.run.vals, vm = Math.abs(devMean()); if (!(vm > 0)) return null;
+  const n = Object.keys(vals).length, U = devIrreg(G, vals), prof = OK(U) ? tauU(n, U) : NaN;
+  const ac = devAcc(flowKind()), inst = OK(ac.a) && OK(ac.b) ? (ac.a / vm + ac.b / 100) * 100 : NaN;
+  const tot = Math.sqrt((OK(prof) ? prof * prof : 0) + (OK(inst) ? inst * inst : 0));
+  return { tot, prof, inst, U, n, kind: flowKind() };
+}
+function devUncHTML() {
+  const u = devUnc(); if (!u || !OK(u.tot)) return '';
+  const bad = u.tot > 10;
+  return `<div class="dv-rs dv-unc${bad ? ' bad' : ''}">погрешность <b>±${F(u.tot, 0)} %</b> · ${OK(u.prof) ? `профиль ±${F(u.prof, 0)} % (неравномерность ${F(u.U, 0)} %, ${u.n} точ.)` : 'профиль — мало точек'} · зонд ±${F(u.inst, 0)} %${bad ? '<br>больше ±10 % — перемерьте струной, в другом сечении или с большим числом точек' : ''}</div>`;
+}
+/* расстояния до возмущений: сечение ≥ 6 Dh после возмущения и ≥ 2 Dh до следующего (ГОСТ 12.3.018, DIN EN 12599) */
+function devDh(c) { if (c.shape === 'round') return N(c.D); const a = N(c.a), b = N(c.b); return a > 0 && b > 0 ? 2 * a * b / (a + b) : NaN; }
+function devDist(c) {
+  const dh = devDh(c) / 1000, l1 = N(c.l1), l2 = N(c.l2);
+  if (!(dh > 0)) return null;
+  return { dh, k1: OK(l1) ? l1 / dh : NaN, k2: OK(l2) ? l2 / dh : NaN };
+}
+function devDistHTML() {
+  const d = devDist(DEV.cfg); if (!d) return '';
+  const part = (k, need, t) => OK(k) ? `<span class="${k >= need ? 'ok-t' : 'bad-t'}">${t} ${tF(k, 1)} Dh ${k >= need ? '✓' : `< ${need}`}</span>` : `${t}: нужно ≥ ${need} Dh = ${tF(need * d.dh, 2)} м`;
+  return `<p class="hint dv-rh">Dh = ${F(d.dh * 1000, 0)} мм · ${part(d.k1, 6, 'после возмущения')} · ${part(d.k2, 2, 'до возмущения')}</p>`;
+}
+
+
+/* ===== средства измерений и поверка: реестр в журнале (документ si-registry), заполнен по свидетельствам ===== */
+const SI_ID = 'si-registry';
+const SI_SEED = [
+  { id: 'si1', short: 'testo 400', name: 'Измеритель комбинированный testo 400', reg: '77857-20', sn: '64193230', date: '2026-09-02', until: '2027-09-01', cert: 'С-МА/02-09-2026/554398596' },
+  { id: 'si2', short: 'струна 0635 1032', name: 'Зонд цифровой Testo 0635 1032 (обогреваемая струна, с кабелем)', reg: '81990-21', sn: '21195077', date: '2026-09-02', until: '2027-09-01', cert: 'С-МА/02-09-2026/554488659', parts: [{ code: '0635 1032', sn: '21195077', name: 'обогреваемая струна', kind: 'hot' }] },
+  { id: 'si3', short: 'testo 440 dP', name: 'Комплект измерительный testo 440 dP', reg: '75219-19', sn: '83537726', date: '2025-04-01', until: '2026-03-31', cert: 'С-МА/01-04-2025/422334753',
+    parts: [{ code: '0636 9730', sn: '83544807', name: 'зонд температуры/влажности' }, { code: '0635 9430', sn: '20927197', name: 'крыльчатка Ø100', kind: 'vane100' }, { code: '0635 9570', sn: '20919973', name: 'крыльчатка Ø16', kind: 'vane' }] },
+  { id: 'si4', short: 'трубка Пито', name: 'Трубка Пито-Прандтля testo', reg: '71845-18', sn: '1ВСН', date: '2025-02-19', until: '2026-02-18', cert: 'С-МА/19-02-2025/412109556', note: 'Kт = 1,018' },
+];
+function siDoc() { let d = Store.get(SI_ID); if (!d && Store.ready) { d = { id: SI_ID, kind: 'si', items: SI_SEED.map((x) => JSON.parse(JSON.stringify(x))), createdAt: Date.now() }; Store.save(d); } return d || { items: SI_SEED }; }
+const siList = () => (siDoc().items || []);
+function siFind(sn) { sn = String(sn || '').trim(); if (!sn) return null; return siList().find((x) => String(x.sn) === sn || (x.parts || []).some((q) => String(q.sn) === sn)) || null; }
+function siPart(sn) { sn = String(sn || '').trim(); for (const x of siList()) { const q = (x.parts || []).find((y) => String(y.sn) === sn); if (q) return q; } return null; }
+const siPartName = (sn) => { const q = siPart(sn); return q ? q.name : ''; };
+function siState(x) { if (!x || !x.until) return 'ok'; const d = (new Date(x.until + 'T23:59:59') - Date.now()) / 864e5; return d < 0 ? 'bad' : d < 30 ? 'soon' : 'ok'; }
+const siRef = (x) => `${x.short || x.name} № ${x.sn}, свид. ${x.cert || '—'}${x.until ? ', до ' + fmtDate(x.until) : ''}`;
+function siBadge(sn) { const x = siFind(sn); if (!x) return ''; const st = siState(x); return `<span class="si-st ${st}">${st === 'bad' ? 'поверка истекла ' : 'поверка до '}${esc(fmtDate(x.until))}</span>`; }
+function siSectionHTML() {
+  const edit = DEV.siEdit;
+  const card = (x) => {
+    if (edit === x.id) return siFormHTML(x);
+    const st = siState(x);
+    return `<div class="si-card ${st}"><div class="si-h"><b>${esc(x.name)}</b><button type="button" class="lnk" data-act="dv-si-edit" data-id="${esc(x.id)}">Изменить</button></div>
+      <span>зав. № ${esc(x.sn)}${x.reg ? ` · госреестр ${esc(x.reg)}` : ''}</span>
+      ${(x.parts || []).length ? `<span>в составе: ${x.parts.map((q) => `${esc(q.name)} ${esc(q.code)} № ${esc(q.sn)}`).join('; ')}</span>` : ''}
+      <span>свид. ${esc(x.cert || '—')}</span>
+      <span class="si-st ${st}">${st === 'bad' ? 'поверка истекла' : st === 'soon' ? 'поверка скоро кончится' : 'поверка'} · до ${esc(fmtDate(x.until || ''))}</span>${x.note ? `<span>${esc(x.note)}</span>` : ''}</div>`;
+  };
+  return `<section class="card"><h2>Средства измерений</h2>${siList().map(card).join('')}${edit === '__new' ? siFormHTML({ id: '__new' }) : ''}
+    <div class="head-actions"><button class="btn" data-act="dv-si-edit" data-id="__new">+ Добавить прибор</button></div>
+    <p class="hint">Попадает в отчёт: у каждого замера — прибор, номер свидетельства и срок поверки. За месяц до конца поверки — предупреждение.</p></section>`;
+}
+function siFormHTML(x) {
+  const f = (k, l, t = 'text', ph = '') => `<div class="f"><label for="si-${k}">${l}</label><input id="si-${k}" type="${t}" value="${esc(x[k] || '')}" placeholder="${esc(ph)}" autocomplete="off"></div>`;
+  return `<div class="si-form">${f('name', 'Наименование', 'text', 'Анемометр …')}<div class="row si-2">${f('sn', 'Заводской №')}${f('reg', 'Госреестр №')}</div>
+    ${f('cert', 'Свидетельство о поверке №')}<div class="row si-2">${f('date', 'Дата поверки', 'date')}${f('until', 'Действительно до', 'date')}</div>${f('note', 'Примечание', 'text', 'Kт = …')}
+    <div class="head-actions"><button class="btn primary" data-act="dv-si-save" data-id="${esc(x.id)}">Сохранить</button><button class="btn" data-act="dv-si-x">Отмена</button>${x.id !== '__new' ? `<button class="btn danger" data-act="dv-si-del" data-id="${esc(x.id)}">Удалить</button>` : ''}</div></div>`;
+}
+function siAct(act, a) {
+  const d = siDoc(); d.items = d.items || [];
+  if (act === 'dv-si-edit') { DEV.siEdit = a.dataset.id; return; }
+  if (act === 'dv-si-x') { DEV.siEdit = null; return; }
+  if (act === 'dv-si-del') { d.items = d.items.filter((x) => x.id !== a.dataset.id); d.u = Date.now(); Store.save(d); DEV.siEdit = null; return; }
+  if (act === 'dv-si-save') {
+    const v = (k) => { const e = document.getElementById('si-' + k); return e ? e.value.trim() : ''; };
+    if (!v('name')) { toast('Впишите наименование.'); return; }
+    let x = d.items.find((y) => y.id === a.dataset.id);
+    if (!x) { x = { id: 'si' + Date.now().toString(36) }; d.items.push(x); }
+    ['name', 'sn', 'reg', 'cert', 'date', 'until', 'note'].forEach((k) => { x[k] = v(k); });
+    if (!x.short) x.short = x.name;
+    d.u = Date.now(); Store.save(d); DEV.siEdit = null; toast('Сохранено.');
+  }
+}
+
+
+/* ===== автоподключение: при открытии «Прибора», после обрыва и если значения перестали идти ===== */
+function devReconnect(msg) {
+  if (devReconnect.t || DEV.manualOff || !hasTesto()) return;
+  if (msg) toast(msg);
+  devReconnect.t = setTimeout(() => { devReconnect.t = null; if (DEV.manualOff) return; try { AndroidBridge.testoStart(); } catch (e) { /* нет моста */ } }, 2500);
+}
+function devAutoConnect() {
+  if (devAutoConnect.done || DEV.manualOff || !hasTesto() || TESTO.st !== 'off') return;
+  devAutoConnect.done = true;
+  if ((lsGet(LS_DEV_SEEN) || []).length) testoConnect();
+}
+/* рукоятка на связи, а значений нет 10 с (например, сменили зонд) — переподключить её */
+setInterval(() => {
+  if (DEV.manualOff || !hasTesto()) return;
+  const now = Date.now();
+  Object.values(TESTO.devs).forEach((d) => {
+    if (d.st !== 'on' || !d.lastVal || now - d.lastVal < 10000 || d.kick) return;
+    d.kick = true;
+    try { if (AndroidBridge.testoStopOne) AndroidBridge.testoStopOne(d.h); } catch (e) { /* нет моста */ }
+    devReconnect(`Рукоятка ${handleNo(d.name || d.h)} молчит — переподключаю…`);
+  });
+}, 3000);
 
 /* ---------- точки замера: сечение (ГОСТ 12.3.018, черт. 1–2) или места на решётке ---------- */
 const tvKey = (label) => String(label).replace(/\./g, '_');
@@ -3396,7 +3678,7 @@ function viewSection(sys, sec) {
     const factVal = oneVal(sec[byL ? 'total' : (kf ? 'dpK' : 'vAvg')]);
     const fin = valInput(sys, factPath, byL ? 'L факт' : (kf ? 'Δp факт' : 'V факт'), factVal);
     const testoOK = !byL && !kf && (m === 'anemo' || m === 'grille') && hasTesto();
-    const src = sec.src && sec.src.at ? `<p class="hint src-l">Замер ${esc(sec.src.dev || '')}${sec.src.prog ? ' · ' + esc(sec.src.prog) : ''}${sec.src.grid ? ' ' + esc(sec.src.grid) : ''}${devInstr(sec.src) ? ' · ' + esc(devInstr(sec.src)) : ''} · ${esc(condWhen(sec.src))}</p>` : ''
+    const src = sec.src && sec.src.at ? `<p class="hint src-l">Замер ${esc(sec.src.dev || '')}${sec.src.prog ? ' · ' + esc(sec.src.prog) : ''}${sec.src.grid ? ' ' + esc(sec.src.grid) : ''}${devInstr(sec.src) ? ' · ' + esc(devInstr(sec.src)) : ''}${sec.meas && sec.meas.unc && OK(sec.meas.unc.tot) ? ' · погрешность ±' + esc(F(sec.meas.unc.tot, 0)) + ' %' : ''} · ${esc(condWhen(sec.src))}</p>` : ''
     const airL = typeof airLine === 'function' ? airLine(sec) : '';
     meas = `<div class="mrow">
         ${inNum(sys, P('Lp'), 'L проект', 'м³/ч', { cls: 'big' })}
@@ -4646,6 +4928,23 @@ async function exportPDF(o, only) {
           .concat(res.secs.map(({ s, r }) => [s.no || '', placeOf(s), sizeOf(s), String(kOf(s)).replace('.', ','), OK(r.ps) ? F(r.ps) : '', OK(r.Lp) ? F(r.Lp) : '', OK(r.L) ? F(r.L) : '', OK(r.dev) ? M.fmtSigned(r.dev, 1) : '', statusRu(r), s.note || '']));
         table(rows, [5, 25, 10, 5, 7, 10, 10, 8, 10, 20], [3, 4, 5, 6, 7], 8);
       }
+      /* протокол сеточного замера с прибора (ГОСТ 12.3.018 / EN 12599 / ASHRAE 111) */
+      if (typeof devGrid === 'function') for (const c of (sys.sections || [])) {
+        const ms = c.meas; if (!ms || !ms.vals || !devProg(ms.prog).grid || !Object.keys(ms.vals).length) continue;
+        const G = devGrid(ms.prog, ms.cfg || {}); if (!G) continue;
+        const P = G.holes[0].pts.length;
+        need(40 * MM);
+        para(`Сеточный замер · точка ${c.no || ''}${placeOf(c) ? ' · ' + placeOf(c) : ''} — ${devProg(ms.prog).t}, ${G.holes.length}×${P}`, 9, { bold: true, after: 0.5 });
+        const head = ['Отверстие'].concat(G.holes[0].pts.map((q, i) => `т. ${i + 1}\n${F(q.depth, 0)} мм`)).concat(['Среднее']);
+        const rws = G.holes.map((h) => { const vs = h.pts.map((q) => ms.vals[q.key]).filter((v) => OK(v)).map(Math.abs); return [`${h.n} · ${h.lab}`].concat(h.pts.map((q) => OK(ms.vals[q.key]) ? Math.abs(ms.vals[q.key]).toFixed(2).replace('.', ',') : '—')).concat([vs.length ? (vs.reduce((x, y) => x + y, 0) / vs.length).toFixed(2).replace('.', ',') : '—']); });
+        table([head].concat(rws), [16].concat(Array(P).fill(10)).concat([12]), Array.from({ length: P + 1 }, (_, i) => i + 1));
+        const all = Object.values(ms.vals).filter((v) => OK(v)).map(Math.abs), vm = all.reduce((x, y) => x + y, 0) / all.length;
+        const un = ms.unc || {}, dd = devDist(ms.cfg || {});
+        const info = [`скорости, м/с; средняя ${vm.toFixed(2).replace('.', ',')} м/с`, OK(un.U) ? `неравномерность ${F(un.U, 0)} %` : '', OK(un.tot) ? `погрешность ±${F(un.tot, 0)} % (профиль ±${OK(un.prof) ? F(un.prof, 0) : '—'} %, зонд ±${F(un.inst, 0)} %)` : '',
+          dd ? `Dh ${F(dd.dh * 1000, 0)} мм${OK(dd.k1) ? `, после возмущения ${String(dd.k1.toFixed(1)).replace('.', ',')} Dh` : ''}${OK(dd.k2) ? `, до возмущения ${String(dd.k2.toFixed(1)).replace('.', ',')} Dh` : ''}` : '',
+          OK(ms.t) ? `t ${String(ms.t).replace('.', ',')} °C` : '', OK(ms.p) ? `p ${F(ms.p)} гПа` : '', c.src ? devInstr(c.src) : ''].filter(Boolean);
+        para(info.join(' · '), 8, { color: '#333', after: 2 });
+      }
       if (res.rooms && res.rooms.length) {
         para('Помещения с несколькими решётками: каждая ±20 %, если сумма по помещению в пределах ±10 % (ГОСТ 34060-2026, п. 8.2.5)', 8.5, { bold: true, after: 1 });
         table([['Помещение', 'Решёток', 'Σ проект, м³/ч', 'Σ факт, м³/ч', 'Откл., %', 'Оценка']].concat(res.rooms.map((R) => [R.name, R.n, F(R.Lp), R.complete ? F(R.L) : '', OK(R.dev) ? M.fmtSigned(R.dev, 1) : '', R.status === 'ok' ? 'в допуске' : R.status === 'bad' ? 'вне допуска' : 'не все замеры'])), [30, 10, 15, 15, 12, 15], [], 5);
@@ -5302,6 +5601,7 @@ if (savedUI && savedUI.tab) UI.tab = savedUI.tab;
 if (savedUI && savedUI.route) UI.route = savedUI.route;
 const hashTab = (location.hash || '').replace('#', '');
 if (['journal', 'dev', 'calc', 'ref'].includes(hashTab)) UI.tab = hashTab;
+if (!(savedUI && savedUI.tab) && hasTesto()) UI.tab = 'dev';
 if (!['journal', 'dev', 'calc', 'ref'].includes(UI.tab)) UI.tab = 'journal';
 
 function persistUI() { lsSet(LS_UI, { tab: UI.tab, route: UI.route }); }
@@ -5624,7 +5924,7 @@ render();
 window.__vnbBack = () => {
   { const sb = document.querySelector('.sharebox'); if (sb) { sb.remove(); return true; } }
   if (UI.tab === 'dev' && !(document.getElementById('oedit-root') || {}).innerHTML) {
-    if (DEV.view !== 'list') { if (DEV.run) DEV.run.job = null; DEV.view = DEV.view === 'cfg' && DEV.page > 0 ? 'cfg' : 'list'; if (DEV.view === 'cfg') DEV.page--; render(); window.scrollTo(0, 0); return true; }
+    if (DEV.view !== 'list') { if (DEV.run) DEV.run.job = null; if (DEV.view === 'instr') { DEV.view = DEV.back && DEV.back !== 'instr' ? DEV.back : 'list'; render(); window.scrollTo(0, 0); return true; } DEV.view = DEV.view === 'cfg' && DEV.page > 0 ? 'cfg' : 'list'; if (DEV.view === 'cfg') DEV.page--; render(); window.scrollTo(0, 0); return true; }
     UI.tab = 'journal'; render(); window.scrollTo(0, 0); return true;
   }
   { const oe = document.getElementById('oedit-root'); if (oe && oe.innerHTML) { const hs = !!oe.querySelector('.hand-sheet'); oe.innerHTML = ''; if (hs) { const y = window.scrollY; render(); window.scrollTo(0, y); } return true; } }
