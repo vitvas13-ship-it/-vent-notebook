@@ -340,11 +340,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun applyBars(dark: Boolean) {
         val bg = if (dark) 0xFF0E1317.toInt() else 0xFFE8EDF2.toInt()
-        window.statusBarColor = bg
+        // строка состояния — в цвет графитовой шапки, значки светлые в обеих темах
+        window.statusBarColor = if (dark) 0xFF141B21.toInt() else 0xFF1E262D.toInt()
         window.navigationBarColor = bg
         web.setBackgroundColor(bg)
         WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = !dark
+            isAppearanceLightStatusBars = false
             isAppearanceLightNavigationBars = !dark
         }
     }

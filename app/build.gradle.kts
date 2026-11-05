@@ -11,8 +11,8 @@ android {
         applicationId = "ru.naladchik.notebook"
         minSdk = 26
         targetSdk = 34
-        versionCode = 30
-        versionName = "3.13"
+        versionCode = 31
+        versionName = "3.14"
     }
 
     // Один ключ подписи для всех сборок (Android Studio и GitHub):

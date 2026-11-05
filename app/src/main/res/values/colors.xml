@@ -4,5 +4,6 @@
     <color name="graphite">#1B2228</color>
     <color name="signal">#F2C230</color>
     <color name="paper">#E8EDF2</color>
+    <color name="header">#1E262D</color>
     <color name="icon_bg">#1F6FEB</color>
 </resources>
