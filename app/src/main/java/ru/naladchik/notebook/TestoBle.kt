@@ -98,7 +98,9 @@ class TestoBle(private val ctx: Context, private val emit: (JSONObject) -> Unit)
         }
     }
 
+    private var handleName = ""
     private fun connect(d: BluetoothDevice) {
+        handleName = try { d.name ?: "" } catch (_: Exception) { "" }
         setState("connecting")
         gatt = d.connectGatt(ctx, false, cb, BluetoothDevice.TRANSPORT_LE)
     }
@@ -202,11 +204,19 @@ class TestoBle(private val ctx: Context, private val emit: (JSONObject) -> Unit)
             val v = bb.getFloat(6 + n)
             val st = bb.getShort(6 + n + 4).toInt() and 0xFFFF
             send(JSONObject().put("e", "val").put("n", name).put("v", v.toDouble()).put("st", st))
-        } else if (cmd == 0x10 && body.size >= 8) {
+        } else if (cmd == 0x10 && body.size >= 5) {
             val n = bb.getInt(0)
-            if (n <= 0 || 4 + n + 4 > body.size) return
+            if (n <= 0 || 4 + n > body.size) return
             val name = String(body, 4, n, Charsets.US_ASCII)
-            if (name == "BatteryLevel") send(JSONObject().put("e", "bat").put("v", bb.getFloat(4 + n).toDouble()))
+            when (name) {
+                // оранжевая кнопка на рукоятке
+                "ButtonClick" -> send(JSONObject().put("e", "btn"))
+                "BatteryLevel" -> if (4 + n + 4 <= body.size) send(JSONObject().put("e", "bat").put("v", bb.getFloat(4 + n).toDouble()))
+            }
+        } else if (cmd == 0x07 && (t[1].toInt() and 0xFF) == 0x04 && body.size >= 12) {
+            // ответ на «Measboards.Serials»: число зондов (u32), заводской номер (u64)
+            val sn = bb.getLong(4)
+            if (sn > 0) send(JSONObject().put("e", "dev").put("sn", sn.toString()).put("handle", handleName))
         }
     }
 

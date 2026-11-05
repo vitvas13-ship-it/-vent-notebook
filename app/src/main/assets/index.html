@@ -778,6 +778,63 @@ body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;ba
 .tst-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
 .tst-ctl .tst-go,.tst-ctl .tst-stop{flex:1 1 auto;min-width:150px}
 .tst-run{margin-top:8px}
+/* описание точки свёрнуто в строку */
+.setup-sum{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;background:color-mix(in srgb, var(--ink) 4%, transparent);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;font:inherit;color:var(--ink);cursor:pointer}
+.setup-sum small{color:var(--ink-2);font-size:13px}
+.setup-pen{font-size:18px;color:var(--link)}
+.setup-ok{margin-top:10px}
+:root body .btn.ms-open{margin-top:12px;width:100%;min-height:52px;height:auto;flex:none;font-size:17px}
+.tst-mini{font-size:13px;color:var(--ink-2);margin-top:6px}
+.tst-mini:empty{display:none}
+.src-l{margin-top:6px}
+/* окно «Замер» */
+#meas-root:empty{display:none}
+.ms{position:fixed;inset:0;z-index:60;background:var(--sheet);color:var(--ink);display:flex;flex-direction:column}
+.ms-h{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.ms-t{flex:1;font-weight:700;font-size:15px;line-height:1.3}
+.ms-x{background:none;border:0;font-size:22px;color:var(--ink);width:44px;height:44px;cursor:pointer}
+.ms-body{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:12px}
+.ms-mode{align-self:flex-start}
+.ms-where-box{text-align:center}
+.ms-svg{width:100%;max-width:300px;height:auto;display:block;margin:0 auto}
+.ms-svg .sv-wall{fill:none;stroke:var(--ink);stroke-width:2}
+.ms-svg .sv-axis{stroke:var(--rule);stroke-dasharray:4 4}
+.ms-svg .sv-hole{fill:var(--signal,#F2C230)}
+.ms-svg .sv-txt{fill:var(--ink-2);font-size:12px;font-weight:700}
+.ms-pt circle{fill:var(--sheet);stroke:var(--ink-2);stroke-width:2}
+.ms-pt circle.hit{fill:transparent;stroke:none}
+.ms-pt.done circle{fill:var(--ok);stroke:var(--ok)}
+.ms-pt text{fill:var(--ink);font-size:11px;font-weight:700;text-anchor:middle}
+.ms-pt.cur circle:not(.hit){fill:var(--link);stroke:var(--link);animation:msPulse 1s ease-in-out infinite}
+@keyframes msPulse{50%{opacity:.35}}
+.ms-where{font-size:17px;margin-top:6px}
+.ms-cnt{font-size:13px;color:var(--ink-2);margin-top:2px}
+.ms-where1{font-size:16px;color:var(--ink-2)}
+.ms-live{text-align:center}
+.ms-conn{font-size:13px;color:var(--ink-2)}
+.ms-big{display:flex;justify-content:center;align-items:baseline;gap:8px;margin:4px 0}
+.ms-big b{font-size:56px;line-height:1;font-variant-numeric:tabular-nums}
+.ms-big span{color:var(--ink-2);font-size:14px}
+.ms-meta{font-size:13px;color:var(--ink-2);margin-top:6px;font-variant-numeric:tabular-nums}
+.ms-reg{border-radius:14px;padding:8px}
+.ms-reg.ok{background:var(--ok-bg)}
+.ms-reg.ok .ms-dev{color:var(--ok)}
+.ms-reg.bad{background:color-mix(in srgb, var(--bad) 14%, transparent)}
+.ms-reg.bad .ms-dev{color:var(--bad)}
+.ms-dev{font-size:24px;font-weight:800}
+.ms-dev span{font-size:13px;font-weight:500;color:var(--ink-2)}
+.ms-durrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ms-dur{flex-wrap:nowrap}
+.ms-dur button{min-width:38px}
+.ms-own input{width:58px;border:1px solid var(--rule);border-radius:8px;padding:6px;font:inherit;font-size:15px;background:var(--sheet);color:var(--ink);text-align:center;margin-left:6px}
+.ms-sum{text-align:center;font-size:15px}
+.ms-f{padding:10px 16px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:8px}
+.ms-go{width:100%;min-height:64px;font-size:20px;font-weight:800}
+.ms-stop{background:var(--bad);color:#fff;border-color:var(--bad)}
+.ms-done{display:flex;flex-direction:column;gap:8px}
+.ms-done .btn{width:100%;min-height:52px}
+.ms-pt circle.hit,.ms-pt.done circle.hit,.ms-pt.cur circle.hit{fill:transparent;stroke:none;animation:none}
+.ms-pt text{text-anchor:start}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -2339,57 +2396,82 @@ function chips(sec, key, opts, label) {
 function secResult(sys, sec) { const it = M.system(sys).secs.find((x) => x.s.id === sec.id); return it ? it.r : M.section(sec, baOf(sys)); }
 
 /* ---------- рукоятка Testo (только в приложении): события из приложения в window.__testo({e, ...}) ---------- */
-const TESTO = { st: 'off', v: null, t: null, bat: null, job: null };
+const TESTO = { st: 'off', v: null, t: null, bat: null, sn: '', handle: '', job: null, hist: [] };
 function hasTesto() { try { return !!(window.AndroidBridge && AndroidBridge.testoStart); } catch (e) { return false; } }
-const LS_TESTO_DUR = 'vnb.testo.dur5';
-function testoDur() { const d = +lsGet(LS_TESTO_DUR); return [5, 10, 20].includes(d) ? d : 5; }
+const LS_TESTO_DUR = 'vnb.testo.dur6';
+const DUR_PRESETS = [3, 5, 10, 20, 30];
+function testoDur() { const d = Math.round(+lsGet(LS_TESTO_DUR)); return d >= 1 && d <= 120 ? d : 5; }
 const tF = (x, d = 2) => (x == null || !isFinite(x) ? '—' : x.toFixed(d).replace('.', ',').replace('-', '−'));
-function testoBeep() {
+function testoBeep(hi) {
   try { const C = window.AudioContext || window.webkitAudioContext; if (!C) return; const ac = testoBeep.ac || (testoBeep.ac = new C());
-    const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 1200; g.gain.value = 0.15; o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 0.18); } catch (e) { /* без звука */ }
+    const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = hi ? 1500 : 1000; g.gain.value = 0.18; o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + (hi ? 0.25 : 0.12)); } catch (e) { /* без звука */ }
 }
+function keepScreen(on) { try { if (window.AndroidBridge && AndroidBridge.keepScreen) AndroidBridge.keepScreen(!!on); } catch (e) { /* нет моста */ } }
 
-/* ---------- точки замера в сечении (ГОСТ 12.3.018, черт. 1–2): ячейки по отверстиям и глубинам ---------- */
+/* ---------- точки замера: сечение (ГОСТ 12.3.018, черт. 1–2) или места на решётке ---------- */
 const tvKey = (label) => String(label).replace(/\./g, '_');
+const GRILLE_N = [1, 2, 4, 6];
+function gN(sec) { const n = +sec.gn; return GRILLE_N.includes(n) ? n : 1; }
 function travGrid(sec) {
+  const m = sec.method || '';
+  if (m === 'grille') {
+    const n = gN(sec); if (n < 2) return null;
+    const cols = n === 6 ? 3 : 2, rows = [];
+    for (let i = 0; i < n / cols; i++) rows.push({ name: n === 2 ? '' : `ряд ${i + 1}`, cells: Array.from({ length: cols }, (_, j) => 'g' + (i * cols + j + 1)) });
+    return { kind: 'grille', rows, cols, depths: [], order: rows.flatMap((r) => r.cells), pts: {} };
+  }
+  if (!(m === 'anemo' || m === 'pitot')) return null;
   const D = N(sec.D), a = N(sec.a), b = N(sec.b);
   const P = M.points(sec.shape, D, a, b);
   if (!P.z) return null;
   const vert = sec.drill !== 'h';
   const round = sec.shape === 'round';
   let rows = [], depths = [];
+  const pts = {};
+  P.pts.forEach((p) => { pts[tvKey(p.label)] = p; });
   if (round) {
-    if (P.pts.length === 1) { depths = [P.pts[0].depth]; rows = [{ name: 'центр', cells: [tvKey(P.pts[0].label)] }]; }
+    if (P.pts.length === 1) { depths = [P.pts[0].depth]; rows = [{ name: 'центр', hole: 'по центру', cells: [tvKey(P.pts[0].label)] }]; }
     else {
       const ax1 = vert ? 'В' : 'Г', ax2 = vert ? 'Г' : 'В';
       const p1 = P.pts.filter((p) => p.axis === ax1), p2 = P.pts.filter((p) => p.axis === ax2);
       depths = p1.map((p) => p.depth);
-      rows = [{ name: vert ? '1 · сверху' : '1 · сбоку', cells: p1.map((p) => tvKey(p.label)) }, { name: vert ? '2 · сбоку' : '2 · сверху', cells: p2.map((p) => tvKey(p.label)) }];
+      rows = [{ name: vert ? '1 · сверху' : '1 · сбоку', hole: vert ? 'сверху' : 'сбоку', cells: p1.map((p) => tvKey(p.label)) },
+        { name: vert ? '2 · сбоку' : '2 · сверху', hole: vert ? 'сбоку, 90°' : 'сверху, 90°', cells: p2.map((p) => tvKey(p.label)) }];
     }
   } else {
     const xs = [...new Set(P.pts.map((p) => p.x))], ys = [...new Set(P.pts.map((p) => p.y))];
     const lab = (i, j) => tvKey(P.pts.find((p) => p.x === xs[i] && p.y === ys[j]).label);
-    if (vert) { depths = ys.map((y) => y * b); rows = xs.map((x, i) => ({ name: `${i + 1} · ${F(x * a, 0)} мм`, cells: ys.map((_, j) => lab(i, j)) })); }
-    else { depths = xs.map((x) => x * a); rows = ys.map((y, j) => ({ name: `${j + 1} · ${F(y * b, 0)} мм`, cells: xs.map((_, i) => lab(i, j)) })); }
+    if (vert) { depths = ys.map((y) => y * b); rows = xs.map((x, i) => ({ name: `${i + 1} · ${F(x * a, 0)} мм`, hole: `${F(x * a, 0)} мм от левого края`, cells: ys.map((_, j) => lab(i, j)) })); }
+    else { depths = xs.map((x) => x * a); rows = ys.map((y, j) => ({ name: `${j + 1} · ${F(y * b, 0)} мм`, hole: `${F(y * b, 0)} мм от верха`, cells: xs.map((_, i) => lab(i, j)) })); }
   }
-  return { P, rows, depths, order: rows.flatMap((r) => r.cells), round, vert };
+  return { kind: 'duct', P, pts, rows, depths, order: rows.flatMap((r) => r.cells), round, vert, a, b, D };
 }
 function travVals(sec, G) { const tv = sec.tv || {}; return G.order.map((k) => N(tv[k])).filter((x) => OK(x)); }
-/* V факт = среднее по заполненным точкам; пустая таблица — V факт вводится вручную */
-function travSync(sys, sec) {
-  if (!(sec.method === 'anemo' || sec.method === 'pitot')) return;
-  const G = travGrid(sec); if (!G) return;
+function tvPos(G, k) { for (let i = 0; i < G.rows.length; i++) { const j = G.rows[i].cells.indexOf(k); if (j >= 0) return [i, j]; } return [-1, -1]; }
+function tvName(G, k) {
+  const [i, j] = tvPos(G, k); if (i < 0) return k;
+  return G.kind === 'grille' ? `место ${G.order.indexOf(k) + 1}` : `отв. ${i + 1}, ${F(G.depths[j], 0)} мм`;
+}
+function tvWhere(G, k) {
+  const [i, j] = tvPos(G, k); if (i < 0) return '';
+  if (G.kind === 'grille') return `Место ${G.order.indexOf(k) + 1} из ${G.order.length} на решётке`;
+  return `Отверстие ${i + 1} (${G.rows[i].hole}) · глубина <b>${F(G.depths[j], 0)} мм</b>`;
+}
+/* V факт = среднее по заполненным точкам (без DOM) */
+function travApply(sys, sec) {
+  const G = travGrid(sec); if (!G) return null;
   const vals = travVals(sec, G);
-  const inp = document.querySelector(`[data-doc="${sys.id}"][data-path="sec:${sec.id}.vAvg"]`);
-  if (!vals.length) { if (inp) inp.readOnly = false; return; }
+  if (!vals.length) return { G, vals, v: '' };
   const v = (Math.round(vals.reduce((x, y) => x + y, 0) / vals.length * 100) / 100).toFixed(2).replace('.', ',');
   if (sec.vAvg !== v || sec.entry !== 'V') { sec.vAvg = v; sec.entry = 'V'; sec.u = Date.now(); Store.save(sys); }
-  if (inp) { inp.value = v; inp.readOnly = true; }
-  const cnt = document.getElementById('tv-cnt'); if (cnt) cnt.textContent = `${vals.length} из ${G.order.length}`;
+  return { G, vals, v };
 }
-function tvName(G, k) {
-  for (let i = 0; i < G.rows.length; i++) { const j = G.rows[i].cells.indexOf(k); if (j >= 0) return `отв. ${i + 1}, ${F(G.depths[j], 0)} мм`; }
-  return k;
+function travSync(sys, sec) {
+  const t = travApply(sys, sec); if (!t) return;
+  const inp = document.querySelector(`[data-doc="${sys.id}"][data-path="sec:${sec.id}.vAvg"]`);
+  if (!t.vals.length) { if (inp) inp.readOnly = false; return; }
+  if (inp) { inp.value = t.v; inp.readOnly = true; }
+  const cnt = document.getElementById('tv-cnt'); if (cnt) cnt.textContent = `${t.vals.length} из ${t.G.order.length}`;
 }
 function travCur(sec, G) {
   const tv = sec.tv || {};
@@ -2397,96 +2479,228 @@ function travCur(sec, G) {
   return G.order.find((k) => !OK(N(tv[k]))) || G.order[0];
 }
 function travHTML(sys, sec) {
+  const grille = sec.method === 'grille';
+  const nSeg = grille ? `<div class="lrow"><span class="lbl">Мест на решётке</span><div class="seg seg-sm" role="group" aria-label="Мест на решётке">${GRILLE_N.map((n) => `<button data-act="g-n" data-v="${n}" aria-pressed="${gN(sec) === n}">${n}</button>`).join('')}</div></div>` : '';
   const G = travGrid(sec);
-  if (!G) return '<p class="hint">Введите размеры сечения — появятся точки замера.</p>';
+  if (!G) return grille ? `<div class="tv-box">${nSeg}</div>` : '<p class="hint">Введите размеры сечения — появятся точки замера.</p>';
   const tv = sec.tv || {}, cur = travCur(sec, G), filled = travVals(sec, G).length;
   const cell = (k) => `<td class="${k === cur ? 'cur' : ''}"><input type="text" inputmode="decimal" class="num-in tv-in" data-doc="${sys.id}" data-path="sec:${sec.id}.tv.${k}" data-tvk="${k}" value="${esc(tv[k] || '')}" aria-label="Скорость, ${esc(tvName(G, k))}" autocomplete="off"></td>`;
-  return `<div class="tv-box">
-    <div class="lrow"><span class="lbl">Точки замера · <span id="tv-cnt">${filled} из ${G.order.length}</span></span>
-      <div class="seg seg-sm" role="group" aria-label="Отверстия"><button data-act="tv-drill" data-v="v" aria-pressed="${G.vert}">Сверху</button><button data-act="tv-drill" data-v="h" aria-pressed="${!G.vert}">Сбоку</button></div></div>
-    <div class="tv-wrap"><table class="tv"><thead><tr><th class="tv-h">Отв. \\ глуб.</th>${G.depths.map((d) => `<th>${F(d, 0)}</th>`).join('')}</tr></thead>
+  const head = G.kind === 'grille'
+    ? `<tr><th class="tv-h"></th>${Array.from({ length: G.cols }, (_, j) => `<th>${j + 1}</th>`).join('')}</tr>`
+    : `<tr><th class="tv-h">Отв. \\ глуб.</th>${G.depths.map((d) => `<th>${F(d, 0)}</th>`).join('')}</tr>`;
+  const drill = G.kind === 'duct' ? `<div class="seg seg-sm" role="group" aria-label="Отверстия"><button data-act="tv-drill" data-v="v" aria-pressed="${G.vert}">Сверху</button><button data-act="tv-drill" data-v="h" aria-pressed="${!G.vert}">Сбоку</button></div>` : '';
+  return `<div class="tv-box">${nSeg}
+    <div class="lrow"><span class="lbl">${G.kind === 'grille' ? 'Места' : 'Точки замера'} · <span id="tv-cnt">${filled} из ${G.order.length}</span></span>${drill}</div>
+    <div class="tv-wrap"><table class="tv"><thead>${head}</thead>
       <tbody>${G.rows.map((r) => `<tr><th class="tv-h">${esc(r.name)}</th>${r.cells.map(cell).join('')}</tr>`).join('')}</tbody></table></div>
-    <p class="hint">Скорость, м/с, в каждой точке. Глубина ввода зонда — в мм от внутренней стенки. V факт = среднее по точкам.${filled ? ' <button class="lnk" data-act="tv-clear">Очистить точки</button>' : ''}</p>
+    <p class="hint">Скорость, м/с.${G.kind === 'duct' ? ' Глубина ввода зонда — в мм от внутренней стенки.' : ''} V факт = среднее.${filled ? ' <button class="lnk" data-act="tv-clear">Очистить</button>' : ''}</p>
   </div>`;
 }
 
-/* ---------- панель Testo: Старт → N секунд усреднения → значение в точку ---------- */
-function testoPanelHTML(sys, sec, trav) {
-  const st = TESTO.st, j = TESTO.job && TESTO.job.cid === sec.id ? TESTO.job : null, dur = testoDur();
-  let live;
-  if (st === 'on') live = `<span class="tst-on">● Testo</span> ${tF(TESTO.v)} м/с · ${tF(TESTO.t, 1)} °C${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''} <button class="lnk" data-act="tst-off">Отключить</button>`;
-  else if (st === 'scan') live = 'Ищу рукоятку…';
-  else if (st === 'connecting') live = 'Подключаюсь…';
-  else live = '<span class="muted">Testo не подключена. Включите рукоятку, закройте приложение Testo и нажмите «Старт».</span>';
-  let tgt = 'V факт';
-  if (trav) { const G = travGrid(sec); if (G) tgt = tvName(G, travCur(sec, G)); }
-  let run = '';
+/* ---------- окно «Замер»: где мерить, Старт, авто-переход, регулировка ---------- */
+function msCtx() {
+  const q = UI.meas; if (!q) return null;
+  const sys = Store.get(q.sid), sec = sys ? secOf(sys, q.cid) : null;
+  if (!sec) return null;
+  const G = travGrid(sec);
+  return { q, sys, sec, G, r: secResult(sys, sec), k: G ? travCur(sec, G) : null };
+}
+function msSVG(c) {
+  const { G, sec, k } = c, tv = sec.tv || {};
+  const dot = (x, y, key) => {
+    const v = N(tv[key]), cur = key === k, done = OK(v);
+    return `<g class="ms-pt${cur ? ' cur' : ''}${done ? ' done' : ''}" data-act="ms-pt" data-k="${key}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${cur ? 11 : 8}"/>${done ? `<text x="${(x + 12).toFixed(1)}" y="${(y + 4).toFixed(1)}">${tF(v)}</text>` : ''}<circle class="hit" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="20"/></g>`;
+  };
+  if (G.kind === 'grille') {
+    const cols = G.cols, rows = G.rows.length, W = 260, H = rows === 1 ? 110 : 170, x0 = 20, y0 = 14, w = W - 40, h = H - 28;
+    let s = `<svg viewBox="0 0 ${W} ${H}" class="ms-svg" role="img" aria-label="Места на решётке"><rect class="sv-wall" x="${x0}" y="${y0}" width="${w}" height="${h}" rx="4"/>`;
+    for (let i = 1; i < cols; i++) s += `<line class="sv-axis" x1="${x0 + w * i / cols}" y1="${y0}" x2="${x0 + w * i / cols}" y2="${y0 + h}"/>`;
+    for (let i = 1; i < rows; i++) s += `<line class="sv-axis" x1="${x0}" y1="${y0 + h * i / rows}" x2="${x0 + w}" y2="${y0 + h * i / rows}"/>`;
+    G.rows.forEach((r, i) => r.cells.forEach((key, j) => { s += dot(x0 + w * (j + 0.5) / cols, y0 + h * (i + 0.5) / rows + 6, key); }));
+    return s + '</svg>';
+  }
+  if (G.round) {
+    const cc = 130, R = 96;
+    let s = `<svg viewBox="0 0 260 260" class="ms-svg" role="img" aria-label="Сечение и точки замера"><circle class="sv-wall" cx="${cc}" cy="${cc}" r="${R}"/><line class="sv-axis" x1="${cc}" y1="${cc - R}" x2="${cc}" y2="${cc + R}"/><line class="sv-axis" x1="${cc - R}" y1="${cc}" x2="${cc + R}" y2="${cc}"/>`;
+    const h1 = G.vert ? `<polygon class="sv-hole" points="${cc - 7},${cc - R - 12} ${cc + 7},${cc - R - 12} ${cc},${cc - R}"/><text class="sv-txt" x="${cc + 12}" y="${cc - R - 4}">1</text>` : `<polygon class="sv-hole" points="${cc - R - 12},${cc - 7} ${cc - R - 12},${cc + 7} ${cc - R},${cc}"/><text class="sv-txt" x="${cc - R - 14}" y="${cc - 12}">1</text>`;
+    const h2 = G.vert ? `<polygon class="sv-hole" points="${cc - R - 12},${cc - 7} ${cc - R - 12},${cc + 7} ${cc - R},${cc}"/><text class="sv-txt" x="${cc - R - 14}" y="${cc - 12}">2</text>` : `<polygon class="sv-hole" points="${cc - 7},${cc - R - 12} ${cc + 7},${cc - R - 12} ${cc},${cc - R}"/><text class="sv-txt" x="${cc + 12}" y="${cc - R - 4}">2</text>`;
+    s += h1 + (G.order.length > 1 ? h2 : '');
+    G.order.forEach((key) => { const p = G.pts[key]; s += dot(cc - R + p.x * 2 * R, cc - R + p.y * 2 * R, key); });
+    return s + '</svg>';
+  }
+  const kk = 200 / Math.max(G.a, G.b), w = G.a * kk, h = G.b * kk, x0 = (260 - w) / 2, y0 = (240 - h) / 2 + 14;
+  let s = `<svg viewBox="0 0 260 260" class="ms-svg" role="img" aria-label="Сечение и точки замера"><rect class="sv-wall" x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}"/>`;
+  G.rows.forEach((r, i) => {
+    const p = G.pts[r.cells[0]];
+    if (G.vert) { const X = x0 + p.x * w; s += `<line class="sv-axis" x1="${X.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${X.toFixed(1)}" y2="${(y0 + h).toFixed(1)}"/><polygon class="sv-hole" points="${(X - 6).toFixed(1)},${(y0 - 11).toFixed(1)} ${(X + 6).toFixed(1)},${(y0 - 11).toFixed(1)} ${X.toFixed(1)},${y0.toFixed(1)}"/><text class="sv-txt" x="${X.toFixed(1)}" y="${(y0 - 14).toFixed(1)}" text-anchor="middle">${i + 1}</text>`; }
+    else { const Y = y0 + p.y * h; s += `<line class="sv-axis" x1="${x0.toFixed(1)}" y1="${Y.toFixed(1)}" x2="${(x0 + w).toFixed(1)}" y2="${Y.toFixed(1)}"/><polygon class="sv-hole" points="${(x0 - 11).toFixed(1)},${(Y - 6).toFixed(1)} ${(x0 - 11).toFixed(1)},${(Y + 6).toFixed(1)} ${x0.toFixed(1)},${Y.toFixed(1)}"/><text class="sv-txt" x="${(x0 - 16).toFixed(1)}" y="${(Y + 4).toFixed(1)}" text-anchor="middle">${i + 1}</text>`; }
+  });
+  G.order.forEach((key) => { const p = G.pts[key]; s += dot(x0 + p.x * w, y0 + p.y * h, key); });
+  return s + '</svg>';
+}
+function msTitle(c) {
+  const { sec, r } = c, m = sec.method;
+  const size = sec.shape === 'round' ? (OK(N(sec.D)) ? `Ø ${sec.D}` : '') : (OK(N(sec.a)) && OK(N(sec.b)) ? `${sec.a}×${sec.b}` : '');
+  const role = (ROLE_CHIPS.find(([v]) => v === sec.role) || [])[1] || '';
+  return [`Точка ${sec.no || ''}`, (sec.role || 'terminal') === 'terminal' ? [sec.room, sec.place].filter(Boolean).join(' · ') : sec.place, role, size].filter((x) => String(x || '').trim()).join(' · ') + (m === 'grille' && r.kOn ? ` · K ${sec.kFree}` : '');
+}
+function msWhereHTML(c) {
+  const { G, k } = c;
+  if (!G) return `<div class="ms-where1">${c.sec.method === 'grille' ? 'Крыльчатку — к центру решётки, вплотную.' : 'Один замер в точке.'}</div>`;
+  const tv = c.sec.tv || {}, n = travVals(c.sec, G).length;
+  return `${msSVG(c)}<div class="ms-where">${tvWhere(G, k)}</div><div class="ms-cnt">Точка ${G.order.indexOf(k) + 1} из ${G.order.length} · замерено ${n}${OK(N(tv[k])) ? ` · здесь уже ${tF(N(tv[k]))} м/с — «Старт» перемерит` : ''}</div>`;
+}
+function msLiveHTML(c) {
+  const j = TESTO.job && TESTO.job.cid === c.sec.id ? TESTO.job : null, st = TESTO.st;
+  const conn = st === 'on' ? `<span class="tst-on">● Testo</span>${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''}` : st === 'scan' ? 'Ищу рукоятку…' : st === 'connecting' ? 'Подключаюсь…' : '<span class="muted">Рукоятка не подключена — нажмите «Старт» или «Подключить».</span>';
+  if (UI.meas.mode === 'reg') {
+    const vs = TESTO.hist.slice(-6).map(Math.abs), vl = vs.length ? vs.reduce((x, y) => x + y, 0) / vs.length : NaN;
+    const r = c.r, Fc = r.Fcalc, kk = r.k || 1;
+    let prof = 1, note = 'по одной точке — ориентировочно';
+    if (c.G && c.k) { const vk = N((c.sec.tv || {})[c.k]), va = N(c.sec.vAvg); if (OK(vk) && vk > 0 && OK(va)) { prof = va / vk; note = `пересчёт по профилю сечения (точка ${tvName(c.G, c.k)})`; } }
+    const L = OK(vl) && OK(Fc) ? 3600 * vl * Fc * kk * prof : NaN, Lp = r.Lp;
+    const dev = OK(L) && OK(Lp) && Lp > 0 ? (L - Lp) / Lp * 100 : NaN;
+    const okc = OK(dev) ? (dev >= r.tol[0] && dev <= r.tol[1] ? 'ok' : 'bad') : '';
+    return `<div class="ms-conn">${conn}</div>
+      <div class="ms-reg ${okc}"><div class="ms-big"><b>${OK(L) ? F(L) : '—'}</b> <span>м³/ч</span></div>
+      <div class="ms-dev">${OK(dev) ? M.fmtSigned(dev, 1) + ' %' : '—'} <span>к проекту ${OK(Lp) ? F(Lp) : '—'}</span></div></div>
+      <div class="ms-meta">сейчас ${tF(vl)} м/с · ${note}. Регулировка ничего не записывает.</div>`;
+  }
   if (j) {
     const el = j.t0 ? Math.min(j.dur, (Date.now() - j.t0) / 1000) : 0;
     const mean = j.n ? Math.abs(j.sum / j.n) : null;
-    run = `<div class="tst-run"><div class="tst-big"><b>${mean == null ? '—' : tF(mean)}</b> <span>м/с, среднее</span></div>
+    const cv = j.n > 2 && mean ? Math.sqrt(Math.max(0, j.sq / j.n - (j.sum / j.n) ** 2)) / mean * 100 : NaN;
+    return `<div class="ms-conn">${conn}</div>
+      <div class="ms-big"><b>${mean == null ? '—' : tF(mean)}</b> <span>м/с, среднее</span></div>
       <div class="tst-bar" aria-hidden="true"><i style="width:${Math.round(el / j.dur * 100)}%"></i></div>
-      <div class="tst-meta">${st !== 'on' ? 'Подключаю…' : !j.t0 ? 'Жду замер…' : `${Math.floor(el)} из ${j.dur} с`}</div></div>`;
+      <div class="ms-meta">${st !== 'on' ? 'Подключаю…' : !j.t0 ? 'Жду замер…' : `${Math.floor(el)} из ${j.dur} с · сейчас ${tF(Math.abs(TESTO.v))} м/с${OK(cv) ? ` · разброс ±${F(cv, 0)} %` : ''}`}</div>`;
   }
-  return `<div class="tst-panel">
-    <div class="tst-line">${live}</div>
-    <div class="tst-ctl">
-      <div class="seg seg-sm" role="group" aria-label="Время усреднения">${[5, 10, 20].map((d) => `<button data-act="tst-dur" data-v="${d}" aria-pressed="${d === dur}" ${j ? 'disabled' : ''}>${d} с</button>`).join('')}</div>
-      ${j ? '<button class="btn tst-stop" data-act="tst-stop">Стоп</button>' : `<button class="btn primary tst-go" data-act="tst-start">Старт · ${esc(tgt)}</button>`}
-    </div>${run}
+  return `<div class="ms-conn">${conn}</div>
+    <div class="ms-big"><b>${tF(TESTO.v == null ? null : Math.abs(TESTO.v))}</b> <span>м/с сейчас${TESTO.t != null ? ` · ${tF(TESTO.t, 1)} °C` : ''}</span></div>`;
+}
+function msSumHTML(c) {
+  const r = secResult(c.sys, c.sec);
+  if (!OK(r.L)) return '<span class="muted">Замера ещё нет.</span>';
+  return `V ${tF(N(c.sec.vAvg))} м/с · L <b>${F(r.L)}</b> / ${F(r.Lp)} м³/ч${OK(r.dev) ? ` · <span class="${r.status === 'bad' ? 'bad-t' : 'ok-t'}">${M.fmtSigned(r.dev, 1)} %</span>` : ''}`;
+}
+function msFootHTML(c) {
+  const j = TESTO.job && TESTO.job.cid === c.sec.id, dur = testoDur();
+  const done = c.G ? travVals(c.sec, c.G).length === c.G.order.length : OK(N(c.sec.vAvg)) && UI.meas.wrote;
+  const list = c.sys.sections || [], i = list.findIndex((x) => x.id === c.sec.id), nx = list[i + 1];
+  const nextBtn = nx ? `<button class="btn" data-act="ms-next">Точка ${esc(nx.no || '')} →</button>` : '';
+  if (UI.meas.mode === 'reg') return `<button class="btn primary ms-go" data-act="ms-mode" data-v="meas">Записать замер</button>`;
+  if (j) return `<button class="btn ms-go ms-stop" data-act="tst-stop">Стоп</button>`;
+  if (done) return `<div class="ms-done"><button class="btn primary ms-go" data-act="tst-start">Перемерить · ${dur} с</button>${nextBtn}</div>`;
+  return `<button class="btn primary ms-go" data-act="tst-start">Старт · ${dur} с${c.G ? ` · ${esc(tvName(c.G, c.k))}` : ''}</button>`;
+}
+function msDurHTML() {
+  const d = testoDur();
+  return `${DUR_PRESETS.map((x) => `<button data-act="tst-dur" data-v="${x}" aria-pressed="${x === d}">${x}</button>`).join('')}<label class="ms-own"><input type="text" inputmode="numeric" id="ms-own" value="${DUR_PRESETS.includes(d) ? '' : d}" placeholder="своё" aria-label="Своё время, с" autocomplete="off"></label>`;
+}
+function msOpen(sid, cid) {
+  UI.meas = { sid, cid, mode: 'meas', wrote: false };
+  const c = msCtx(); if (!c) { UI.meas = null; return; }
+  let root = document.getElementById('meas-root'); if (!root) { root = document.createElement('div'); root.id = 'meas-root'; document.body.appendChild(root); }
+  root.innerHTML = `<div class="ms" role="dialog" aria-modal="true" aria-label="Замер">
+    <header class="ms-h"><div class="ms-t" id="ms-t"></div><button class="ms-x" data-act="ms-close" aria-label="Закрыть">✕</button></header>
+    <div class="ms-body">
+      <div class="seg seg-sm ms-mode" role="group" aria-label="Режим" id="ms-modes"></div>
+      <div id="ms-where-box" class="ms-where-box"></div>
+      <div id="ms-live" class="ms-live"></div>
+      <div class="ms-durrow"><span class="lbl">Время, с</span><div class="seg seg-sm ms-dur" role="group" aria-label="Время усреднения" id="ms-dur">${msDurHTML()}</div></div>
+      <div id="ms-sum" class="ms-sum"></div>
+    </div>
+    <footer class="ms-f" id="ms-foot"></footer>
   </div>`;
+  keepScreen(true);
+  msPaint(true);
+  if (TESTO.st !== 'on' && TESTO.st !== 'scan' && TESTO.st !== 'connecting') { try { AndroidBridge.testoStart(); } catch (e) { /* нет моста */ } }
+}
+function msClose() {
+  TESTO.job = null; UI.meas = null; keepScreen(false);
+  const root = document.getElementById('meas-root'); if (root) root.innerHTML = '';
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+}
+function msPaint(full) {
+  const c = msCtx(); if (!c) return;
+  const set = (id, h) => { const e = document.getElementById(id); if (e) e.innerHTML = h; };
+  if (full || c.q.lastK !== c.k || c.q.dirty) {
+    set('ms-t', esc(msTitle(c)));
+    set('ms-where-box', msWhereHTML(c));
+    set('ms-modes', `<button data-act="ms-mode" data-v="meas" aria-pressed="${c.q.mode !== 'reg'}">Замер</button><button data-act="ms-mode" data-v="reg" aria-pressed="${c.q.mode === 'reg'}">Регулировка</button>`);
+    c.q.lastK = c.k; c.q.dirty = false;
+  }
+  set('ms-live', msLiveHTML(c));
+  set('ms-sum', msSumHTML(c));
+  set('ms-foot', msFootHTML(c));
 }
 function testoPaint() {
-  const box = document.getElementById('tst-box'); if (!box) { if (TESTO.job) TESTO.job = null; return; }
-  const r = UI.route, sys = r && r.name === 'section' ? Store.get(r.sid) : null, sec = sys ? secOf(sys, r.cid) : null;
-  if (!sec) return;
-  box.innerHTML = testoPanelHTML(sys, sec, box.dataset.trav === '1');
+  if (UI.meas) { msPaint(false); return; }
+  document.querySelectorAll('.tst-mini').forEach((x) => { x.innerHTML = testoMiniHTML(); });
+}
+function testoMiniHTML() {
+  const st = TESTO.st;
+  if (st === 'on') return `<span class="tst-on">● Testo</span> ${tF(TESTO.v == null ? null : Math.abs(TESTO.v))} м/с${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''} <button class="lnk" data-act="tst-off">Отключить</button>`;
+  if (st === 'scan') return 'Ищу рукоятку…';
+  if (st === 'connecting') return 'Подключаюсь…';
+  return '';
 }
 function testoFinish() {
   const j = TESTO.job; TESTO.job = null; if (!j || !j.n) { testoPaint(); return; }
-  const val = (Math.round(Math.abs(j.sum / j.n) * 100) / 100).toFixed(2).replace('.', ',');
+  const mean = Math.abs(j.sum / j.n);
+  const val = (Math.round(mean * 100) / 100).toFixed(2).replace('.', ',');
   const sys = Store.get(j.doc), sec = sys ? secOf(sys, j.cid) : null; if (!sec) return;
-  const path = j.k ? `sec:${sec.id}.tv.${j.k}` : `sec:${sec.id}.vAvg`;
-  const inp = document.querySelector(`[data-doc="${sys.id}"][data-path="${path}"]`);
-  if (inp) { inp.readOnly = false; inp.value = val; inp.dispatchEvent(new Event('input', { bubbles: true })); }
-  else { setPath(sys, path, val); touch(sys, path); Store.save(sys); }
-  testoBeep();
+  if (j.k) { sec.tv = sec.tv || {}; sec.tv[j.k] = val; } else { sec.vAvg = val; sec.entry = 'V'; }
+  /* у вентилятора заодно температура */
+  if ((sec.role === 'fan_in' || sec.role === 'fan_out') && j.tn) sec.t = (Math.round(j.tsum / j.tn * 10) / 10).toFixed(1).replace('.', ',');
+  sec.src = { dev: 'Testo', sn: TESTO.sn || '', handle: TESTO.handle || '', at: new Date().toISOString() };
+  sec.u = Date.now();
+  travApply(sys, sec); Store.save(sys);
+  if (UI.meas) UI.meas.wrote = true;
+  testoBeep(true);
+  const cv = j.n > 2 && mean ? Math.sqrt(Math.max(0, j.sq / j.n - (j.sum / j.n) ** 2)) / mean * 100 : 0;
+  const warn = cv > 10 ? ` Поток неустойчив (±${F(cv, 0)} %) — лучше мерить дольше.` : '';
   if (j.k) {
     const G = travGrid(sec), tv = sec.tv || {};
     const i = G ? G.order.indexOf(j.k) : -1;
     const nx = G ? (G.order.slice(i + 1).find((k) => !OK(N(tv[k]))) || G.order.find((k) => !OK(N(tv[k])))) : null;
-    if (nx) { UI.tvCur = { cid: sec.id, k: nx }; toast(`${val} м/с записано. Дальше: ${tvName(G, nx)}.`); }
-    else { UI.tvCur = null; toast(`${val} м/с записано. Все точки замерены.`); }
-    document.querySelectorAll('.tv td.cur').forEach((x) => x.classList.remove('cur'));
-    const nIn = nx && document.querySelector(`.tv-in[data-tvk="${nx}"]`); if (nIn) nIn.parentElement.classList.add('cur');
-  } else toast(`Записано ${val} м/с`);
+    UI.tvCur = nx ? { cid: sec.id, k: nx } : null;
+    toast(nx ? `${val} м/с. Дальше: ${tvName(G, nx)}.${warn}` : `${val} м/с. Все точки замерены: V = ${sec.vAvg} м/с.${warn}`);
+  } else toast(`Записано ${val} м/с.${warn}`);
+  if (UI.meas) { UI.meas.dirty = true; msPaint(true); } else { const y = window.scrollY; render(); window.scrollTo(0, y); }
+}
+function testoStart(sys, sec) {
+  const G = travGrid(sec);
+  const k = G ? travCur(sec, G) : null;
+  TESTO.job = { doc: sys.id, cid: sec.id, k, dur: testoDur(), t0: 0, sum: 0, sq: 0, n: 0, tsum: 0, tn: 0 };
+  testoBeep(false);
+  if (TESTO.st !== 'on' && TESTO.st !== 'scan' && TESTO.st !== 'connecting') { try { AndroidBridge.testoStart(); } catch (e) { toast('Не удалось включить Bluetooth.'); } }
   testoPaint();
 }
 window.__testo = (e) => {
   if (!e) return;
   if (e.e === 'state') {
     TESTO.st = e.s;
-    if (e.s === 'off' || e.s === 'err') { TESTO.v = null; TESTO.t = null; if (e.msg) toast(e.msg); TESTO.job = null; }
+    if (e.s === 'off' || e.s === 'err') { TESTO.v = null; TESTO.t = null; TESTO.hist = []; if (e.msg) toast(e.msg); TESTO.job = null; }
   } else if (e.e === 'val') {
     if (e.n === 'Velocity') {
-      TESTO.v = e.v;
+      TESTO.v = e.v; TESTO.hist.push(e.v); if (TESTO.hist.length > 40) TESTO.hist.shift();
       const j = TESTO.job;
       if (j && TESTO.st === 'on') {
         if (!j.t0) j.t0 = Date.now();
-        j.sum += e.v; j.n++;
+        j.sum += e.v; j.sq += e.v * e.v; j.n++;
         if ((Date.now() - j.t0) / 1000 >= j.dur) { testoFinish(); return; }
       }
-    } else if (e.n === 'Temperature') TESTO.t = e.v;
+    } else if (e.n === 'Temperature') { TESTO.t = e.v; const j = TESTO.job; if (j && j.t0) { j.tsum += e.v; j.tn++; } }
   } else if (e.e === 'bat') TESTO.bat = e.v;
+  else if (e.e === 'dev') { TESTO.sn = e.sn || ''; TESTO.handle = e.handle || ''; }
+  else if (e.e === 'btn') {
+    /* кнопка на рукоятке = «Старт» / «Стоп» в окне «Замер» */
+    const c = msCtx();
+    if (c && UI.meas.mode !== 'reg') { if (TESTO.job) { TESTO.job = null; testoBeep(false); } else testoStart(c.sys, c.sec); }
+  }
   testoPaint();
 };
-function testoStart(sys, sec, trav) {
-  let k = null;
-  if (trav) { const G = travGrid(sec); if (!G) { toast('Сначала размеры сечения.'); return; } k = travCur(sec, G); }
-  TESTO.job = { doc: sys.id, cid: sec.id, k, dur: testoDur(), t0: 0, sum: 0, n: 0 };
-  if (TESTO.st !== 'on' && TESTO.st !== 'scan' && TESTO.st !== 'connecting') { try { AndroidBridge.testoStart(); } catch (e) { toast('Не удалось включить Bluetooth.'); } }
-  testoPaint();
-}
 
 function viewSection(sys, sec) {
   const o = objOf(sys.objectId);
@@ -2507,26 +2721,18 @@ function viewSection(sys, sec) {
       ${peekPhotos(sys, 'scheme').length ? '<button class="btn sm sch-btn" data-act="scheme-view" data-i="0">Схема</button>' : ''}
     </div>`;
 
-  /* номер, место */
+  /* описание точки: номер, место, что и чем меряем, размеры — заполнил и свернул */
   const isTerm = (sec.role || 'terminal') === 'terminal';
   const roomNames = [...new Set((sys.sections || []).map((x) => String(x.room || '').trim()).filter(Boolean))];
   const idRow = isTerm
     ? `<div class="row-no">${inText(sys, P('no'), '№')}${inText(sys, P('room'), 'Помещение', { list: 'rooms-' + sys.id })}</div>
       ${inText(sys, P('place'), 'Решётка (обозначение, место)')}<datalist id="rooms-${sys.id}">${roomNames.map((x) => `<option value="${esc(x)}">`).join('')}</datalist>`
     : `<div class="row-no">${inText(sys, P('no'), '№')}${inText(sys, P('place'), 'Место')}</div>`;
-
-  /* что и чем меряем: выбрано — одна строка, «Изменить» раскрывает */
   const roleName = (ROLE_CHIPS.find(([v]) => v === sec.role) || [])[1] || '';
   const methName = (METHOD_CHIPS.find(([v]) => v === m) || [])[1] || '';
-  const chipsOpen = !sec.role || !m || (UI.chipsOpen === sec.id);
-  const chipBlock = chipsOpen
-    ? `${chips(sec, 'role', ROLE_CHIPS, 'Что меряем')}${chips(sec, 'method', METHOD_CHIPS.filter(([v]) => v !== 'kfactor' || fan || m === 'kfactor'), 'Чем меряем')}${sec.role && m ? '<button class="lnk chip-done" data-act="chips-close">Свернуть</button>' : ''}`
-    : `<div class="chip-sum"><span><b>${esc(roleName)}</b> · ${esc(methName)}</span><button class="lnk" data-act="chips-open">Изменить</button></div>`;
-
-  /* размеры */
   const dims = sec.shape === 'round'
-    ? inNum(sys, P('D'), 'D', 'мм', { struct: duct })
-    : inNum(sys, P('a'), 'a, ширина', 'мм', { struct: duct }) + inNum(sys, P('b'), 'b, высота', 'мм', { struct: duct });
+    ? inNum(sys, P('D'), 'D', 'мм', { struct: true })
+    : inNum(sys, P('a'), 'a, ширина', 'мм', { struct: true }) + inNum(sys, P('b'), 'b, высота', 'мм', { struct: true });
   const kField = M.usesK(sec) ? inNum(sys, P('kFree'), 'K решётки', '', { hint: byL ? 'при L факт не учитывается' : 'L = 3600·V·F·K' }) : '';
   const kfBlock = m !== 'kfactor' ? '' : `<div class="psub">
       <span class="lbl">K-фактор вентилятора</span>
@@ -2537,6 +2743,12 @@ function viewSection(sys, sec) {
         <div class="seg seg-sm" role="group" aria-label="Форма сечения"><button data-act="shape" data-v="round" aria-pressed="${sec.shape === 'round'}">Круглое</button><button data-act="shape" data-v="rect" aria-pressed="${sec.shape !== 'round'}">Прямоуг.</button></div></div>
       <div class="fields fields-dims">${dims}${kField}</div>
       <div id="sec-geo">${geoHTML(r, sec)}</div></div>`;
+  const setupDone = !!(sec.role && m && (m === 'hood' || m === 'kfactor' || OK(r.F)));
+  const setupOpen = !setupDone || UI.setupOpen === sec.id;
+  const size = !m || m === 'hood' || m === 'kfactor' ? '' : sec.shape === 'round' ? `Ø ${sec.D}` : `${sec.a}×${sec.b}${r.kOn ? ` · K ${sec.kFree}` : ''}`;
+  const setup = setupOpen
+    ? `${idRow}${chips(sec, 'role', ROLE_CHIPS, 'Что меряем')}${chips(sec, 'method', METHOD_CHIPS.filter(([v]) => v !== 'kfactor' || fan || m === 'kfactor'), 'Чем меряем')}${sizes}${setupDone ? '<button class="btn sm setup-ok" data-act="setup-close">Готово — к замеру</button>' : ''}`
+    : `<button class="setup-sum" data-act="setup-open" aria-label="Изменить описание точки"><span><b>№ ${esc(sec.no || '—')}</b>${[isTerm ? sec.room : '', sec.place].filter(Boolean).map((x) => ' · ' + esc(x)).join('')}<br><small>${esc([roleName, methName, size].filter(Boolean).join(' · '))}</small></span><span class="setup-pen" aria-hidden="true">✎</span></button>`;
 
   /* замер */
   const psPath = P('ps');
@@ -2546,33 +2758,33 @@ function viewSection(sys, sec) {
     : `<div class="f"><label for="${fid(sys, psPath)}">${lab('Pст', 'Па')}</label><div class="pre"><button class="sgn" data-act="ps-sign" aria-label="Сменить знак, сейчас ${sec.psSign === '-' ? 'минус' : 'плюс'}">${sec.psSign === '-' ? '−' : '+'}</button><input type="text" inputmode="decimal" class="num-in" id="${fid(sys, psPath)}" data-doc="${sys.id}" data-path="${psPath}" value="${psVal}" autocomplete="off"></div></div>`;
   let meas;
   const fromPass = !m && sec.entry === 'L' && (String(oneVal(sec.total) || '').trim() || String(sec.Lp || '').trim());
-  if (!m && !fromPass) meas = '<p class="muted">Выберите, чем меряете, — появится поле для замера.</p>';
+  if (!m && !fromPass) meas = '';
   else {
     const kf = m === 'kfactor';
-    const trav = duct && !byL;
-    const travOn = trav && travGrid(sec) && travVals(sec, travGrid(sec)).length > 0;
+    const trav = !byL && (duct || m === 'grille');
+    const G = trav ? travGrid(sec) : null;
+    const travOn = G && travVals(sec, G).length > 0;
     const factPath = byL ? P('total') : (kf ? P('dpK') : P('vAvg'));
     const toggle = m === 'hood' ? '' : `<div class="seg seg-xs" role="group" aria-label="Что вписать"><button data-act="entry" data-v="V" aria-pressed="${!byL}">${kf ? 'Δp' : 'V'}</button><button data-act="entry" data-v="L" aria-pressed="${byL}">L</button></div>`;
     const factLbl = byL ? lab('L факт', 'м³/ч') : (kf ? lab('Δp факт', 'Па') : lab(travOn ? 'V факт, среднее' : 'V факт', 'м/с'));
     const factVal = oneVal(sec[byL ? 'total' : (kf ? 'dpK' : 'vAvg')]);
     const fin = valInput(sys, factPath, byL ? 'L факт' : (kf ? 'Δp факт' : 'V факт'), factVal);
     const testoOK = !byL && !kf && (m === 'anemo' || m === 'grille') && hasTesto();
+    const src = sec.src && sec.src.at ? `<p class="hint src-l">Замер ${esc(sec.src.dev || '')}${sec.src.sn ? ', зонд № ' + esc(sec.src.sn) : ''} · ${esc(fmtDate(sec.src.at.slice(0, 10)))} ${esc(sec.src.at.slice(11, 16))}</p>` : '';
     meas = `<div class="mrow">
         ${inNum(sys, P('Lp'), 'L проект', 'м³/ч', { cls: 'big' })}
         <div class="f big"><div class="lrow"><label for="${fid(sys, factPath)}">${factLbl}</label>${toggle}</div>${travOn ? fin.replace('<input ', '<input readonly ') : fin}</div>
       </div>
+      ${testoOK && setupDone ? `<button class="btn primary wide ms-open" data-act="ms-open">Замер с Testo</button><div class="tst-mini">${testoMiniHTML()}</div>` : ''}
+      <div id="sec-result">${resultHTML(r, sec)}</div>${src}${fromPass ? '<p class="hint">Расход из паспорта. Будете перемерять — выберите, чем меряете.</p>' : ''}
       ${trav ? travHTML(sys, sec) : ''}
-      ${testoOK ? `<div id="tst-box" data-trav="${trav ? 1 : 0}">${testoPanelHTML(sys, sec, trav)}</div>` : ''}
-      <div id="sec-result">${resultHTML(r, sec)}</div>${fromPass ? '<p class="hint">Расход из паспорта. Будете перемерять — выберите, чем меряете.</p>' : ''}
       ${fan || duct ? `<div class="fields pres">${psField}${fan ? inNum(sys, P('t'), 'Температура t', '°C') : ''}</div>${fan ? '<p class="hint">Pст и t — для давления вентилятора.</p>' : ''}` : ''}`;
   }
   const measSum = OK(r.L) ? `L ${F(r.L)} / ${F(r.Lp)} м³/ч${OK(r.dev) ? ` · <span class="${r.status === 'bad' ? 'bad-t' : 'ok-t'}">${M.fmtSigned(r.dev, 1)} %</span>` : ''}` : 'нет замера';
   const ptSum = [esc([`№ ${sec.no || '—'}`, isTerm ? sec.room : '', sec.place].filter(Boolean).join(' · ')), measSum].join(' · ');
   const cardPt = modCard('pt.point', 'c-point', 'Точка и замер', ptSum, `<div class="pcard">
-      ${idRow}
-      ${chipBlock}
-      ${sizes}
-      <div class="psub pmeas">${meas}</div>
+      ${setup}
+      ${meas ? `<div class="psub pmeas">${meas}</div>` : ''}
     </div>`);
 
   /* фото и заметка */
@@ -4503,7 +4715,7 @@ function render() {
 
 function go(route, keepScroll) {
   if (route && route.name === 'objsel') route = objEntry(route.oid);
-  if (!route || route.cid !== UI.chipsOpen) UI.chipsOpen = null;
+  if (!route || route.cid !== UI.setupOpen) UI.setupOpen = null;
   UI.route = route;
   UI.armed = null;
   UI.modOpen = {};
@@ -4566,7 +4778,12 @@ view.addEventListener('focusin', (e) => {
   UI.tvCur = { cid: r.cid, k: el.dataset.tvk };
   document.querySelectorAll('.tv td.cur').forEach((x) => x.classList.remove('cur'));
   el.parentElement.classList.add('cur');
-  testoPaint();
+});
+/* своё время усреднения в окне «Замер» */
+document.addEventListener('input', (e) => {
+  if (e.target.id !== 'ms-own') return;
+  const d = Math.round(+String(e.target.value).replace(',', '.'));
+  if (d >= 1 && d <= 120) { lsSet(LS_TESTO_DUR, d); document.querySelectorAll('#ms-dur [data-act=tst-dur]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.v === d))); if (UI.meas) msPaint(false); }
 });
 view.addEventListener('keydown', (e) => {
   if (isPdv()) return;
@@ -4705,13 +4922,28 @@ document.addEventListener('click', (e) => {
     case 'hand-send': shareTextV(issuesTextV(a.dataset.oid || (UI.route && UI.route.oid))); break;
     case 'hand-sheet': handSheet(a.dataset.oid || (UI.route && UI.route.oid)); break;
     case 'hand-close': { oeditRoot().innerHTML = ''; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
-    case 'chips-open': { if (!d.c) break; UI.chipsOpen = d.c.id; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
-    case 'chips-close': { UI.chipsOpen = null; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'setup-open': { if (!d.c) break; UI.setupOpen = d.c.id; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'setup-close': { UI.setupOpen = null; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
     case 'tv-drill': { if (!d.s || !d.c) break; d.c.drill = a.dataset.v; d.c.u = Date.now(); Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y); break; }
+    case 'g-n': { if (!d.s || !d.c) break; d.c.gn = +a.dataset.v; d.c.tv = {}; d.c.u = Date.now(); Store.save(d.s); UI.tvCur = null; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
     case 'tv-clear': { if (!d.s || !d.c) break; d.c.tv = {}; d.c.u = Date.now(); Store.save(d.s); UI.tvCur = null; const y = window.scrollY; render(); window.scrollTo(0, y); toast('Точки очищены. V факт можно вписать вручную.'); break; }
-    case 'tst-start': { if (!d.s || !d.c) break; const b = document.getElementById('tst-box'); testoStart(d.s, d.c, b && b.dataset.trav === '1'); break; }
+    case 'ms-open': { if (!d.s || !d.c) break; msOpen(d.s.id, d.c.id); break; }
+    case 'ms-close': msClose(); break;
+    case 'ms-pt': { const c = msCtx(); if (!c || TESTO.job) break; UI.tvCur = { cid: c.sec.id, k: a.dataset.k }; msPaint(true); break; }
+    case 'ms-mode': { if (!UI.meas) break; TESTO.job = null; UI.meas.mode = a.dataset.v; UI.meas.dirty = true; msPaint(true); break; }
+    case 'ms-next': {
+      const c = msCtx(); if (!c) break;
+      const list = c.sys.sections || [], i = list.findIndex((x) => x.id === c.sec.id), nx = list[i + 1]; if (!nx) break;
+      TESTO.job = null; UI.tvCur = null;
+      const rr = M.section(nx, baOf(c.sys));
+      const ready = (nx.method === 'anemo' || nx.method === 'grille') && nx.entry !== 'L' && OK(rr.F);
+      if (ready) { UI.route = { name: 'section', sid: c.sys.id, cid: nx.id }; msOpen(c.sys.id, nx.id); }
+      else { msClose(); go({ name: 'section', sid: c.sys.id, cid: nx.id }); toast(`Точка ${nx.no || ''}: заполните описание — потом «Замер с Testo».`); }
+      break;
+    }
+    case 'tst-start': { const c = msCtx(); if (c) testoStart(c.sys, c.sec); break; }
     case 'tst-stop': TESTO.job = null; testoPaint(); break;
-    case 'tst-dur': lsSet(LS_TESTO_DUR, +a.dataset.v); testoPaint(); break;
+    case 'tst-dur': { lsSet(LS_TESTO_DUR, +a.dataset.v); const own = document.getElementById('ms-own'); if (own) own.value = ''; document.querySelectorAll('#ms-dur [data-act=tst-dur]').forEach((b) => b.setAttribute('aria-pressed', String(b === a))); testoPaint(); break; }
     case 'tst-off': TESTO.job = null; try { AndroidBridge.testoStop(); } catch (e) { /* нет моста */ } break;
     case 'backup': exportBackup(); break;
     case 'template': exportTemplate(); break;
@@ -4771,6 +5003,7 @@ render();
 /* Кнопка «Назад» в приложении Android: на уровень выше по журналу */
 window.__vnbBack = () => {
   { const sb = document.querySelector('.sharebox'); if (sb) { sb.remove(); return true; } }
+  { const mr = document.getElementById('meas-root'); if (mr && mr.innerHTML) { msClose(); return true; } }
   { const oe = document.getElementById('oedit-root'); if (oe && oe.innerHTML) { const hs = !!oe.querySelector('.hand-sheet'); oe.innerHTML = ''; if (hs) { const y = window.scrollY; render(); window.scrollTo(0, y); } return true; } }
   if (UI.tab === 'ref') { UI.tab = 'journal'; render(); window.scrollTo(0, 0); return true; }
   if (isPdv() && window.__pdvBack) return window.__pdvBack();
