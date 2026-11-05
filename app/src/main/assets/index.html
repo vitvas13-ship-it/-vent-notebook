@@ -835,6 +835,63 @@ body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;ba
 .ms-done .btn{width:100%;min-height:52px}
 .ms-pt circle.hit,.ms-pt.done circle.hit,.ms-pt.cur circle.hit{fill:transparent;stroke:none;animation:none}
 .ms-pt text{text-anchor:start}
+/* вкладка «Прибор» */
+.tabs.t4 .tab{padding-left:6px;padding-right:6px;font-size:15px}
+.dv{gap:12px}
+.dv-conn{font-size:13.5px;color:var(--ink-2)}
+.dv .lnk{background:none;border:0;color:var(--link);font:inherit;font-weight:600;padding:4px 2px;cursor:pointer;text-decoration:underline}
+.dv-progs h2,.dv-hist h2{margin:0 0 8px;font-size:17px}
+.dv-prog{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--rule);padding:12px 2px;font:inherit;color:var(--ink);cursor:pointer}
+.dv-prog b{font-size:16px}.dv-prog small{color:var(--ink-2);font-size:13px}
+.dv-prog.last b::after{content:' ★';color:var(--signal,#F2C230)}
+.dv-h{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--rule);padding:8px 0;font-size:14px}
+.dv-h small{color:var(--ink-2)}
+.dv-top{display:flex;align-items:center;gap:10px}
+.dv-top b{flex:1;font-size:16px;line-height:1.25}
+.dv-gear{background:none;border:0;font-size:24px;color:var(--ink-2);width:44px;height:44px;cursor:pointer}
+.dv-cfg h3{margin:0 0 10px;font-size:17px}
+.dv-cfg h3:not(:first-child){margin-top:18px}
+.dv-cfg select{width:100%;font:inherit;font-size:16px;padding:9px;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);color:var(--ink)}
+.dv-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;bottom:0;background:var(--paper,var(--sheet));padding:10px 0}
+.dv-nav .btn{min-width:110px;min-height:46px}
+.dv-dots{display:flex;gap:6px}.dv-dots i{width:8px;height:8px;border-radius:50%;background:var(--rule)}.dv-dots i.on{background:var(--signal,#F2C230)}
+.dv-link{font-size:13.5px;background:color-mix(in srgb, var(--link) 10%, transparent);border-radius:8px;padding:6px 10px}
+.dv-pillrow{text-align:center}
+.dv-pill{display:inline-block;padding:7px 18px;border-radius:999px;background:color-mix(in srgb, var(--ink) 10%, transparent);font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.dv-pill.run{background:color-mix(in srgb, var(--signal,#F2C230) 45%, transparent)}
+.dv-res{text-align:center}
+.dv-rl{font-size:14px;color:var(--ink-2)}
+.dv-rv{font-size:40px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}.dv-rv span{font-size:20px;font-weight:600;color:var(--ink-2)}
+.dv-rs{font-size:13.5px;color:var(--ink-2);margin-top:2px}
+.dv-cur{border:1px solid var(--rule);border-radius:12px;padding:6px 12px;background:var(--sheet)}
+.dv-ch{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink-2);padding:4px 0 6px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.dv-cr{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--rule)}
+.dv-cr:last-child{border-bottom:0}
+.dv-cr b{font-size:22px;font-variant-numeric:tabular-nums}.dv-cr small{font-size:13px;color:var(--ink-2);font-weight:500}
+.dv-svg{width:100%;max-width:340px;height:auto;display:block;margin:0 auto}
+.dv-wall{fill:none;stroke:var(--ink-2);stroke-width:5}
+.dv-ax{stroke:var(--rule);stroke-width:1}
+.dv-pt circle{fill:var(--ink);stroke:none}
+.dv-pt circle.hit,.dv-pt.done circle.hit,.dv-pt.cur circle.hit{fill:transparent}
+.dv-pt.done circle{fill:var(--ok)}
+.dv-pt.cur circle:not(.hit){fill:#F28C28}
+.dv-pt text{font-size:10px;font-weight:700;fill:var(--ok)}
+.dv-flag rect{fill:var(--sheet);stroke:var(--ink-2);stroke-width:1}
+.dv-flag path{fill:var(--ink-2)}
+.dv-flag text{font-size:11px;font-weight:800;text-anchor:middle;fill:var(--ink)}
+.dv-flag text.s{font-size:9px;font-weight:600;fill:var(--ink-2)}
+.dv-flag.on rect{fill:#F28C28;stroke:#F28C28}.dv-flag.on path{fill:#F28C28}.dv-flag.on text{fill:#fff}
+.dv-tip rect{fill:color-mix(in srgb, var(--ink) 14%, var(--sheet))}
+.dv-tip text{font-size:12px;font-weight:700;text-anchor:middle;fill:var(--ink)}
+.dv-foot{position:sticky;bottom:0;background:var(--paper,var(--sheet));padding:10px 0 6px;display:flex;flex-direction:column;gap:8px}
+.dv-go{width:100%;min-height:58px;font-size:19px;font-weight:800}
+.dv-stop{background:var(--bad);color:#fff;border-color:var(--bad)}
+.dv-foot2{display:flex;flex-direction:column;gap:8px}.dv-foot2.row{flex-direction:row}.dv-foot2.row .btn{flex:1}
+.dv-vals{font-size:14px}.dv-vals div{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--rule);padding:5px 0}
+.dv-vals span{color:var(--ink-2);min-width:22px}
+.dv-lead{stroke:var(--ink-2);stroke-width:1.2}
+.dv-flag.on .dv-lead{stroke:#F28C28}
+.dv-meas{padding-bottom:8px}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -902,6 +959,7 @@ body .crumbs.ocrumbs > .ocr-e,.oc-e{flex:none;text-decoration:none;border:1px so
     </div>
     <nav class="tabs" role="tablist" aria-label="Разделы">
       <button class="tab" role="tab" id="tab-journal" data-tab="journal" aria-selected="true">Журнал</button>
+      <button class="tab" role="tab" id="tab-dev" data-tab="dev" aria-selected="false" hidden>Прибор</button>
       <button class="tab" role="tab" id="tab-calc" data-tab="calc" aria-selected="false">Расчёты</button>
       <button class="tab" role="tab" id="tab-ref" data-tab="ref" aria-selected="false">Справка</button>
     </nav>
@@ -2395,18 +2453,510 @@ function chips(sec, key, opts, label) {
 
 function secResult(sys, sec) { const it = M.system(sys).secs.find((x) => x.s.id === sec.id); return it ? it.r : M.section(sec, baOf(sys)); }
 
-/* ---------- рукоятка Testo (только в приложении): события из приложения в window.__testo({e, ...}) ---------- */
-const TESTO = { st: 'off', v: null, t: null, bat: null, sn: '', handle: '', job: null, hist: [] };
+/* ===== вкладка «Прибор»: рукоятка Testo по Bluetooth, устроено как testo 400 =====
+   Программа → настройка (страницы) → экран замера: «Запустить» на каждой точке.
+   Расстановка точек — ГОСТ 12.3.018-79, DIN EN 12599, ASHRAE 111 (коэффициенты — доля размера от стенки). */
+const TESTO = { st: 'off', v: null, t: null, bat: null, sn: '', handle: '', hist: [] };
 function hasTesto() { try { return !!(window.AndroidBridge && AndroidBridge.testoStart); } catch (e) { return false; } }
-const LS_TESTO_DUR = 'vnb.testo.dur6';
-const DUR_PRESETS = [3, 5, 10, 20, 30];
-function testoDur() { const d = Math.round(+lsGet(LS_TESTO_DUR)); return d >= 1 && d <= 120 ? d : 5; }
 const tF = (x, d = 2) => (x == null || !isFinite(x) ? '—' : x.toFixed(d).replace('.', ',').replace('-', '−'));
 function testoBeep(hi) {
   try { const C = window.AudioContext || window.webkitAudioContext; if (!C) return; const ac = testoBeep.ac || (testoBeep.ac = new C());
     const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = hi ? 1500 : 1000; g.gain.value = 0.18; o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + (hi ? 0.25 : 0.12)); } catch (e) { /* без звука */ }
 }
 function keepScreen(on) { try { if (window.AndroidBridge && AndroidBridge.keepScreen) AndroidBridge.keepScreen(!!on); } catch (e) { /* нет моста */ } }
+function testoConnect() { if (TESTO.st === 'on' || TESTO.st === 'scan' || TESTO.st === 'connecting') return; try { AndroidBridge.testoStart(); } catch (e) { toast('Не удалось включить Bluetooth.'); } }
+
+const DEV_PROGS = [
+  { id: 'std', t: 'Стандартный вид', d: 'живые значения, среднее за время замера' },
+  { id: 'grille', t: 'Объёмный расход — решётка', d: 'на выходе из воздуховода, свободная площадь %' },
+  { id: 'duct', t: 'Объёмный расход — воздуховод', d: 'замер в одной точке сечения' },
+  { id: 'gost', t: 'Сетка ГОСТ 12.3.018-79', d: 'точки по черт. 1–2', grid: true },
+  { id: 'en', t: 'Сетка DIN EN 12599', d: 'равные площади', grid: true },
+  { id: 'ashrae', t: 'Сетка ASHRAE 111', d: 'лог-Чебышёв / лог-линейный', grid: true },
+];
+const devProg = (id) => DEV_PROGS.find((p) => p.id === id) || DEV_PROGS[0];
+const DEV_T = {
+  ashraeRect: { 5: [0.074, 0.288, 0.500, 0.712, 0.926], 6: [0.061, 0.235, 0.437, 0.563, 0.765, 0.939], 7: [0.053, 0.203, 0.366, 0.500, 0.634, 0.797, 0.947] },
+  ashraeRound: { 6: [0.032, 0.135, 0.321, 0.679, 0.865, 0.968], 10: [0.019, 0.077, 0.153, 0.217, 0.361, 0.639, 0.783, 0.847, 0.923, 0.981] },
+  enRound: { 2: [0.1464, 0.8536], 4: [0.0670, 0.2500, 0.7500, 0.9330], 6: [0.0436, 0.1464, 0.2959, 0.7041, 0.8536, 0.9564],
+    8: [0.0323, 0.1047, 0.1938, 0.3232, 0.6768, 0.8062, 0.8953, 0.9677], 10: [0.0257, 0.0817, 0.1464, 0.2261, 0.3419, 0.6581, 0.7739, 0.8536, 0.9183, 0.9743] },
+};
+/* доли размера от стенки для n точек (или n отверстий) */
+function devCoeffs(std, shape, n) {
+  if (std === 'gost') {
+    if (shape === 'rect') { if (n === 2) return [0.2, 0.8]; if (n === 4) return [0.1, 0.4, 0.6, 0.9]; }
+    else { if (n === 4) return [0.054, 0.28, 0.72, 0.946]; if (n === 2) return [0.12, 0.88]; }
+  } else if (std === 'ashrae') {
+    const t = shape === 'rect' ? DEV_T.ashraeRect : DEV_T.ashraeRound; if (t[n]) return t[n];
+  } else if (std === 'en' && shape === 'round' && DEV_T.enRound[n]) return DEV_T.enRound[n];
+  return Array.from({ length: n }, (_, i) => (2 * i + 1) / (2 * n));
+}
+function devHolesOpts(std, shape) {
+  if (std === 'gost') return shape === 'round' ? [2] : [2, 4];
+  if (std === 'ashrae') return shape === 'rect' ? [5, 6, 7] : [3];
+  return shape === 'rect' ? [1, 2, 3, 4, 5] : [1, 2];
+}
+function devPtsOpts(std, shape) {
+  if (std === 'gost') return [2, 4];
+  if (std === 'ashrae') return shape === 'rect' ? [5, 6, 7] : [6, 10];
+  return shape === 'rect' ? [3, 4, 5, 6, 7, 8, 9, 10] : [2, 4, 6, 8, 10];
+}
+/* по умолчанию: ГОСТ — по размерам (черт. 1–2), EN — 3×3 / 2×4, ASHRAE — 5×5 / 3×6 */
+function devDefaults(std, c) {
+  const round = c.shape === 'round';
+  if (std === 'gost') {
+    if (round) return { holes: 2, pts: N(c.D) > 300 ? 4 : 2 };
+    const across = c.orient === 'h' ? N(c.b) : N(c.a), depth = c.orient === 'h' ? N(c.a) : N(c.b);
+    return { holes: across > 200 ? 4 : 2, pts: depth > 200 ? 4 : 2 };
+  }
+  if (std === 'ashrae') return round ? { holes: 3, pts: 6 } : { holes: 5, pts: 5 };
+  return round ? { holes: 2, pts: 4 } : { holes: 3, pts: 3 };
+}
+function devFixCounts(prog, c) {
+  if (!devProg(prog).grid) return;
+  const ho = devHolesOpts(prog, c.shape), po = devPtsOpts(prog, c.shape), d = devDefaults(prog, c);
+  if (!ho.includes(+c.holes)) c.holes = d.holes;
+  if (!po.includes(+c.pts)) c.pts = d.pts;
+}
+
+/* настройка программы: запоминается отдельно для каждой программы */
+const LS_DEV_CFG = 'vnb.dev.cfg.', LS_DEV_PROG = 'vnb.dev.prog', LS_DEV_HIST = 'vnb.dev.hist';
+function devCfgDefault() { return { shape: 'rect', a: '', b: '', D: '', holes: 0, pts: 0, orient: 'v', air: 'supply', Lp: '', kcorr: '1,00', free: '100', mode: 'time', ivl: '5' }; }
+function devCfgLoad(prog) { const c = Object.assign(devCfgDefault(), lsGet(LS_DEV_CFG + prog) || {}); devFixCounts(prog, c); return c; }
+function devCfgSave() { if (DEV.prog) lsSet(LS_DEV_CFG + DEV.prog, DEV.cfg); }
+
+const DEV = { view: 'list', prog: null, cfg: null, page: 0, run: null, link: null, pick: null };
+
+/* площадь (м²) и множитель к расходу */
+function devArea(c) {
+  if (c.shape === 'round') { const D = N(c.D); return D > 0 ? Math.PI * D * D / 4e6 : NaN; }
+  const a = N(c.a), b = N(c.b); return a > 0 && b > 0 ? a * b / 1e6 : NaN;
+}
+function devK(prog, c) {
+  const k = OK(N(c.kcorr)) && N(c.kcorr) > 0 ? N(c.kcorr) : 1;
+  const fr = prog === 'grille' && OK(N(c.free)) && N(c.free) > 0 ? N(c.free) / 100 : 1;
+  return k * fr;
+}
+const devL = (prog, c, v) => (OK(v) && OK(devArea(c)) ? 3600 * Math.abs(v) * devArea(c) * devK(prog, c) : NaN);
+
+/* сетка: отверстия (номер, где) и точки (глубина от стенки, координаты 0..1 на схеме) */
+function devGrid(prog, c) {
+  const round = c.shape === 'round', H = +c.holes, P = +c.pts;
+  if (round ? !(N(c.D) > 0) : !(N(c.a) > 0 && N(c.b) > 0)) return null;
+  const cp = devCoeffs(prog, c.shape, P), holes = [];
+  if (round) {
+    const D = N(c.D), base = c.orient === 'h' ? 90 : 0;
+    for (let h = 0; h < H; h++) {
+      const ang = base + 180 * h / H, rad = ang * Math.PI / 180, ex = Math.sin(rad), ey = -Math.cos(rad);
+      holes.push({ n: h + 1, ang, lab: ang === 0 ? 'сверху' : ang === 90 ? 'сбоку' : `${Math.round(ang)}°`, ex, ey,
+        pts: cp.map((k, i) => ({ key: `${h + 1}-${i + 1}`, depth: k * D, x: 0.5 + 0.5 * ex * (1 - 2 * k), y: 0.5 + 0.5 * ey * (1 - 2 * k) })) });
+    }
+  } else {
+    const a = N(c.a), b = N(c.b), vert = c.orient !== 'h';
+    const ch = devCoeffs(prog, c.shape, H);
+    ch.forEach((k, h) => {
+      const pos = k * (vert ? a : b);
+      holes.push({ n: h + 1, pos, lab: `${F(pos, 0)} мм`,
+        pts: cp.map((q, i) => ({ key: `${h + 1}-${i + 1}`, depth: q * (vert ? b : a), x: vert ? k : q, y: vert ? q : k })) });
+    });
+  }
+  return { holes, order: holes.flatMap((h) => h.pts.map((p) => p.key)) };
+}
+const devPt = (G, key) => { for (const h of G.holes) { const p = h.pts.find((x) => x.key === key); if (p) return { h, p }; } return null; };
+
+/* ---------- состояние замера ---------- */
+function devNewRun() {
+  const grid = devProg(DEV.prog).grid;
+  DEV.run = { vals: grid ? {} : [], cur: null, job: null, saved: false, at: Date.now() };
+  if (grid) { const G = devGrid(DEV.prog, DEV.cfg); DEV.run.cur = G ? G.order[0] : null; }
+}
+function devMean() {
+  const r = DEV.run; if (!r) return NaN;
+  const arr = Array.isArray(r.vals) ? r.vals.map((x) => x.v) : Object.values(r.vals);
+  return arr.length ? arr.reduce((x, y) => x + y, 0) / arr.length : NaN;
+}
+const devCount = () => { const r = DEV.run; return !r ? 0 : Array.isArray(r.vals) ? r.vals.length : Object.keys(r.vals).length; };
+function devDone() {
+  const r = DEV.run; if (!r) return false;
+  if (!devProg(DEV.prog).grid) return r.vals.length > 0;
+  const G = devGrid(DEV.prog, DEV.cfg); return !!G && G.order.every((k) => k in r.vals);
+}
+function devStart() {
+  const r = DEV.run; if (!r || r.job) return;
+  if (devProg(DEV.prog).grid && !r.cur) { toast('Задайте размеры в настройке.'); return; }
+  testoConnect();
+  const ivl = Math.max(0, Math.round(N(DEV.cfg.ivl) || 0));
+  r.job = { t0: 0, sum: 0, sq: 0, n: 0, tsum: 0, tn: 0, min: Infinity, max: -Infinity, dur: DEV.cfg.mode === 'count' ? 0 : ivl };
+  testoBeep(false);
+  devPaint();
+}
+function devStop(save) {
+  const r = DEV.run; if (!r || !r.job) return;
+  const j = r.job; r.job = null;
+  if (save && j.n) {
+    const v = j.sum / j.n;
+    if (Array.isArray(r.vals)) r.vals.push({ v, n: j.n, s: j.t0 ? Math.round((Date.now() - j.t0) / 1000) : 0, min: j.min, max: j.max, t: j.tn ? j.tsum / j.tn : NaN });
+    else {
+      r.vals[r.cur] = v;
+      const G = devGrid(DEV.prog, DEV.cfg), i = G.order.indexOf(r.cur);
+      r.cur = G.order.slice(i + 1).find((k) => !(k in r.vals)) || G.order.find((k) => !(k in r.vals)) || r.cur;
+    }
+    if (j.tn) r.t = j.tsum / j.tn;
+    testoBeep(true);
+    const cv = j.n > 2 ? Math.sqrt(Math.max(0, j.sq / j.n - (j.sum / j.n) ** 2)) / Math.abs(j.sum / j.n) * 100 : 0;
+    if (cv > 10) toast(`Поток неустойчив (±${F(cv, 0)} %) — лучше мерить дольше.`);
+    if (DEV.link && (devDone() || !devProg(DEV.prog).grid) && DEV.prog !== 'std') devSaveTo(DEV.link.sid, DEV.link.cid, true);
+  }
+  devPaint();
+}
+/* значение с рукоятки */
+function devOnVal(v) {
+  const r = DEV.run, j = r && r.job;
+  if (!j || TESTO.st !== 'on') return;
+  if (!j.t0) j.t0 = Date.now();
+  j.sum += v; j.sq += v * v; j.n++; j.min = Math.min(j.min, v); j.max = Math.max(j.max, v);
+  if (DEV.cfg.mode === 'count') { devStop(true); return; }
+  if (j.dur > 0 && (Date.now() - j.t0) / 1000 >= j.dur) devStop(true);
+}
+
+/* ---------- запись в точку журнала ---------- */
+function devSaveTo(sid, cid, quiet) {
+  const sys = Store.get(sid), sec = sys && secOf(sys, cid), c = DEV.cfg, prog = DEV.prog;
+  if (!sec) { toast('Точка не найдена.'); return false; }
+  const vm = devMean(); if (!OK(vm)) return false;
+  const kc = OK(N(c.kcorr)) && N(c.kcorr) > 0 ? N(c.kcorr) : 1;
+  const f2 = (x) => (Math.round(x * 100) / 100).toFixed(2).replace('.', ',');
+  sec.shape = c.shape; if (c.shape === 'round') sec.D = c.D; else { sec.a = c.a; sec.b = c.b; }
+  if (prog === 'grille') { sec.method = 'grille'; sec.kFree = f2(devK(prog, c)); sec.vAvg = f2(Math.abs(vm)); }
+  else { sec.method = 'anemo'; sec.vAvg = f2(Math.abs(vm) * kc); }
+  sec.entry = 'V'; sec.tv = {};
+  if (!String(sec.Lp || '').trim() && String(c.Lp || '').trim()) sec.Lp = c.Lp;
+  if ((sec.role === 'fan_in' || sec.role === 'fan_out') && OK(DEV.run.t)) sec.t = (Math.round(DEV.run.t * 10) / 10).toFixed(1).replace('.', ',');
+  const pr = devProg(prog);
+  sec.src = { dev: 'Testo', sn: TESTO.sn || '', handle: TESTO.handle || '', at: new Date().toISOString(), prog: pr.t, grid: pr.grid ? `${c.holes}×${c.pts}` : '' };
+  sec.meas = { prog, cfg: Object.assign({}, c), vals: DEV.run.vals };
+  sec.u = Date.now(); Store.save(sys);
+  DEV.run.saved = true;
+  devHistAdd(`${sys.name || 'Система'} · точка ${sec.no || ''}`);
+  if (!quiet) toast(`Записано в ${sys.name || 'систему'}, точка ${sec.no || ''}: V ${sec.vAvg} м/с.`);
+  else toast(`В точку ${sec.no || ''}: V ${sec.vAvg} м/с.`);
+  return true;
+}
+function devHistAdd(where) {
+  const h = lsGet(LS_DEV_HIST) || [], vm = devMean();
+  h.unshift({ at: new Date().toISOString(), prog: devProg(DEV.prog).t, v: Math.abs(vm), L: devL(DEV.prog, DEV.cfg, vm), where: where || '' });
+  lsSet(LS_DEV_HIST, h.slice(0, 30));
+}
+
+/* ---------- отрисовка ---------- */
+function devConnHTML() {
+  const st = TESTO.st;
+  if (st === 'on') return `<span class="tst-on">● Testo</span>${TESTO.handle ? ' ' + esc(TESTO.handle.replace('UpHandle', 'рукоятка')) : ''}${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''} <button class="lnk" data-act="dv-off">Отключить</button>`;
+  if (st === 'scan') return 'Ищу рукоятку…';
+  if (st === 'connecting') return 'Подключаюсь…';
+  return '<span class="muted">Рукоятка не подключена.</span> <button class="lnk" data-act="dv-conn">Подключить</button>';
+}
+function devListHTML() {
+  const last = lsGet(LS_DEV_PROG);
+  const hist = (lsGet(LS_DEV_HIST) || []).slice(0, 10);
+  return `<div class="stack dv">
+    <div class="dv-conn" id="dv-conn">${devConnHTML()}</div>
+    <section class="card dv-progs"><h2>Программы измерения</h2>
+      ${DEV_PROGS.map((p) => `<button class="dv-prog${p.id === last ? ' last' : ''}" data-act="dv-prog" data-v="${p.id}"><b>${esc(p.t)}</b><small>${esc(p.d)}</small></button>`).join('')}
+    </section>
+    ${hist.length ? `<section class="card dv-hist"><h2>Последние замеры</h2>${hist.map((x) => `<div class="dv-h"><span>${esc(fmtDate(x.at.slice(0, 10)))} ${esc(x.at.slice(11, 16))} · ${esc(x.prog)}${x.where ? `<br><small>${esc(x.where)}</small>` : ''}</span><b>${OK(x.L) ? F(x.L) + ' м³/ч' : tF(x.v) + ' м/с'}</b></div>`).join('')}</section>` : ''}
+    <p class="hint">Замер можно начать и из точки журнала — кнопка «Замер с Testo»: размеры подставятся, результат запишется в точку.</p>
+  </div>`;
+}
+function devField(k, label, unit, o = {}) {
+  return `<div class="f${o.cls ? ' ' + o.cls : ''}"><label for="dv-${k}">${label}${unit ? ` <span class="u">${unit}</span>` : ''}</label><input type="text" inputmode="${o.mode || 'decimal'}" class="num-in" id="dv-${k}" data-dcfg="${k}" value="${esc(DEV.cfg[k] ?? '')}" autocomplete="off">${o.hint ? `<span class="hint">${o.hint}</span>` : ''}</div>`;
+}
+const devSeg = (k, opts) => `<div class="seg seg-sm" role="group">${opts.map(([v, t]) => `<button data-act="dv-set" data-k="${k}" data-v="${v}" aria-pressed="${String(DEV.cfg[k]) === String(v)}">${t}</button>`).join('')}</div>`;
+function devSel(k, label, opts) {
+  return `<div class="f"><label for="dv-${k}">${label}</label><select id="dv-${k}" data-dcfg="${k}">${opts.map((v) => `<option value="${v}"${+DEV.cfg[k] === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>`;
+}
+function devPages() {
+  const p = devProg(DEV.prog), c = DEV.cfg;
+  const geo = `<h3>Геометрия</h3>${devSeg('shape', [['rect', 'Прямоугольный'], ['round', 'Круглый']])}
+    <div class="fields fields-dims" style="margin-top:10px">${c.shape === 'round' ? devField('D', 'Диаметр D', 'мм') : devField('b', 'Высота b', 'мм') + devField('a', 'Ширина a', 'мм')}</div>`;
+  const flow = `<h3>Расход</h3>${devSeg('air', [['supply', 'Приток'], ['exhaust', 'Вытяжка']])}
+    <div class="fields" style="margin-top:10px">${devField('Lp', 'Заданный расход', 'м³/ч')}${devField('kcorr', 'Поправочный коэффициент', '')}${DEV.prog === 'grille' ? devField('free', 'Свободная площадь', '%', { hint: 'живое сечение решётки' }) : ''}</div>`;
+  const meas = `<h3>Замер</h3>${devSeg('mode', [['time', 'По времени'], ['count', 'По числу замеров']])}
+    <div class="fields" style="margin-top:10px">${c.mode === 'count' ? '<p class="hint">Каждое «Запустить» — одно значение в точку.</p>' : devField('ivl', p.grid ? 'Интервал на точку' : 'Время замера', 'с', { mode: 'numeric', hint: '0 — до «Остановить»' })}</div>
+    <p class="hint">Зонд: крыльчатка Testo по Bluetooth.</p>`;
+  if (!p.grid) return DEV.prog === 'std' ? [meas] : [geo + flow + meas];
+  const ho = devHolesOpts(DEV.prog, c.shape), po = devPtsOpts(DEV.prog, c.shape);
+  const grid = `<h3>Сетка · ${esc(p.t.replace('Сетка ', ''))}</h3>
+    <div class="fields">${devSel('holes', 'Контрольных отверстий', ho)}${devSel('pts', 'Точек в отверстии', po)}</div>
+    <div class="lrow" style="margin:10px 0"><span class="lbl">Положение отверстий</span>${devSeg('orient', [['v', 'Вертикально'], ['h', 'Горизонтально']])}</div>
+    <div id="dv-prev">${devSVG(false)}</div>`;
+  return [geo, grid, flow, meas];
+}
+function devCfgHTML() {
+  const pages = devPages(), last = DEV.page >= pages.length - 1;
+  return `<div class="stack dv">
+    <div class="dv-top"><button class="lnk" data-act="dv-list">‹ Программы</button><b>${esc(devProg(DEV.prog).t)}</b></div>
+    <section class="card dv-cfg">${pages[DEV.page]}</section>
+    <div class="dv-nav">${DEV.page > 0 ? '<button class="btn" data-act="dv-page" data-v="-1">‹ Назад</button>' : '<span></span>'}
+      ${pages.length > 1 ? `<span class="dv-dots">${pages.map((_, i) => `<i class="${i === DEV.page ? 'on' : ''}"></i>`).join('')}</span>` : '<span></span>'}
+      ${last ? '<button class="btn primary" data-act="dv-apply">Запустить ✓</button>' : '<button class="btn primary" data-act="dv-page" data-v="1">Далее ›</button>'}</div>
+  </div>`;
+}
+/* схема сечения: флажки отверстий с размерами, глубина у текущей точки */
+function devSVG(live) {
+  const G = devGrid(DEV.prog, DEV.cfg); if (!G) return '<p class="hint">Введите размеры — появится схема.</p>';
+  const c = DEV.cfg, r = live ? DEV.run : null, cur = r && r.cur, vals = r ? r.vals : {};
+  const cp = cur && devPt(G, cur);
+  const dot = (x, y, key) => {
+    const done = r && key in vals, on = key === cur;
+    return `<g class="dv-pt${on ? ' cur' : ''}${done ? ' done' : ''}"${live ? ` data-act="dv-pt" data-k="${key}"` : ''}><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${on ? 9 : 6.5}"/>${done && !on ? `<text x="${(x + 9).toFixed(1)}" y="${(y + 4).toFixed(1)}">${tF(Math.abs(vals[key]), 1)}</text>` : ''}${live ? `<circle class="hit" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="18"/>` : ''}</g>`;
+  };
+  const flag = (x, y, n, lab, on) => `<g class="dv-flag${on ? ' on' : ''}"><rect x="${(x - 22).toFixed(1)}" y="${(y - 34).toFixed(1)}" width="44" height="26" rx="5"/><text x="${x.toFixed(1)}" y="${(y - 23).toFixed(1)}">${n}</text><text class="s" x="${x.toFixed(1)}" y="${(y - 12).toFixed(1)}">${esc(lab)}</text><path d="M${(x - 5).toFixed(1)},${(y - 8).toFixed(1)} L${(x + 5).toFixed(1)},${(y - 8).toFixed(1)} L${x.toFixed(1)},${(y - 1).toFixed(1)}Z"/></g>`;
+  const tip = (x, y, t) => `<g class="dv-tip"><rect x="${(x - 30).toFixed(1)}" y="${(y + 11).toFixed(1)}" width="60" height="20" rx="4"/><text x="${x.toFixed(1)}" y="${(y + 25).toFixed(1)}">${t}</text></g>`;
+  if (c.shape === 'round') {
+    const W = 300, cx = 150, cy = 172, R = 112;
+    let s = `<svg viewBox="0 0 ${W} 310" class="dv-svg" role="img" aria-label="Сечение и точки замера"><circle class="dv-wall" cx="${cx}" cy="${cy}" r="${R}"/>`;
+    G.holes.forEach((h) => { s += `<line class="dv-ax" x1="${(cx + h.ex * R).toFixed(1)}" y1="${(cy + h.ey * R).toFixed(1)}" x2="${(cx - h.ex * R).toFixed(1)}" y2="${(cy - h.ey * R).toFixed(1)}"/>`; });
+    G.holes.forEach((h) => h.pts.forEach((p) => { s += dot(cx - R + p.x * 2 * R, cy - R + p.y * 2 * R, p.key); }));
+    G.holes.forEach((h) => {
+      const on = cp && cp.h === h, ex0 = cx + h.ex * R, ey0 = cy + h.ey * R;
+      if (h.ey < -0.9) { s += flag(ex0, ey0, h.n, h.lab, on); return; }
+      const bx = cx + h.ex * (R + 30), by = cy + h.ey * (R + 24);
+      s += `<g class="dv-flag${on ? ' on' : ''}"><line class="dv-lead" x1="${ex0.toFixed(1)}" y1="${ey0.toFixed(1)}" x2="${bx.toFixed(1)}" y2="${by.toFixed(1)}"/><rect x="${(bx - 22).toFixed(1)}" y="${(by - 13).toFixed(1)}" width="44" height="26" rx="5"/><text x="${bx.toFixed(1)}" y="${(by - 2).toFixed(1)}">${h.n}</text><text class="s" x="${bx.toFixed(1)}" y="${(by + 9).toFixed(1)}">${esc(h.lab)}</text></g>`;
+    });
+    if (cp) s += tip(cx - R + cp.p.x * 2 * R, cy - R + cp.p.y * 2 * R, `${F(cp.p.depth, 0)} мм`);
+    return s + '</svg>';
+  }
+  const a = N(c.a), b = N(c.b), vert = c.orient !== 'h';
+  const k = Math.min(230 / a, 200 / b), w = a * k, h = b * k, x0 = vert ? (300 - w) / 2 : 70, y0 = 46;
+  let s = `<svg viewBox="0 0 300 ${Math.round(y0 + h + 40)}" class="dv-svg" role="img" aria-label="Сечение и точки замера"><rect class="dv-wall" x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}"/>`;
+  G.holes.forEach((hh) => {
+    const p0 = hh.pts[0];
+    if (vert) { const X = x0 + p0.x * w; s += `<line class="dv-ax" x1="${X.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${X.toFixed(1)}" y2="${(y0 + h).toFixed(1)}"/>`; }
+    else { const Y = y0 + p0.y * h; s += `<line class="dv-ax" x1="${x0.toFixed(1)}" y1="${Y.toFixed(1)}" x2="${(x0 + w).toFixed(1)}" y2="${Y.toFixed(1)}"/>`; }
+  });
+  G.holes.forEach((hh) => hh.pts.forEach((p) => { s += dot(x0 + p.x * w, y0 + p.y * h, p.key); }));
+  G.holes.forEach((hh) => {
+    const p0 = hh.pts[0];
+    if (vert) s += flag(x0 + p0.x * w, y0, hh.n, hh.lab, cp && cp.h === hh);
+    else { const Y = y0 + p0.y * h; s += `<g class="dv-flag${cp && cp.h === hh ? ' on' : ''}"><rect x="${(x0 - 66).toFixed(1)}" y="${(Y - 13).toFixed(1)}" width="56" height="26" rx="5"/><text x="${(x0 - 38).toFixed(1)}" y="${(Y - 2).toFixed(1)}">${hh.n}</text><text class="s" x="${(x0 - 38).toFixed(1)}" y="${(Y + 9).toFixed(1)}">${esc(hh.lab)}</text><path d="M${(x0 - 10).toFixed(1)},${(Y - 5).toFixed(1)} L${(x0 - 10).toFixed(1)},${(Y + 5).toFixed(1)} L${(x0 - 2).toFixed(1)},${Y.toFixed(1)}Z"/></g>`; }
+  });
+  if (cp) s += tip(x0 + cp.p.x * w, y0 + cp.p.y * h, `${F(cp.p.depth, 0)} мм`);
+  return s + '</svg>';
+}
+function devPillHTML() {
+  const r = DEV.run, j = r && r.job;
+  const el = j && j.t0 ? Math.floor((Date.now() - j.t0) / 1000) : 0;
+  const hh = String(Math.floor(el / 3600)).padStart(2, '0'), mm = String(Math.floor(el / 60) % 60).padStart(2, '0'), ss = String(el % 60).padStart(2, '0');
+  return `<span class="dv-pill${j ? ' run' : ''}">${devCount()} | ${hh}:${mm}:${ss}${j && j.dur ? ` / ${j.dur} с` : ''}</span>`;
+}
+function devResHTML() {
+  const p = DEV.prog, c = DEV.cfg, vm = devMean();
+  if (p === 'std') {
+    const r = DEV.run, arr = r ? r.vals : [];
+    const last = arr[arr.length - 1];
+    return `<div class="dv-rl">Среднее за замер</div><div class="dv-rv">${last ? tF(Math.abs(last.v)) : '---'} <span>м/с</span></div>${last ? `<div class="dv-rs">мин ${tF(Math.abs(last.min))} · макс ${tF(Math.abs(last.max))} · ${last.s} с${OK(last.t) ? ` · ${tF(last.t, 1)} °C` : ''}</div>` : ''}`;
+  }
+  const L = devL(p, c, vm), Lp = N(c.Lp), dev = OK(L) && OK(Lp) && Lp > 0 ? (L - Lp) / Lp * 100 : NaN;
+  const okc = OK(dev) ? (Math.abs(dev) <= 10 ? 'ok-t' : 'bad-t') : '';
+  return `<div class="dv-rl">Рабочий объёмный расход</div><div class="dv-rv">${OK(L) ? F(L) : '---'} <span>м³/ч</span></div>
+    <div class="dv-rs">${[OK(vm) ? `V ср. ${tF(Math.abs(vm))} м/с` : '', OK(Lp) ? `заданный ${F(Lp)} м³/ч` : '', OK(dev) ? `<b class="${okc}">${M.fmtSigned(dev, 1)} %</b>` : ''].filter(Boolean).join(' · ')}</div>`;
+}
+function devCurHTML() {
+  const p = DEV.prog, c = DEV.cfg, j = DEV.run && DEV.run.job;
+  const v = TESTO.v == null ? null : Math.abs(TESTO.v);
+  const mean = j && j.n ? Math.abs(j.sum / j.n) : null;
+  const row = (l, val, u) => `<div class="dv-cr"><span>${l}</span><b>${val} <small>${u}</small></b></div>`;
+  return `<div class="dv-ch"><span>Текущее значение</span><span class="dv-conn2">${devConnHTML()}</span></div>
+    ${p !== 'std' ? row('Объёмный поток', OK(devL(p, c, v)) ? F(devL(p, c, v)) : '0,0', 'м³/ч') : ''}
+    ${row('Скорость потока', tF(v, 2), 'м/с')}
+    ${row('Температура', tF(TESTO.t, 1), '°C')}
+    ${j && j.n ? row('Среднее сейчас', tF(mean, 2), 'м/с') : ''}`;
+}
+function devFootHTML() {
+  const r = DEV.run, grid = devProg(DEV.prog).grid;
+  if (r && r.job) return `<button class="btn dv-go dv-stop" data-act="dv-stop">${r.job.dur ? 'Отмена' : 'Остановить'}</button>`;
+  const done = devDone();
+  if (done && grid) {
+    const nx = DEV.link ? devNextSec() : null;
+    return `<div class="dv-foot2">${DEV.link ? '' : '<button class="btn primary dv-go" data-act="dv-save">Сохранить в точку…</button>'}
+      ${nx ? `<button class="btn primary dv-go" data-act="dv-next">Точка ${esc(nx.no || '')} →</button>` : ''}
+      <button class="btn" data-act="dv-new">Новый замер</button></div>`;
+  }
+  const cur = grid && r && r.cur ? (() => { const G = devGrid(DEV.prog, DEV.cfg), q = G && devPt(G, r.cur); return q ? ` · отв. ${q.h.n}, ${F(q.p.depth, 0)} мм` : ''; })() : '';
+  const extra = !grid && r && r.vals.length ? `<div class="dv-foot2 row">${DEV.link ? '' : DEV.prog !== 'std' ? '<button class="btn" data-act="dv-save">Сохранить в точку…</button>' : ''}${DEV.link && devNextSec() ? `<button class="btn" data-act="dv-next">Точка ${esc(devNextSec().no || '')} →</button>` : ''}<button class="btn" data-act="dv-new">Новый</button></div>` : '';
+  return `<button class="btn primary dv-go" data-act="dv-start">Запустить${cur}</button>${extra}`;
+}
+function devValsHTML() {
+  const r = DEV.run; if (!r || devProg(DEV.prog).grid || !r.vals.length) return '';
+  return `<div class="dv-vals">${r.vals.map((x, i) => `<div><span>${i + 1}.</span> ${tF(Math.abs(x.v))} м/с · ${x.s} с <button class="lnk" data-act="dv-del" data-i="${i}" aria-label="Удалить значение ${i + 1}">✕</button></div>`).join('')}</div>`;
+}
+function devNextSec() {
+  if (!DEV.link) return null;
+  const sys = Store.get(DEV.link.sid); if (!sys) return null;
+  const list = sys.sections || [], i = list.findIndex((x) => x.id === DEV.link.cid);
+  return i >= 0 ? list[i + 1] || null : null;
+}
+function devMeasHTML() {
+  const p = devProg(DEV.prog);
+  let banner = '';
+  if (DEV.link) {
+    const sys = Store.get(DEV.link.sid), sec = sys && secOf(sys, DEV.link.cid);
+    if (sec) banner = `<div class="dv-link">→ ${esc(sys.name || 'Система')} · точка ${esc(sec.no || '')}${sec.place ? ' · ' + esc(sec.place) : ''}${DEV.run && DEV.run.saved ? ' · <b class="ok-t">записано</b>' : ''} <button class="lnk" data-act="dv-topt">к точке</button></div>`;
+  }
+  return `<div class="stack dv dv-meas">
+    <div class="dv-top"><button class="lnk" data-act="dv-list">‹ Программы</button><b>${esc(p.t)}</b><button class="dv-gear" data-act="dv-cfg" aria-label="Настройка">⚙</button></div>
+    ${banner}
+    <div class="dv-pillrow" id="dv-pill">${devPillHTML()}</div>
+    <div class="dv-res" id="dv-res">${devResHTML()}</div>
+    <div class="dv-cur" id="dv-cur">${devCurHTML()}</div>
+    ${p.grid ? `<div class="dv-sch" id="dv-sch">${devSVG(true)}</div>` : `<div id="dv-vals">${devValsHTML()}</div>`}
+    <div class="dv-foot" id="dv-foot">${devFootHTML()}</div>
+  </div>`;
+}
+function viewDev() {
+  if (!hasTesto()) return '<div class="stack"><div class="empty"><h2>Прибор</h2><p class="muted">Вкладка работает в приложении на телефоне: браузер не подключается к рукоятке Testo по Bluetooth.</p></div></div>';
+  if (DEV.view === 'cfg' && DEV.prog) return devCfgHTML();
+  if (DEV.view === 'meas' && DEV.prog) return devMeasHTML();
+  return devListHTML();
+}
+function devPaint() {
+  if (UI.tab !== 'dev') return;
+  const set = (id, h) => { const e = document.getElementById(id); if (e) e.innerHTML = h; };
+  if (DEV.view === 'list') { set('dv-conn', devConnHTML()); return; }
+  if (DEV.view !== 'meas') return;
+  set('dv-pill', devPillHTML()); set('dv-res', devResHTML()); set('dv-cur', devCurHTML()); set('dv-foot', devFootHTML());
+  if (devProg(DEV.prog).grid) { const k = DEV.run ? `${DEV.run.cur}|${devCount()}` : ''; if (devPaint.k !== k) { devPaint.k = k; set('dv-sch', devSVG(true)); } }
+  else set('dv-vals', devValsHTML());
+}
+/* открыть программу (из списка или из точки журнала) */
+function devOpen(prog, view) {
+  DEV.prog = prog; lsSet(LS_DEV_PROG, prog);
+  DEV.cfg = devCfgLoad(prog); DEV.page = 0; DEV.view = view || (prog === 'std' ? 'meas' : 'cfg');
+  devNewRun(); devPaint.k = '';
+}
+function devFromPoint(sys, sec) {
+  const prog = sec.method === 'grille' ? 'grille' : ((sec.meas && sec.meas.prog && devProg(sec.meas.prog).grid) ? sec.meas.prog : (lsGet('vnb.dev.grid') || 'gost'));
+  DEV.link = { sid: sys.id, cid: sec.id };
+  DEV.prog = prog; lsSet(LS_DEV_PROG, prog);
+  const c = devCfgLoad(prog);
+  c.shape = sec.shape === 'round' ? 'round' : 'rect';
+  if (c.shape === 'round') c.D = sec.D || ''; else { c.a = sec.a || ''; c.b = sec.b || ''; }
+  c.Lp = sec.Lp || '';
+  c.air = sys.type === 'exhaust' ? 'exhaust' : 'supply';
+  if (prog === 'grille') { const kf = N(sec.kFree); c.free = OK(kf) && kf > 0 ? String(Math.round(kf * 100)) : '100'; c.kcorr = '1,00'; }
+  if (sec.drill === 'h') c.orient = 'h';
+  if (sec.meas && sec.meas.prog === prog && sec.meas.cfg) { c.holes = sec.meas.cfg.holes; c.pts = sec.meas.cfg.pts; c.orient = sec.meas.cfg.orient; }
+  else if (devProg(prog).grid) { const d = devDefaults(prog, c); c.holes = d.holes; c.pts = d.pts; }
+  devFixCounts(prog, c);
+  DEV.cfg = c; DEV.page = 0;
+  const geoOK = OK(devArea(c));
+  DEV.view = geoOK ? 'meas' : 'cfg';
+  devNewRun(); devPaint.k = '';
+  UI.tab = 'dev'; render(); window.scrollTo(0, 0);
+  testoConnect();
+}
+
+/* события рукоятки */
+window.__testo = (e) => {
+  if (!e) return;
+  if (e.e === 'state') {
+    TESTO.st = e.s;
+    if (e.s === 'off' || e.s === 'err') { TESTO.v = null; TESTO.t = null; if (e.msg) toast(e.msg); if (DEV.run) DEV.run.job = null; }
+  } else if (e.e === 'val') {
+    if (e.n === 'Velocity') { TESTO.v = e.v; TESTO.hist.push(e.v); if (TESTO.hist.length > 40) TESTO.hist.shift(); devOnVal(e.v); }
+    else if (e.n === 'Temperature') { TESTO.t = e.v; const j = DEV.run && DEV.run.job; if (j && j.t0) { j.tsum += e.v; j.tn++; } }
+  } else if (e.e === 'bat') TESTO.bat = e.v;
+  else if (e.e === 'dev') { TESTO.sn = e.sn || ''; TESTO.handle = e.handle || ''; }
+  else if (e.e === 'btn') {
+    /* кнопка на рукоятке = «Запустить» / «Остановить» */
+    if (UI.tab === 'dev' && DEV.view === 'meas' && DEV.run) { if (DEV.run.job) devStop(!DEV.run.job.dur); else if (!devDone() || !devProg(DEV.prog).grid) devStart(); }
+  }
+  devPaint();
+  document.querySelectorAll('.tst-mini').forEach((x) => { x.innerHTML = testoMiniHTML(); });
+};
+function testoMiniHTML() {
+  const st = TESTO.st;
+  if (st === 'on') return `<span class="tst-on">● Testo</span> ${tF(TESTO.v == null ? null : Math.abs(TESTO.v))} м/с${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''}`;
+  if (st === 'scan') return 'Ищу рукоятку…';
+  if (st === 'connecting') return 'Подключаюсь…';
+  return '';
+}
+/* таймер на экране замера */
+setInterval(() => { if (UI.tab === 'dev' && DEV.view === 'meas' && DEV.run && DEV.run.job) { const e = document.getElementById('dv-pill'); if (e) e.innerHTML = devPillHTML(); } }, 500);
+
+/* выбор точки журнала для «Сохранить в точку…» */
+function devPickHTML() {
+  const pk = DEV.pick || {};
+  const objs = Store.all('object').sort((a, b) => natCmp(a.name, b.name));
+  const syss = pk.oid ? systemsOf(pk.oid) : [];
+  const sys = pk.sid ? Store.get(pk.sid) : null, secs = sys ? sys.sections || [] : [];
+  const opt = (v, t, cur) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(t)}</option>`;
+  return `<div class="overlay oe-ov" role="dialog" aria-modal="true" aria-label="Сохранить в точку"><div class="sheet dv-pick">
+    <div class="card-head" style="margin:0"><h2>Сохранить в точку</h2><button class="btn" data-act="dv-pick-x">Отмена</button></div>
+    <div class="f"><label for="dvp-o">Объект</label><select id="dvp-o" data-dpick="oid"><option value="">—</option>${objs.map((o) => opt(o.id, o.name || 'Объект', pk.oid)).join('')}</select></div>
+    ${pk.oid ? `<div class="f"><label for="dvp-s">Система</label><select id="dvp-s" data-dpick="sid"><option value="">—</option>${syss.map((s) => opt(s.id, s.name || 'Система', pk.sid)).join('')}</select></div>` : ''}
+    ${pk.sid ? `<div class="f"><label for="dvp-c">Точка</label><select id="dvp-c" data-dpick="cid"><option value="">—</option><option value="__new"${pk.cid === '__new' ? ' selected' : ''}>+ Новая точка</option>${secs.map((c) => opt(c.id, `№ ${c.no || ''} ${[c.room, c.place].filter(Boolean).join(' · ')}`, pk.cid)).join('')}</select></div>` : ''}
+    <button class="btn primary wide" data-act="dv-pick-ok" ${pk.cid ? '' : 'disabled'}>Записать</button>
+  </div></div>`;
+}
+document.addEventListener('change', (e) => {
+  const el = e.target;
+  if (el.dataset && el.dataset.dpick) {
+    const k = el.dataset.dpick; DEV.pick = DEV.pick || {}; DEV.pick[k] = el.value;
+    if (k === 'oid') { DEV.pick.sid = ''; DEV.pick.cid = ''; } if (k === 'sid') DEV.pick.cid = '';
+    lsSet('vnb.dev.pick', DEV.pick); oeditRoot().innerHTML = devPickHTML(); return;
+  }
+  if (el.dataset && el.dataset.dcfg && el.tagName === 'SELECT') { DEV.cfg[el.dataset.dcfg] = +el.value; devCfgSave(); const pv = document.getElementById('dv-prev'); if (pv) pv.innerHTML = devSVG(false); }
+});
+document.addEventListener('input', (e) => {
+  const el = e.target; if (!el.dataset || !el.dataset.dcfg || el.tagName === 'SELECT') return;
+  DEV.cfg[el.dataset.dcfg] = el.value;
+  if (['a', 'b', 'D'].includes(el.dataset.dcfg) && DEV.prog === 'gost') { const d = devDefaults('gost', DEV.cfg); DEV.cfg.holes = d.holes; DEV.cfg.pts = d.pts; }
+  devCfgSave();
+});
+function devAct(act, a) {
+  switch (act) {
+    case 'dv-prog': devOpen(a.dataset.v); if (devProg(a.dataset.v).grid) lsSet('vnb.dev.grid', a.dataset.v); DEV.link = null; break;
+    case 'dv-list': DEV.view = 'list'; if (DEV.run) DEV.run.job = null; keepScreen(false); break;
+    case 'dv-cfg': DEV.view = 'cfg'; DEV.page = 0; if (DEV.run) DEV.run.job = null; break;
+    case 'dv-page': { DEV.page = Math.max(0, DEV.page + (+a.dataset.v)); break; }
+    case 'dv-set': {
+      const k = a.dataset.k; DEV.cfg[k] = a.dataset.v;
+      if (k === 'shape' || (k === 'orient' && DEV.prog === 'gost')) { const d = devDefaults(DEV.prog, DEV.cfg); if (devProg(DEV.prog).grid) { DEV.cfg.holes = d.holes; DEV.cfg.pts = d.pts; } }
+      devFixCounts(DEV.prog, DEV.cfg); devCfgSave(); break;
+    }
+    case 'dv-apply': {
+      if (DEV.prog !== 'std' && !OK(devArea(DEV.cfg))) { toast('Введите размеры.'); DEV.page = 0; break; }
+      devFixCounts(DEV.prog, DEV.cfg); devCfgSave(); DEV.view = 'meas'; devNewRun(); devPaint.k = ''; testoConnect(); break;
+    }
+    case 'dv-start': devStart(); return;
+    case 'dv-stop': devStop(!DEV.run.job.dur); return;
+    case 'dv-pt': { if (!DEV.run || DEV.run.job) return; DEV.run.cur = a.dataset.k; devPaint.k = ''; devPaint(); return; }
+    case 'dv-new': devNewRun(); devPaint.k = ''; break;
+    case 'dv-del': { if (DEV.run && Array.isArray(DEV.run.vals)) DEV.run.vals.splice(+a.dataset.i, 1); devPaint(); return; }
+    case 'dv-conn': testoConnect(); return;
+    case 'dv-off': try { AndroidBridge.testoStop(); } catch (e) { /* нет моста */ } return;
+    case 'dv-topt': { const l = DEV.link; if (!l) break; UI.tab = 'journal'; keepScreen(false); go({ name: 'section', sid: l.sid, cid: l.cid }); return; }
+    case 'dv-next': {
+      const nx = devNextSec(); if (!nx) return;
+      const sys = Store.get(DEV.link.sid);
+      if (DEV.run && !DEV.run.saved && devCount() && DEV.prog !== 'std') devSaveTo(DEV.link.sid, DEV.link.cid, true);
+      devFromPoint(sys, nx); toast(`Точка ${nx.no || ''}${nx.place ? ' · ' + nx.place : ''}`); return;
+    }
+    case 'dv-save': { DEV.pick = Object.assign({ oid: '', sid: '', cid: '' }, lsGet('vnb.dev.pick') || {}); DEV.pick.cid = ''; oeditRoot().innerHTML = devPickHTML(); return; }
+    case 'dv-pick-x': oeditRoot().innerHTML = ''; return;
+    case 'dv-pick-ok': {
+      const pk = DEV.pick || {}; let cid = pk.cid; const sys = Store.get(pk.sid); if (!sys) return;
+      if (cid === '__new') { const c = newSection(sys, null, DEV.prog === 'grille' ? 'grille' : 'anemo', 'V'); cid = c.id; }
+      oeditRoot().innerHTML = '';
+      if (devSaveTo(sys.id, cid)) { DEV.link = { sid: sys.id, cid }; }
+      break;
+    }
+    default: return;
+  }
+  const y = window.scrollY; render(); window.scrollTo(0, act === 'dv-page' || act === 'dv-prog' || act === 'dv-apply' ? 0 : y);
+}
 
 /* ---------- точки замера: сечение (ГОСТ 12.3.018, черт. 1–2) или места на решётке ---------- */
 const tvKey = (label) => String(label).replace(/\./g, '_');
@@ -2497,211 +3047,6 @@ function travHTML(sys, sec) {
   </div>`;
 }
 
-/* ---------- окно «Замер»: где мерить, Старт, авто-переход, регулировка ---------- */
-function msCtx() {
-  const q = UI.meas; if (!q) return null;
-  const sys = Store.get(q.sid), sec = sys ? secOf(sys, q.cid) : null;
-  if (!sec) return null;
-  const G = travGrid(sec);
-  return { q, sys, sec, G, r: secResult(sys, sec), k: G ? travCur(sec, G) : null };
-}
-function msSVG(c) {
-  const { G, sec, k } = c, tv = sec.tv || {};
-  const dot = (x, y, key) => {
-    const v = N(tv[key]), cur = key === k, done = OK(v);
-    return `<g class="ms-pt${cur ? ' cur' : ''}${done ? ' done' : ''}" data-act="ms-pt" data-k="${key}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${cur ? 11 : 8}"/>${done ? `<text x="${(x + 12).toFixed(1)}" y="${(y + 4).toFixed(1)}">${tF(v)}</text>` : ''}<circle class="hit" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="20"/></g>`;
-  };
-  if (G.kind === 'grille') {
-    const cols = G.cols, rows = G.rows.length, W = 260, H = rows === 1 ? 110 : 170, x0 = 20, y0 = 14, w = W - 40, h = H - 28;
-    let s = `<svg viewBox="0 0 ${W} ${H}" class="ms-svg" role="img" aria-label="Места на решётке"><rect class="sv-wall" x="${x0}" y="${y0}" width="${w}" height="${h}" rx="4"/>`;
-    for (let i = 1; i < cols; i++) s += `<line class="sv-axis" x1="${x0 + w * i / cols}" y1="${y0}" x2="${x0 + w * i / cols}" y2="${y0 + h}"/>`;
-    for (let i = 1; i < rows; i++) s += `<line class="sv-axis" x1="${x0}" y1="${y0 + h * i / rows}" x2="${x0 + w}" y2="${y0 + h * i / rows}"/>`;
-    G.rows.forEach((r, i) => r.cells.forEach((key, j) => { s += dot(x0 + w * (j + 0.5) / cols, y0 + h * (i + 0.5) / rows + 6, key); }));
-    return s + '</svg>';
-  }
-  if (G.round) {
-    const cc = 130, R = 96;
-    let s = `<svg viewBox="0 0 260 260" class="ms-svg" role="img" aria-label="Сечение и точки замера"><circle class="sv-wall" cx="${cc}" cy="${cc}" r="${R}"/><line class="sv-axis" x1="${cc}" y1="${cc - R}" x2="${cc}" y2="${cc + R}"/><line class="sv-axis" x1="${cc - R}" y1="${cc}" x2="${cc + R}" y2="${cc}"/>`;
-    const h1 = G.vert ? `<polygon class="sv-hole" points="${cc - 7},${cc - R - 12} ${cc + 7},${cc - R - 12} ${cc},${cc - R}"/><text class="sv-txt" x="${cc + 12}" y="${cc - R - 4}">1</text>` : `<polygon class="sv-hole" points="${cc - R - 12},${cc - 7} ${cc - R - 12},${cc + 7} ${cc - R},${cc}"/><text class="sv-txt" x="${cc - R - 14}" y="${cc - 12}">1</text>`;
-    const h2 = G.vert ? `<polygon class="sv-hole" points="${cc - R - 12},${cc - 7} ${cc - R - 12},${cc + 7} ${cc - R},${cc}"/><text class="sv-txt" x="${cc - R - 14}" y="${cc - 12}">2</text>` : `<polygon class="sv-hole" points="${cc - 7},${cc - R - 12} ${cc + 7},${cc - R - 12} ${cc},${cc - R}"/><text class="sv-txt" x="${cc + 12}" y="${cc - R - 4}">2</text>`;
-    s += h1 + (G.order.length > 1 ? h2 : '');
-    G.order.forEach((key) => { const p = G.pts[key]; s += dot(cc - R + p.x * 2 * R, cc - R + p.y * 2 * R, key); });
-    return s + '</svg>';
-  }
-  const kk = 200 / Math.max(G.a, G.b), w = G.a * kk, h = G.b * kk, x0 = (260 - w) / 2, y0 = (240 - h) / 2 + 14;
-  let s = `<svg viewBox="0 0 260 260" class="ms-svg" role="img" aria-label="Сечение и точки замера"><rect class="sv-wall" x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}"/>`;
-  G.rows.forEach((r, i) => {
-    const p = G.pts[r.cells[0]];
-    if (G.vert) { const X = x0 + p.x * w; s += `<line class="sv-axis" x1="${X.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${X.toFixed(1)}" y2="${(y0 + h).toFixed(1)}"/><polygon class="sv-hole" points="${(X - 6).toFixed(1)},${(y0 - 11).toFixed(1)} ${(X + 6).toFixed(1)},${(y0 - 11).toFixed(1)} ${X.toFixed(1)},${y0.toFixed(1)}"/><text class="sv-txt" x="${X.toFixed(1)}" y="${(y0 - 14).toFixed(1)}" text-anchor="middle">${i + 1}</text>`; }
-    else { const Y = y0 + p.y * h; s += `<line class="sv-axis" x1="${x0.toFixed(1)}" y1="${Y.toFixed(1)}" x2="${(x0 + w).toFixed(1)}" y2="${Y.toFixed(1)}"/><polygon class="sv-hole" points="${(x0 - 11).toFixed(1)},${(Y - 6).toFixed(1)} ${(x0 - 11).toFixed(1)},${(Y + 6).toFixed(1)} ${x0.toFixed(1)},${Y.toFixed(1)}"/><text class="sv-txt" x="${(x0 - 16).toFixed(1)}" y="${(Y + 4).toFixed(1)}" text-anchor="middle">${i + 1}</text>`; }
-  });
-  G.order.forEach((key) => { const p = G.pts[key]; s += dot(x0 + p.x * w, y0 + p.y * h, key); });
-  return s + '</svg>';
-}
-function msTitle(c) {
-  const { sec, r } = c, m = sec.method;
-  const size = sec.shape === 'round' ? (OK(N(sec.D)) ? `Ø ${sec.D}` : '') : (OK(N(sec.a)) && OK(N(sec.b)) ? `${sec.a}×${sec.b}` : '');
-  const role = (ROLE_CHIPS.find(([v]) => v === sec.role) || [])[1] || '';
-  return [`Точка ${sec.no || ''}`, (sec.role || 'terminal') === 'terminal' ? [sec.room, sec.place].filter(Boolean).join(' · ') : sec.place, role, size].filter((x) => String(x || '').trim()).join(' · ') + (m === 'grille' && r.kOn ? ` · K ${sec.kFree}` : '');
-}
-function msWhereHTML(c) {
-  const { G, k } = c;
-  if (!G) return `<div class="ms-where1">${c.sec.method === 'grille' ? 'Крыльчатку — к центру решётки, вплотную.' : 'Один замер в точке.'}</div>`;
-  const tv = c.sec.tv || {}, n = travVals(c.sec, G).length;
-  return `${msSVG(c)}<div class="ms-where">${tvWhere(G, k)}</div><div class="ms-cnt">Точка ${G.order.indexOf(k) + 1} из ${G.order.length} · замерено ${n}${OK(N(tv[k])) ? ` · здесь уже ${tF(N(tv[k]))} м/с — «Старт» перемерит` : ''}</div>`;
-}
-function msLiveHTML(c) {
-  const j = TESTO.job && TESTO.job.cid === c.sec.id ? TESTO.job : null, st = TESTO.st;
-  const conn = st === 'on' ? `<span class="tst-on">● Testo</span>${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''}` : st === 'scan' ? 'Ищу рукоятку…' : st === 'connecting' ? 'Подключаюсь…' : '<span class="muted">Рукоятка не подключена — нажмите «Старт» или «Подключить».</span>';
-  if (UI.meas.mode === 'reg') {
-    const vs = TESTO.hist.slice(-6).map(Math.abs), vl = vs.length ? vs.reduce((x, y) => x + y, 0) / vs.length : NaN;
-    const r = c.r, Fc = r.Fcalc, kk = r.k || 1;
-    let prof = 1, note = 'по одной точке — ориентировочно';
-    if (c.G && c.k) { const vk = N((c.sec.tv || {})[c.k]), va = N(c.sec.vAvg); if (OK(vk) && vk > 0 && OK(va)) { prof = va / vk; note = `пересчёт по профилю сечения (точка ${tvName(c.G, c.k)})`; } }
-    const L = OK(vl) && OK(Fc) ? 3600 * vl * Fc * kk * prof : NaN, Lp = r.Lp;
-    const dev = OK(L) && OK(Lp) && Lp > 0 ? (L - Lp) / Lp * 100 : NaN;
-    const okc = OK(dev) ? (dev >= r.tol[0] && dev <= r.tol[1] ? 'ok' : 'bad') : '';
-    return `<div class="ms-conn">${conn}</div>
-      <div class="ms-reg ${okc}"><div class="ms-big"><b>${OK(L) ? F(L) : '—'}</b> <span>м³/ч</span></div>
-      <div class="ms-dev">${OK(dev) ? M.fmtSigned(dev, 1) + ' %' : '—'} <span>к проекту ${OK(Lp) ? F(Lp) : '—'}</span></div></div>
-      <div class="ms-meta">сейчас ${tF(vl)} м/с · ${note}. Регулировка ничего не записывает.</div>`;
-  }
-  if (j) {
-    const el = j.t0 ? Math.min(j.dur, (Date.now() - j.t0) / 1000) : 0;
-    const mean = j.n ? Math.abs(j.sum / j.n) : null;
-    const cv = j.n > 2 && mean ? Math.sqrt(Math.max(0, j.sq / j.n - (j.sum / j.n) ** 2)) / mean * 100 : NaN;
-    return `<div class="ms-conn">${conn}</div>
-      <div class="ms-big"><b>${mean == null ? '—' : tF(mean)}</b> <span>м/с, среднее</span></div>
-      <div class="tst-bar" aria-hidden="true"><i style="width:${Math.round(el / j.dur * 100)}%"></i></div>
-      <div class="ms-meta">${st !== 'on' ? 'Подключаю…' : !j.t0 ? 'Жду замер…' : `${Math.floor(el)} из ${j.dur} с · сейчас ${tF(Math.abs(TESTO.v))} м/с${OK(cv) ? ` · разброс ±${F(cv, 0)} %` : ''}`}</div>`;
-  }
-  return `<div class="ms-conn">${conn}</div>
-    <div class="ms-big"><b>${tF(TESTO.v == null ? null : Math.abs(TESTO.v))}</b> <span>м/с сейчас${TESTO.t != null ? ` · ${tF(TESTO.t, 1)} °C` : ''}</span></div>`;
-}
-function msSumHTML(c) {
-  const r = secResult(c.sys, c.sec);
-  if (!OK(r.L)) return '<span class="muted">Замера ещё нет.</span>';
-  return `V ${tF(N(c.sec.vAvg))} м/с · L <b>${F(r.L)}</b> / ${F(r.Lp)} м³/ч${OK(r.dev) ? ` · <span class="${r.status === 'bad' ? 'bad-t' : 'ok-t'}">${M.fmtSigned(r.dev, 1)} %</span>` : ''}`;
-}
-function msFootHTML(c) {
-  const j = TESTO.job && TESTO.job.cid === c.sec.id, dur = testoDur();
-  const done = c.G ? travVals(c.sec, c.G).length === c.G.order.length : OK(N(c.sec.vAvg)) && UI.meas.wrote;
-  const list = c.sys.sections || [], i = list.findIndex((x) => x.id === c.sec.id), nx = list[i + 1];
-  const nextBtn = nx ? `<button class="btn" data-act="ms-next">Точка ${esc(nx.no || '')} →</button>` : '';
-  if (UI.meas.mode === 'reg') return `<button class="btn primary ms-go" data-act="ms-mode" data-v="meas">Записать замер</button>`;
-  if (j) return `<button class="btn ms-go ms-stop" data-act="tst-stop">Стоп</button>`;
-  if (done) return `<div class="ms-done"><button class="btn primary ms-go" data-act="tst-start">Перемерить · ${dur} с</button>${nextBtn}</div>`;
-  return `<button class="btn primary ms-go" data-act="tst-start">Старт · ${dur} с${c.G ? ` · ${esc(tvName(c.G, c.k))}` : ''}</button>`;
-}
-function msDurHTML() {
-  const d = testoDur();
-  return `${DUR_PRESETS.map((x) => `<button data-act="tst-dur" data-v="${x}" aria-pressed="${x === d}">${x}</button>`).join('')}<label class="ms-own"><input type="text" inputmode="numeric" id="ms-own" value="${DUR_PRESETS.includes(d) ? '' : d}" placeholder="своё" aria-label="Своё время, с" autocomplete="off"></label>`;
-}
-function msOpen(sid, cid) {
-  UI.meas = { sid, cid, mode: 'meas', wrote: false };
-  const c = msCtx(); if (!c) { UI.meas = null; return; }
-  let root = document.getElementById('meas-root'); if (!root) { root = document.createElement('div'); root.id = 'meas-root'; document.body.appendChild(root); }
-  root.innerHTML = `<div class="ms" role="dialog" aria-modal="true" aria-label="Замер">
-    <header class="ms-h"><div class="ms-t" id="ms-t"></div><button class="ms-x" data-act="ms-close" aria-label="Закрыть">✕</button></header>
-    <div class="ms-body">
-      <div class="seg seg-sm ms-mode" role="group" aria-label="Режим" id="ms-modes"></div>
-      <div id="ms-where-box" class="ms-where-box"></div>
-      <div id="ms-live" class="ms-live"></div>
-      <div class="ms-durrow"><span class="lbl">Время, с</span><div class="seg seg-sm ms-dur" role="group" aria-label="Время усреднения" id="ms-dur">${msDurHTML()}</div></div>
-      <div id="ms-sum" class="ms-sum"></div>
-    </div>
-    <footer class="ms-f" id="ms-foot"></footer>
-  </div>`;
-  keepScreen(true);
-  msPaint(true);
-  if (TESTO.st !== 'on' && TESTO.st !== 'scan' && TESTO.st !== 'connecting') { try { AndroidBridge.testoStart(); } catch (e) { /* нет моста */ } }
-}
-function msClose() {
-  TESTO.job = null; UI.meas = null; keepScreen(false);
-  const root = document.getElementById('meas-root'); if (root) root.innerHTML = '';
-  const y = window.scrollY; render(); window.scrollTo(0, y);
-}
-function msPaint(full) {
-  const c = msCtx(); if (!c) return;
-  const set = (id, h) => { const e = document.getElementById(id); if (e) e.innerHTML = h; };
-  if (full || c.q.lastK !== c.k || c.q.dirty) {
-    set('ms-t', esc(msTitle(c)));
-    set('ms-where-box', msWhereHTML(c));
-    set('ms-modes', `<button data-act="ms-mode" data-v="meas" aria-pressed="${c.q.mode !== 'reg'}">Замер</button><button data-act="ms-mode" data-v="reg" aria-pressed="${c.q.mode === 'reg'}">Регулировка</button>`);
-    c.q.lastK = c.k; c.q.dirty = false;
-  }
-  set('ms-live', msLiveHTML(c));
-  set('ms-sum', msSumHTML(c));
-  set('ms-foot', msFootHTML(c));
-}
-function testoPaint() {
-  if (UI.meas) { msPaint(false); return; }
-  document.querySelectorAll('.tst-mini').forEach((x) => { x.innerHTML = testoMiniHTML(); });
-}
-function testoMiniHTML() {
-  const st = TESTO.st;
-  if (st === 'on') return `<span class="tst-on">● Testo</span> ${tF(TESTO.v == null ? null : Math.abs(TESTO.v))} м/с${TESTO.bat != null ? ` · заряд ${Math.round(TESTO.bat)} %` : ''} <button class="lnk" data-act="tst-off">Отключить</button>`;
-  if (st === 'scan') return 'Ищу рукоятку…';
-  if (st === 'connecting') return 'Подключаюсь…';
-  return '';
-}
-function testoFinish() {
-  const j = TESTO.job; TESTO.job = null; if (!j || !j.n) { testoPaint(); return; }
-  const mean = Math.abs(j.sum / j.n);
-  const val = (Math.round(mean * 100) / 100).toFixed(2).replace('.', ',');
-  const sys = Store.get(j.doc), sec = sys ? secOf(sys, j.cid) : null; if (!sec) return;
-  if (j.k) { sec.tv = sec.tv || {}; sec.tv[j.k] = val; } else { sec.vAvg = val; sec.entry = 'V'; }
-  /* у вентилятора заодно температура */
-  if ((sec.role === 'fan_in' || sec.role === 'fan_out') && j.tn) sec.t = (Math.round(j.tsum / j.tn * 10) / 10).toFixed(1).replace('.', ',');
-  sec.src = { dev: 'Testo', sn: TESTO.sn || '', handle: TESTO.handle || '', at: new Date().toISOString() };
-  sec.u = Date.now();
-  travApply(sys, sec); Store.save(sys);
-  if (UI.meas) UI.meas.wrote = true;
-  testoBeep(true);
-  const cv = j.n > 2 && mean ? Math.sqrt(Math.max(0, j.sq / j.n - (j.sum / j.n) ** 2)) / mean * 100 : 0;
-  const warn = cv > 10 ? ` Поток неустойчив (±${F(cv, 0)} %) — лучше мерить дольше.` : '';
-  if (j.k) {
-    const G = travGrid(sec), tv = sec.tv || {};
-    const i = G ? G.order.indexOf(j.k) : -1;
-    const nx = G ? (G.order.slice(i + 1).find((k) => !OK(N(tv[k]))) || G.order.find((k) => !OK(N(tv[k])))) : null;
-    UI.tvCur = nx ? { cid: sec.id, k: nx } : null;
-    toast(nx ? `${val} м/с. Дальше: ${tvName(G, nx)}.${warn}` : `${val} м/с. Все точки замерены: V = ${sec.vAvg} м/с.${warn}`);
-  } else toast(`Записано ${val} м/с.${warn}`);
-  if (UI.meas) { UI.meas.dirty = true; msPaint(true); } else { const y = window.scrollY; render(); window.scrollTo(0, y); }
-}
-function testoStart(sys, sec) {
-  const G = travGrid(sec);
-  const k = G ? travCur(sec, G) : null;
-  TESTO.job = { doc: sys.id, cid: sec.id, k, dur: testoDur(), t0: 0, sum: 0, sq: 0, n: 0, tsum: 0, tn: 0 };
-  testoBeep(false);
-  if (TESTO.st !== 'on' && TESTO.st !== 'scan' && TESTO.st !== 'connecting') { try { AndroidBridge.testoStart(); } catch (e) { toast('Не удалось включить Bluetooth.'); } }
-  testoPaint();
-}
-window.__testo = (e) => {
-  if (!e) return;
-  if (e.e === 'state') {
-    TESTO.st = e.s;
-    if (e.s === 'off' || e.s === 'err') { TESTO.v = null; TESTO.t = null; TESTO.hist = []; if (e.msg) toast(e.msg); TESTO.job = null; }
-  } else if (e.e === 'val') {
-    if (e.n === 'Velocity') {
-      TESTO.v = e.v; TESTO.hist.push(e.v); if (TESTO.hist.length > 40) TESTO.hist.shift();
-      const j = TESTO.job;
-      if (j && TESTO.st === 'on') {
-        if (!j.t0) j.t0 = Date.now();
-        j.sum += e.v; j.sq += e.v * e.v; j.n++;
-        if ((Date.now() - j.t0) / 1000 >= j.dur) { testoFinish(); return; }
-      }
-    } else if (e.n === 'Temperature') { TESTO.t = e.v; const j = TESTO.job; if (j && j.t0) { j.tsum += e.v; j.tn++; } }
-  } else if (e.e === 'bat') TESTO.bat = e.v;
-  else if (e.e === 'dev') { TESTO.sn = e.sn || ''; TESTO.handle = e.handle || ''; }
-  else if (e.e === 'btn') {
-    /* кнопка на рукоятке = «Старт» / «Стоп» в окне «Замер» */
-    const c = msCtx();
-    if (c && UI.meas.mode !== 'reg') { if (TESTO.job) { TESTO.job = null; testoBeep(false); } else testoStart(c.sys, c.sec); }
-  }
-  testoPaint();
-};
-
 function viewSection(sys, sec) {
   const o = objOf(sys.objectId);
   const r = secResult(sys, sec);
@@ -2770,14 +3115,14 @@ function viewSection(sys, sec) {
     const factVal = oneVal(sec[byL ? 'total' : (kf ? 'dpK' : 'vAvg')]);
     const fin = valInput(sys, factPath, byL ? 'L факт' : (kf ? 'Δp факт' : 'V факт'), factVal);
     const testoOK = !byL && !kf && (m === 'anemo' || m === 'grille') && hasTesto();
-    const src = sec.src && sec.src.at ? `<p class="hint src-l">Замер ${esc(sec.src.dev || '')}${sec.src.sn ? ', зонд № ' + esc(sec.src.sn) : ''} · ${esc(fmtDate(sec.src.at.slice(0, 10)))} ${esc(sec.src.at.slice(11, 16))}</p>` : '';
+    const src = sec.src && sec.src.at ? `<p class="hint src-l">Замер ${esc(sec.src.dev || '')}${sec.src.prog ? ' · ' + esc(sec.src.prog) : ''}${sec.src.grid ? ' ' + esc(sec.src.grid) : ''}${sec.src.sn ? ' · зонд № ' + esc(sec.src.sn) : ''} · ${esc(fmtDate(sec.src.at.slice(0, 10)))} ${esc(sec.src.at.slice(11, 16))}</p>` : '';
     meas = `<div class="mrow">
         ${inNum(sys, P('Lp'), 'L проект', 'м³/ч', { cls: 'big' })}
         <div class="f big"><div class="lrow"><label for="${fid(sys, factPath)}">${factLbl}</label>${toggle}</div>${travOn ? fin.replace('<input ', '<input readonly ') : fin}</div>
       </div>
-      ${testoOK && setupDone ? `<button class="btn primary wide ms-open" data-act="ms-open">Замер с Testo</button><div class="tst-mini">${testoMiniHTML()}</div>` : ''}
+      ${testoOK && setupDone ? `<button class="btn primary wide ms-open" data-act="dv-frompt">Замер с Testo</button><div class="tst-mini">${testoMiniHTML()}</div>` : ''}
       <div id="sec-result">${resultHTML(r, sec)}</div>${src}${fromPass ? '<p class="hint">Расход из паспорта. Будете перемерять — выберите, чем меряете.</p>' : ''}
-      ${trav ? travHTML(sys, sec) : ''}
+      ${trav && (!hasTesto() || m === 'pitot' || (sec.tv && Object.keys(sec.tv).length)) ? travHTML(sys, sec) : ''}
       ${fan || duct ? `<div class="fields pres">${psField}${fan ? inNum(sys, P('t'), 'Температура t', '°C') : ''}</div>${fan ? '<p class="hint">Pст и t — для давления вентилятора.</p>' : ''}` : ''}`;
   }
   const measSum = OK(r.L) ? `L ${F(r.L)} / ${F(r.Lp)} м³/ч${OK(r.dev) ? ` · <span class="${r.status === 'bad' ? 'bad-t' : 'ok-t'}">${M.fmtSigned(r.dev, 1)} %</span>` : ''}` : 'нет замера';
@@ -4662,8 +5007,8 @@ const savedUI = lsGet(LS_UI);
 if (savedUI && savedUI.tab) UI.tab = savedUI.tab;
 if (savedUI && savedUI.route) UI.route = savedUI.route;
 const hashTab = (location.hash || '').replace('#', '');
-if (['journal', 'calc', 'ref'].includes(hashTab)) UI.tab = hashTab;
-if (!['journal', 'calc', 'ref'].includes(UI.tab)) UI.tab = 'journal';
+if (['journal', 'dev', 'calc', 'ref'].includes(hashTab)) UI.tab = hashTab;
+if (!['journal', 'dev', 'calc', 'ref'].includes(UI.tab)) UI.tab = 'journal';
 
 function persistUI() { lsSet(LS_UI, { tab: UI.tab, route: UI.route }); }
 
@@ -4681,6 +5026,7 @@ function currentDocs() {
 function render() {
   const view = $('#view');
   $$('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === UI.tab)));
+  { const dt = document.getElementById('tab-dev'); if (dt) { dt.hidden = !hasTesto(); document.querySelector('.tabs').classList.toggle('t4', hasTesto()); } }
   if (UI.route.name === 'pdv' && !objOf(UI.route.oid) && Store.ready) UI.route = { name: 'objects' };
   const pdv = isPdv() && !!window.__pdv;
   if (!pdv && document.body.classList.contains('pdv-on')) {
@@ -4696,7 +5042,9 @@ function render() {
   if (UI.tab === 'ref' || (UI.tab === 'journal' && UI.route.name === 'pdv')) { view.innerHTML = '<div class="stack"><div class="empty"><h2>Открываю…</h2></div></div>'; return; }
   const active = document.activeElement && view.contains(document.activeElement) ? document.activeElement.id : null;
   let html;
-  if (UI.tab === 'calc') html = viewCalcs();
+  { const ks = UI.tab === 'dev' && DEV.view === 'meas'; if (render.ks !== ks) { render.ks = ks; keepScreen(ks); } }
+  if (UI.tab === 'dev') html = viewDev();
+  else if (UI.tab === 'calc') html = viewCalcs();
   else {
     let d = Store.ready ? currentDocs() : {};
     if (d === null) { UI.route = { name: 'objects' }; d = {}; }
@@ -4779,12 +5127,6 @@ view.addEventListener('focusin', (e) => {
   document.querySelectorAll('.tv td.cur').forEach((x) => x.classList.remove('cur'));
   el.parentElement.classList.add('cur');
 });
-/* своё время усреднения в окне «Замер» */
-document.addEventListener('input', (e) => {
-  if (e.target.id !== 'ms-own') return;
-  const d = Math.round(+String(e.target.value).replace(',', '.'));
-  if (d >= 1 && d <= 120) { lsSet(LS_TESTO_DUR, d); document.querySelectorAll('#ms-dur [data-act=tst-dur]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.v === d))); if (UI.meas) msPaint(false); }
-});
 view.addEventListener('keydown', (e) => {
   if (isPdv()) return;
   e.__vnb = true;
@@ -4814,6 +5156,8 @@ document.addEventListener('click', (e) => {
   e.__vnb = true;
   const a = e.target.closest('[data-act]');
   if (!a) return;
+  if (a.dataset.act === 'dv-frompt') { const r = UI.route, sy = r && Store.get(r.sid), sc = sy && secOf(sy, r.cid); if (sc) devFromPoint(sy, sc); return; }
+  if (String(a.dataset.act).startsWith('dv-')) { devAct(a.dataset.act, a); return; }
   const act = a.dataset.act;
   const r = UI.route;
   const d = currentDocs() || {};
@@ -4927,24 +5271,6 @@ document.addEventListener('click', (e) => {
     case 'tv-drill': { if (!d.s || !d.c) break; d.c.drill = a.dataset.v; d.c.u = Date.now(); Store.save(d.s); const y = window.scrollY; render(); window.scrollTo(0, y); break; }
     case 'g-n': { if (!d.s || !d.c) break; d.c.gn = +a.dataset.v; d.c.tv = {}; d.c.u = Date.now(); Store.save(d.s); UI.tvCur = null; const y = window.scrollY; render(); window.scrollTo(0, y); break; }
     case 'tv-clear': { if (!d.s || !d.c) break; d.c.tv = {}; d.c.u = Date.now(); Store.save(d.s); UI.tvCur = null; const y = window.scrollY; render(); window.scrollTo(0, y); toast('Точки очищены. V факт можно вписать вручную.'); break; }
-    case 'ms-open': { if (!d.s || !d.c) break; msOpen(d.s.id, d.c.id); break; }
-    case 'ms-close': msClose(); break;
-    case 'ms-pt': { const c = msCtx(); if (!c || TESTO.job) break; UI.tvCur = { cid: c.sec.id, k: a.dataset.k }; msPaint(true); break; }
-    case 'ms-mode': { if (!UI.meas) break; TESTO.job = null; UI.meas.mode = a.dataset.v; UI.meas.dirty = true; msPaint(true); break; }
-    case 'ms-next': {
-      const c = msCtx(); if (!c) break;
-      const list = c.sys.sections || [], i = list.findIndex((x) => x.id === c.sec.id), nx = list[i + 1]; if (!nx) break;
-      TESTO.job = null; UI.tvCur = null;
-      const rr = M.section(nx, baOf(c.sys));
-      const ready = (nx.method === 'anemo' || nx.method === 'grille') && nx.entry !== 'L' && OK(rr.F);
-      if (ready) { UI.route = { name: 'section', sid: c.sys.id, cid: nx.id }; msOpen(c.sys.id, nx.id); }
-      else { msClose(); go({ name: 'section', sid: c.sys.id, cid: nx.id }); toast(`Точка ${nx.no || ''}: заполните описание — потом «Замер с Testo».`); }
-      break;
-    }
-    case 'tst-start': { const c = msCtx(); if (c) testoStart(c.sys, c.sec); break; }
-    case 'tst-stop': TESTO.job = null; testoPaint(); break;
-    case 'tst-dur': { lsSet(LS_TESTO_DUR, +a.dataset.v); const own = document.getElementById('ms-own'); if (own) own.value = ''; document.querySelectorAll('#ms-dur [data-act=tst-dur]').forEach((b) => b.setAttribute('aria-pressed', String(b === a))); testoPaint(); break; }
-    case 'tst-off': TESTO.job = null; try { AndroidBridge.testoStop(); } catch (e) { /* нет моста */ } break;
     case 'backup': exportBackup(); break;
     case 'template': exportTemplate(); break;
     case 'import': { const f = $('#import-file'); f.accept = '.json,application/json,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.pdf,application/pdf'; f.click(); break; }
@@ -5003,7 +5329,10 @@ render();
 /* Кнопка «Назад» в приложении Android: на уровень выше по журналу */
 window.__vnbBack = () => {
   { const sb = document.querySelector('.sharebox'); if (sb) { sb.remove(); return true; } }
-  { const mr = document.getElementById('meas-root'); if (mr && mr.innerHTML) { msClose(); return true; } }
+  if (UI.tab === 'dev' && !(document.getElementById('oedit-root') || {}).innerHTML) {
+    if (DEV.view !== 'list') { if (DEV.run) DEV.run.job = null; DEV.view = DEV.view === 'cfg' && DEV.page > 0 ? 'cfg' : 'list'; if (DEV.view === 'cfg') DEV.page--; render(); window.scrollTo(0, 0); return true; }
+    UI.tab = 'journal'; render(); window.scrollTo(0, 0); return true;
+  }
   { const oe = document.getElementById('oedit-root'); if (oe && oe.innerHTML) { const hs = !!oe.querySelector('.hand-sheet'); oe.innerHTML = ''; if (hs) { const y = window.scrollY; render(); window.scrollTo(0, y); } return true; } }
   if (UI.tab === 'ref') { UI.tab = 'journal'; render(); window.scrollTo(0, 0); return true; }
   if (isPdv() && window.__pdvBack) return window.__pdvBack();
