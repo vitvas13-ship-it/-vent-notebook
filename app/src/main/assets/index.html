@@ -1024,6 +1024,9 @@ body .tv td.cur input.tv-in{outline:2px solid var(--link);outline-offset:-1px;ba
 
 .si-st.none{color:var(--muted);font-weight:600}
 .si-st.none .lnk{font-size:13px;padding:0}
+/* ⚙ общие настройки в строке вкладок */
+.tabs .tab.tab-set{flex:0 0 auto;padding-left:10px;padding-right:10px;font-size:18px;line-height:1}
+.dv-rlink{width:100%;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:4px 0}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -1094,6 +1097,7 @@ body .crumbs.ocrumbs > .ocr-e,.oc-e{flex:none;text-decoration:none;border:1px so
       <button class="tab" role="tab" id="tab-journal" data-tab="journal" aria-selected="true">Журнал</button>
       <button class="tab" role="tab" id="tab-calc" data-tab="calc" aria-selected="false">Расчёты</button>
       <button class="tab" role="tab" id="tab-ref" data-tab="ref" aria-selected="false">Справка</button>
+      <button class="tab tab-set" role="tab" id="tab-set" data-tab="set" aria-selected="false" aria-label="Настройки" title="Настройки">⚙</button>
     </nav>
     <div class="save-state" id="save-state" data-s="busy" title="Состояние сохранения"><i></i><span>Открываю журнал…</span></div>
   </div>
@@ -2444,7 +2448,7 @@ function backupBlock() {
     <div class="head-actions"><button class="btn primary" data-act="import-pdf">Из паспортов PDF</button><button class="btn" data-act="import-xlsx">Из шаблона Excel</button><button class="btn" data-act="template">Скачать шаблон</button></div>
     <details class="imp-more"><summary>Подробнее, что можно загрузить</summary><p class="muted small"><b>Паспорта PDF</b> — технический отчёт: системы, вентилятор и двигатель, точки и схемы. Сюда же — <b>«Характеристика систем»</b> и <b>спецификация оборудования</b> из проекта (PDF с текстом; спецификацию можно и в Excel): проектные данные и марки вентиляторов и двигателей. <b>Шаблон Excel</b> — заполните на компьютере системы и точки (противодымные — на листе «ПДВ»); подойдёт и ваша таблица наладки ПДВ по этажам. Объект с тем же названием дополнится, уже вписанное не стирается. Противодымные системы сами уйдут в раздел «Противодымная».</p></details></section>
     <section class="card c-note"><div class="card-head"><h2>Резервная копия</h2><span class="ref">.json</span></div>
-    <div class="head-actions"><button class="btn" data-act="backup">Сохранить копию</button><button class="btn" data-act="import">Загрузить из файла</button></div></section>${typeof hasTesto === 'function' && hasTesto() ? '' : themeBlock()}`;
+    <div class="head-actions"><button class="btn" data-act="backup">Сохранить копию</button><button class="btn" data-act="import">Загрузить из файла</button></div></section>`;
 }
 
 /* ===== объект ===== */
@@ -2885,7 +2889,7 @@ function devListHTML() {
   const last = lsGet(LS_DEV_PROG);
   const hist = (lsGet(LS_DEV_HIST) || []).slice(0, 10);
   return `<div class="stack dv">
-    <div class="dv-listtop"><button type="button" class="dv-instr-b" data-act="dv-instr" aria-label="Измерительные приборы"><span id="dv-conn" class="dv-ib">${devInstrSum()}</span><span class="chev-r" aria-hidden="true">›</span></button><button type="button" class="dv-setb" data-act="dv-sopen" aria-label="Настройки">⚙</button></div>
+    <div class="dv-listtop"><button type="button" class="dv-instr-b" data-act="dv-instr" aria-label="Измерительные приборы"><span id="dv-conn" class="dv-ib">${devInstrSum()}</span><span class="chev-r" aria-hidden="true">›</span></button><button type="button" class="dv-setb" data-act="dv-sopen" aria-label="Настройки замера">⚙</button></div>
     ${devSiWarn()}
     <section class="card dv-progs"><h2>Программы измерения</h2>
       ${devProgList(last)}
@@ -3254,6 +3258,7 @@ function devAct(act, a) {
     case 'dv-prog': devOpen(a.dataset.v); if (devProg(a.dataset.v).grid) lsSet('vnb.dev.grid', a.dataset.v); DEV.link = null; break;
     case 'dv-list': DEV.view = 'list'; if (DEV.run) DEV.run.job = null; keepScreen(false); break;
     case 'dv-cfg': if (!devPages().length) { DEV.back = DEV.view; DEV.view = 'set'; break; } DEV.view = 'cfg'; DEV.page = 0; if (DEV.run) DEV.run.job = null; break;
+    case 'dv-setmeas': UI.tab = 'dev'; DEV.back = 'list'; DEV.view = 'set'; if (DEV.run) DEV.run.job = null; break;
     case 'dv-sopen': DEV.back = DEV.view; DEV.view = 'set'; if (DEV.run) DEV.run.job = null; break;
     case 'dv-sset': { Sset(a.dataset.k, a.dataset.v); break; }
     case 'dv-fav': { const f = Object.assign({}, S().fav); if (f[a.dataset.v]) delete f[a.dataset.v]; else f[a.dataset.v] = 1; Sset('fav', f); break; }
@@ -3734,12 +3739,7 @@ document.addEventListener('input', function devSetInput(e) { const el = e.target
 function devSetHTML() {
   const st = S();
   return `<div class="stack dv">
-    <div class="dv-top"><button class="lnk" data-act="dv-instr-x">‹ Назад</button><b>Настройки</b><span></span></div>
-    <section class="card dv-cfg"><h3>Программы</h3>
-      <p class="hint dv-rh">★ — наверху списка. Переключатель — показывать программу в списке или нет.</p>
-      <div class="dv-rows">${DEV_PROGS.map((p) => { const vis = !st.hide[p.id]; return `<div class="dv-r${vis ? '' : ' dv-off'}"><span class="dv-rl">${esc(p.t)}<small class="dv-rs2">${vis ? 'в списке' : 'скрыта'}</small></span><span class="dv-rc"><button type="button" class="dv-fav${st.fav[p.id] ? ' on' : ''}" data-act="dv-fav" data-v="${p.id}" aria-pressed="${!!st.fav[p.id]}" aria-label="В избранное: ${esc(p.t)}">★</button><button type="button" class="dv-sw" role="switch" aria-checked="${vis}" aria-label="Показывать: ${esc(p.t)}" data-act="dv-hide" data-v="${p.id}"><i></i></button></span></div>`; }).join('')}</div></section>
-    <section class="card dv-cfg"><h3>Оформление</h3><div class="dv-rows">
-      ${devRow('Тема', `<div class="seg seg-sm" role="group">${[['light', 'Светлое'], ['dark', 'Тёмное'], ['auto', 'Как в телефоне']].map(([k, tt]) => `<button data-act="theme-set" data-v="${k}" aria-pressed="${themePref() === k}">${tt}</button>`).join('')}</div>`)}</div></section>
+    <div class="dv-top"><button class="lnk" data-act="dv-instr-x">‹ Назад</button><b>Настройки замера</b><span></span></div>
     <section class="card dv-cfg"><h3>Единицы</h3><div class="dv-rows">
       ${devRow('Расход', sSeg('uQ', [['m3h', 'м³/ч'], ['ls', 'л/с']]))}
       ${devRow('Атм. давление', sSeg('uP', [['hPa', 'гПа'], ['kPa', 'кПа'], ['mmHg', 'мм рт. ст.']]))}</div>
@@ -3751,9 +3751,7 @@ function devSetHTML() {
       ${sField('pstd', 'Стандартное давление', 'Па', 'numeric')}${sField('tstd', 'Стандартная температура', '°C')}</div>
       ${devPSrcHTML()}${devTSrcHTML()}
       <p class="hint dv-rh">Включается в каждой программе отдельно — переключателем на странице «Расход».</p></section>
-    <section class="card dv-cfg"><h3>Сигналы и подключение</h3><div class="dv-rows">
-      ${sSw('sound', 'Звук', 'писк в начале и конце точки')}${sSw('vib', 'Вибрация', 'в начале и конце точки')}
-      ${sSw('keep', 'Экран не гаснет', 'пока открыт замер')}${sSw('auto', 'Автоподключение рукояток', 'при открытии «Прибора» и после обрыва')}</div></section>
+
   </div>`;
 }
 
@@ -3770,6 +3768,24 @@ function siReadForm(id) {
     dr.parts.push(q);
   });
   return dr;
+}
+
+
+/* ===== Общие настройки приложения (шестерёнка в строке вкладок): программы, оформление, сигналы ===== */
+function appSetHTML() {
+  const st = S(), dev = hasTesto();
+  return `<div class="stack dv">
+    <div class="dv-top"><span></span><b>Настройки</b><span></span></div>
+    ${dev ? `<section class="card dv-cfg"><h3>Программы прибора</h3>
+      <p class="hint dv-rh">★ — наверху списка. Переключатель — показывать программу в списке или нет.</p>
+      <div class="dv-rows">${DEV_PROGS.map((p) => { const vis = !st.hide[p.id]; return `<div class="dv-r${vis ? '' : ' dv-off'}"><span class="dv-rl">${esc(p.t)}<small class="dv-rs2">${vis ? 'в списке' : 'скрыта'}</small></span><span class="dv-rc"><button type="button" class="dv-fav${st.fav[p.id] ? ' on' : ''}" data-act="dv-fav" data-v="${p.id}" aria-pressed="${!!st.fav[p.id]}" aria-label="В избранное: ${esc(p.t)}">★</button><button type="button" class="dv-sw" role="switch" aria-checked="${vis}" aria-label="Показывать: ${esc(p.t)}" data-act="dv-hide" data-v="${p.id}"><i></i></button></span></div>`; }).join('')}</div></section>` : ''}
+    <section class="card dv-cfg"><h3>Оформление</h3><div class="dv-rows">
+      ${devRow('Тема', `<div class="seg seg-sm" role="group">${[['light', 'Светлое'], ['dark', 'Тёмное'], ['auto', 'Как в телефоне']].map(([k, tt]) => `<button data-act="theme-set" data-v="${k}" aria-pressed="${themePref() === k}">${tt}</button>`).join('')}</div>`)}</div></section>
+    ${dev ? `    <section class="card dv-cfg"><h3>Сигналы и подключение</h3><div class="dv-rows">
+      ${sSw('sound', 'Звук', 'писк в начале и конце точки')}${sSw('vib', 'Вибрация', 'в начале и конце точки')}
+      ${sSw('keep', 'Экран не гаснет', 'пока открыт замер')}${sSw('auto', 'Автоподключение рукояток', 'при открытии «Прибора» и после обрыва')}</div></section>` : ''}
+    ${dev ? `<section class="card dv-cfg"><button type="button" class="dv-r dv-rlink" data-act="dv-setmeas"><span class="dv-rl">Настройки замера<small class="dv-rs2">единицы, интервал, стандартные условия</small></span><span class="chev-r" aria-hidden="true">›</span></button></section>` : ''}
+  </div>`;
 }
 
 /* ---------- точки замера: сечение (ГОСТ 12.3.018, черт. 1–2) или места на решётке ---------- */
@@ -5852,6 +5868,7 @@ if (savedUI && savedUI.tab) UI.tab = savedUI.tab;
 if (savedUI && savedUI.route) UI.route = savedUI.route;
 const hashTab = (location.hash || '').replace('#', '');
 if (['journal', 'dev', 'calc', 'ref'].includes(hashTab)) UI.tab = hashTab;
+if (UI.tab === 'set') UI.tab = hasTesto() ? 'dev' : 'journal';
 if (!(savedUI && savedUI.tab) && hasTesto()) UI.tab = 'dev';
 if (!['journal', 'dev', 'calc', 'ref'].includes(UI.tab)) UI.tab = 'journal';
 
@@ -5888,7 +5905,8 @@ function render() {
   const active = document.activeElement && view.contains(document.activeElement) ? document.activeElement.id : null;
   let html;
   { const ks = UI.tab === 'dev' && DEV.view === 'meas'; if (render.ks !== ks) { render.ks = ks; keepScreen(ks); } }
-  if (UI.tab === 'dev') html = viewDev();
+  if (UI.tab === 'set') html = appSetHTML();
+  else if (UI.tab === 'dev') html = viewDev();
   else if (UI.tab === 'calc') html = viewCalcs();
   else {
     let d = Store.ready ? currentDocs() : {};
@@ -5990,7 +6008,7 @@ view.addEventListener('focusout', () => {
 
 document.addEventListener('click', (e) => {
   const t = e.target.closest('[data-tab]');
-  if (t) { e.__vnb = true; UI.tab = t.dataset.tab; UI.armed = null; render(); window.scrollTo(0, 0); return; }
+  if (t) { e.__vnb = true; if (t.dataset.tab === 'set' && UI.tab === 'set') { UI.tab = UI.prevTab || 'journal'; render(); window.scrollTo(0, 0); return; } if (t.dataset.tab === 'set') UI.prevTab = UI.tab; UI.tab = t.dataset.tab; UI.armed = null; render(); window.scrollTo(0, 0); return; }
   const sw = e.target.closest('[data-act="sect"]');
   if (sw) { e.__vnb = true; openSect(sw.dataset.oid, sw.dataset.v); return; }
   const oe = e.target.closest('[data-act^="oedit-"]');
@@ -6173,6 +6191,7 @@ window.__core = {
 render();
 /* Кнопка «Назад» в приложении Android: на уровень выше по журналу */
 window.__vnbBack = () => {
+  if (UI.tab === 'set' && !(document.getElementById('oedit-root') || {}).innerHTML) { UI.tab = UI.prevTab || 'journal'; render(); window.scrollTo(0, 0); return true; }
   { const sb = document.querySelector('.sharebox'); if (sb) { sb.remove(); return true; } }
   if (UI.tab === 'dev' && !(document.getElementById('oedit-root') || {}).innerHTML) {
     if (DEV.view !== 'list') { if (DEV.run) DEV.run.job = null; if (DEV.view === 'instr' || DEV.view === 'set') { DEV.view = DEV.back && DEV.back !== 'instr' && DEV.back !== 'set' ? DEV.back : 'list'; render(); window.scrollTo(0, 0); return true; } DEV.view = DEV.view === 'cfg' && DEV.page > 0 ? 'cfg' : 'list'; if (DEV.view === 'cfg') DEV.page--; render(); window.scrollTo(0, 0); return true; }
