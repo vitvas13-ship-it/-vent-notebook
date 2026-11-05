@@ -1052,6 +1052,10 @@ body::before{background:var(--hdr)}
 :root .bar .tab.tab-set[aria-selected="true"]{color:#1B2228}
 .dv-listtop .dv-instr-b{flex:1}
 :root .bar{border-bottom:2px solid var(--signal)}
+/* куда ставить зонд — строка над «Запустить» */
+.dv-where{text-align:center;font-size:14px;line-height:1.35;color:var(--ink-2);padding:0 4px}
+.dv-where b{color:var(--ink);font-size:18px;white-space:nowrap}
+.dv-where small{font-size:12px;white-space:nowrap}
 
 .brand-mark,.save-state{display:none !important}
 /* ===== переключатель разделов объекта ===== */
@@ -2750,7 +2754,9 @@ function devGrid(prog, c) {
     const D = N(c.D), base = c.orient === 'h' ? 90 : 0;
     for (let h = 0; h < H; h++) {
       const ang = base + 180 * h / H, rad = ang * Math.PI / 180, ex = Math.sin(rad), ey = -Math.cos(rad);
-      holes.push({ n: h + 1, ang, lab: ang === 0 ? 'сверху' : ang === 90 ? 'сбоку' : ang === 180 ? 'снизу' : `${Math.round(ang)}°`, ex, ey,
+      /* от 3 отверстий: у 2-го и дальше — расстояние по дуге от 1-го нарастающим итогом */
+      const lab = H > 2 && h > 0 ? `от 1: ${F(Math.round(Math.PI * D / (2 * H)) * h, 0)}` : ang === 0 ? 'сверху' : ang === 90 ? 'сбоку' : ang === 180 ? 'снизу' : `${Math.round(ang)}°`;
+      holes.push({ n: h + 1, ang, lab, ex, ey,
         pts: cp.map((k, i) => ({ key: `${h + 1}-${i + 1}`, depth: k * D, x: 0.5 + 0.5 * ex * (1 - 2 * k), y: 0.5 + 0.5 * ey * (1 - 2 * k) })) });
     }
   } else {
@@ -2940,7 +2946,7 @@ function devPages() {
   const p = devProg(DEV.prog), c = DEV.cfg;
   const geo = `<h3>Геометрия</h3><div class="dv-rows">${devSegRow('Сечение', 'shape', [['rect', 'Прямоуг.'], ['round', 'Круглое']])}
     ${c.shape === 'round' ? devField('D', 'Диаметр D', 'мм') : devField('b', 'Высота b', 'мм') + devField('a', 'Ширина a', 'мм')}
-    ${p.grid ? `${devField('l1', 'От возмущения до сечения', 'м')}${devField('l2', 'От сечения до возмущения', 'м')}<div id="dv-dist">${devDistHTML()}</div>` : ''}</div>`;
+    ${p.grid ? `${devField('wall', 'Стенка + изоляция', 'мм')}${devField('l1', 'От возмущения до сечения', 'м')}${devField('l2', 'От сечения до возмущения', 'м')}<div id="dv-dist">${devDistHTML()}</div>` : ''}</div>`;
   const flow = `<h3>Расход</h3><div class="dv-rows">${devSegRow('Воздух', 'air', [['supply', 'Приток'], ['exhaust', 'Вытяжка']])}
     ${devField('Lp', 'Заданный расход', 'м³/ч')}${devField('kcorr', 'Поправочный коэффициент', '')}${DEV.prog === 'grille' ? devField('free', 'Живое сечение решётки', '%') : ''}
     ${devSwitch('std', 'Стандартный объёмный расход')}</div>
@@ -2975,7 +2981,8 @@ function devSVG(live) {
     const done = r && key in vals, on = key === cur, sel = r && r.sel === key && done;
     return `<g class="dv-pt${on ? ' cur' : ''}${done ? ' done' : ''}${sel ? ' sel' : ''}"${live ? ` data-act="dv-pt" data-k="${key}"` : ''}>${sel ? `<circle class="ring" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${on ? 13 : 11}"/>` : ''}<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${on ? 9 : 6.5}"/>${done ? `<text x="${(x + (sel ? (on ? 16 : 14) : on ? 12 : 9)).toFixed(1)}" y="${(y + 4).toFixed(1)}">${tF(Math.abs(vals[key]), 1)}</text>` : ''}${live ? `<circle class="hit" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="18"/>` : ''}</g>`;
   };
-  const flag = (x, y, n, lab, on) => `<g class="dv-flag${on ? ' on' : ''}"><rect x="${(x - 22).toFixed(1)}" y="${(y - 34).toFixed(1)}" width="44" height="26" rx="5"/><text x="${x.toFixed(1)}" y="${(y - 23).toFixed(1)}">${n}</text><text class="s" x="${x.toFixed(1)}" y="${(y - 12).toFixed(1)}">${esc(lab)}</text><path d="M${(x - 5).toFixed(1)},${(y - 8).toFixed(1)} L${(x + 5).toFixed(1)},${(y - 8).toFixed(1)} L${x.toFixed(1)},${(y - 1).toFixed(1)}Z"/></g>`;
+  const fw = (lab) => Math.max(44, String(lab).length * 5.4 + 10);
+  const flag = (x, y, n, lab, on) => `<g class="dv-flag${on ? ' on' : ''}"><rect x="${(x - fw(lab) / 2).toFixed(1)}" y="${(y - 34).toFixed(1)}" width="${fw(lab).toFixed(1)}" height="26" rx="5"/><text x="${x.toFixed(1)}" y="${(y - 23).toFixed(1)}">${n}</text><text class="s" x="${x.toFixed(1)}" y="${(y - 12).toFixed(1)}">${esc(lab)}</text><path d="M${(x - 5).toFixed(1)},${(y - 8).toFixed(1)} L${(x + 5).toFixed(1)},${(y - 8).toFixed(1)} L${x.toFixed(1)},${(y - 1).toFixed(1)}Z"/></g>`;
   const tip = (x, y, t) => `<g class="dv-tip"><rect x="${(x - 30).toFixed(1)}" y="${(y + 11).toFixed(1)}" width="60" height="20" rx="4"/><text x="${x.toFixed(1)}" y="${(y + 25).toFixed(1)}">${t}</text></g>`;
   if (c.shape === 'round') {
     const W = 340, cx = 170, cy = 172, R = 112;
@@ -2986,15 +2993,21 @@ function devSVG(live) {
     G.holes.forEach((h) => {
       const on = cp && cp.h === h, ex0 = cx + h.ex * R, ey0 = cy + h.ey * R;
       if (h.ey < -0.9) { s += flag(ex0, ey0, h.n, h.lab, on); return; }
-      const side = Math.abs(h.ey) < 0.3, bx = Math.min(W - 24, Math.max(24, cx + h.ex * (R + (side ? 30 : 46)))), by = cy + h.ey * (R + (side ? 24 : 34)) - (side ? 30 : 0);
-      s += `<g class="dv-flag${on ? ' on' : ''}"><line class="dv-lead" x1="${ex0.toFixed(1)}" y1="${ey0.toFixed(1)}" x2="${bx.toFixed(1)}" y2="${by.toFixed(1)}"/><rect x="${(bx - 22).toFixed(1)}" y="${(by - 13).toFixed(1)}" width="44" height="26" rx="5"/><text x="${bx.toFixed(1)}" y="${(by - 2).toFixed(1)}">${h.n}</text><text class="s" x="${bx.toFixed(1)}" y="${(by + 9).toFixed(1)}">${esc(h.lab)}</text></g>`;
+      const side = Math.abs(h.ey) < 0.3, bx = Math.min(W - fw(h.lab) / 2 - 2, Math.max(fw(h.lab) / 2 + 2, cx + h.ex * (R + (side ? 30 : 46)))), by = cy + h.ey * (R + (side ? 24 : 34)) - (side ? 30 : 0);
+      s += `<g class="dv-flag${on ? ' on' : ''}"><line class="dv-lead" x1="${ex0.toFixed(1)}" y1="${ey0.toFixed(1)}" x2="${bx.toFixed(1)}" y2="${by.toFixed(1)}"/><rect x="${(bx - fw(h.lab) / 2).toFixed(1)}" y="${(by - 13).toFixed(1)}" width="${fw(h.lab).toFixed(1)}" height="26" rx="5"/><text x="${bx.toFixed(1)}" y="${(by - 2).toFixed(1)}">${h.n}</text><text class="s" x="${bx.toFixed(1)}" y="${(by + 9).toFixed(1)}">${esc(h.lab)}</text></g>`;
     });
+    let bx0 = 0, bx1 = W, by1 = VH;
     if (G.holes.length > 1) {
-      const a1 = G.holes[0].ang, a2 = G.holes[1].ang, ra = R + 9, P = (a, r) => [cx + r * Math.sin(a * Math.PI / 180), cy - r * Math.cos(a * Math.PI / 180)];
-      const [x1, y1] = P(a1 + 4, ra), [x2, y2] = P(a2 - 4, ra), [lx, ly] = P((a1 + a2) / 2, R + 40), arc = Math.PI * N(c.D) / (2 * G.holes.length);
-      s += `<g class="dv-arc"><path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${ra},${ra} 0 0 1 ${x2.toFixed(1)},${y2.toFixed(1)}"/><rect x="${(lx - 34).toFixed(1)}" y="${(ly - 15).toFixed(1)}" width="68" height="30" rx="5"/><text x="${lx.toFixed(1)}" y="${(ly - 2).toFixed(1)}">${F(arc, 0)} мм</text><text class="s" x="${lx.toFixed(1)}" y="${(ly + 10).toFixed(1)}">по дуге</text></g>`;
+      const ra = R + 9, P = (a, r) => [cx + r * Math.sin(a * Math.PI / 180), cy - r * Math.cos(a * Math.PI / 180)], arc = Math.PI * N(c.D) / (2 * G.holes.length);
+      for (let i = 0; i + 1 < G.holes.length; i++) {
+        const a1 = G.holes[i].ang, a2 = G.holes[i + 1].ang;
+        const [x1, y1] = P(a1 + 4, ra), [x2, y2] = P(a2 - 4, ra), [lx, ly] = P((a1 + a2) / 2, R + 40);
+        bx0 = Math.min(bx0, lx - 38); bx1 = Math.max(bx1, lx + 38); by1 = Math.max(by1, ly + 19);
+        s += `<g class="dv-arc"><path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${ra},${ra} 0 0 1 ${x2.toFixed(1)},${y2.toFixed(1)}"/><rect x="${(lx - 34).toFixed(1)}" y="${(ly - 15).toFixed(1)}" width="68" height="30" rx="5"/><text x="${lx.toFixed(1)}" y="${(ly - 2).toFixed(1)}">${F(arc, 0)} мм</text><text class="s" x="${lx.toFixed(1)}" y="${(ly + 10).toFixed(1)}">по дуге</text></g>`;
+      }
+      if (bx0 < 0 || bx1 > W || by1 > VH) s = s.replace(`viewBox="0 0 ${W} ${VH}"`, `viewBox="${bx0.toFixed(0)} 0 ${(bx1 - bx0).toFixed(0)} ${by1.toFixed(0)}"`);
     }
-    if (cp) s += tip(cx - R + cp.p.x * 2 * R, cy - R + cp.p.y * 2 * R, `${F(cp.p.depth, 0)} мм`);
+    if (cp) s += tip(cx - R + cp.p.x * 2 * R, cy - R + cp.p.y * 2 * R, `${F(cp.p.depth + devWall(), 0)} мм`);
     return s + '</svg>';
   }
   const a = N(c.a), b = N(c.b), vert = c.orient !== 'h';
@@ -3011,7 +3024,7 @@ function devSVG(live) {
     if (vert) s += flag(x0 + p0.x * w, y0, hh.n, hh.lab, cp && cp.h === hh);
     else { const Y = y0 + p0.y * h; s += `<g class="dv-flag${cp && cp.h === hh ? ' on' : ''}"><rect x="${(x0 - 66).toFixed(1)}" y="${(Y - 13).toFixed(1)}" width="56" height="26" rx="5"/><text x="${(x0 - 38).toFixed(1)}" y="${(Y - 2).toFixed(1)}">${hh.n}</text><text class="s" x="${(x0 - 38).toFixed(1)}" y="${(Y + 9).toFixed(1)}">${esc(hh.lab)}</text><path d="M${(x0 - 10).toFixed(1)},${(Y - 5).toFixed(1)} L${(x0 - 10).toFixed(1)},${(Y + 5).toFixed(1)} L${(x0 - 2).toFixed(1)},${Y.toFixed(1)}Z"/></g>`; }
   });
-  if (cp) s += tip(x0 + cp.p.x * w, y0 + cp.p.y * h, `${F(cp.p.depth, 0)} мм`);
+  if (cp) s += tip(x0 + cp.p.x * w, y0 + cp.p.y * h, `${F(cp.p.depth + devWall(), 0)} мм`);
   return s + '</svg>';
 }
 /* карточка точки: среднее, мин/макс, сколько значений — по нажатию на замеренную точку */
@@ -3020,7 +3033,7 @@ function devPtdHTML() {
   const G = devGrid(DEV.prog, DEV.cfg), q = G && devPt(G, r.sel); if (!q) return '';
   const d = r.det[r.sel] || { v: r.vals[r.sel] }, ix = q.h.pts.indexOf(q.p) + 1;
   const sub = [OK(d.min) && OK(d.max) ? `мин ${tF(devLo(d), 2)} · макс ${tF(devHi(d), 2)}` : '', d.n ? `${d.n} знач.${d.s ? ` за ${d.s} с` : ''}` : '', d.cv > 0.5 ? `колебания ±${F(d.cv, 0)} %` : '', OK(d.t) ? `${tF(d.t, 1)} °C` : ''].filter(Boolean).map((t) => t.replace(/ (?=[%°]|м\/с|с$)/g, '\u00a0')).join(' · ');
-  return `<div class="dv-ptd${d.cv > 10 ? ' warn' : ''}"><div class="dv-ptd-h"><span>Отв. ${q.h.n} · точка ${ix} · глубина ${F(q.p.depth, 0)} мм</span><button class="lnk" data-act="dv-ptx" aria-label="Закрыть">✕</button></div>
+  return `<div class="dv-ptd${d.cv > 10 ? ' warn' : ''}"><div class="dv-ptd-h"><span>Отв. ${q.h.n} · точка ${ix} · глубина ${F(q.p.depth, 0)} мм${devWall() ? ` (отметка ${F(q.p.depth + devWall(), 0)})` : ''}</span><button class="lnk" data-act="dv-ptx" aria-label="Закрыть">✕</button></div>
     <div class="dv-ptd-v">${tF(Math.abs(d.v), 2)} <small>м/с средняя</small></div>${sub ? `<div class="dv-ptd-s">${sub}</div>` : ''}
     ${r.job ? '' : `<div class="dv-ptd-b"><button class="btn sm" data-act="dv-redo">Перемерить</button><button class="btn sm" data-act="dv-ptdel">Удалить</button></div>`}</div>`;
 }
@@ -3067,7 +3080,7 @@ function devFootHTML() { if (TESTO.st === 'on' && isHum()) return ''; return dev
 function devFootBtns() {
   const r = DEV.run, grid = devProg(DEV.prog).grid;
   if (DEV.prog === 'kfac') return r && (r.dp || []).length ? `<div class="dv-foot2">${DEV.link ? '' : '<button class="btn primary dv-go" data-act="dv-save">Сохранить в точку…</button>'}<button class="btn" data-act="dv-new">Новый замер</button></div>` : '';
-  if (r && r.job) return `<button class="btn dv-go dv-stop" data-act="dv-stop">${r.job.dur ? 'Отмена' : 'Остановить'}</button>`;
+  if (r && r.job) return `${grid && r.cur ? devWhereHTML() : ''}<button class="btn dv-go dv-stop" data-act="dv-stop">${r.job.dur ? 'Отмена' : 'Остановить'}</button>`;
   const done = devDone();
   if (done && grid) {
     const nx = DEV.link ? devNextSec() : null;
@@ -3075,9 +3088,17 @@ function devFootBtns() {
       ${nx ? `<button class="btn primary dv-go" data-act="dv-next">Точка ${esc(nx.no || '')} →</button>` : ''}
       <button class="btn" data-act="dv-new">Новый замер</button></div>`;
   }
-  const cur = grid && r && r.cur ? (() => { const G = devGrid(DEV.prog, DEV.cfg), q = G && devPt(G, r.cur); return q ? ` · отв. ${q.h.n}, ${F(q.p.depth, 0)} мм` : ''; })() : '';
+  const cur = grid && r && r.cur ? devWhereHTML() : '';
   const extra = !grid && r && r.vals.length ? `<div class="dv-foot2 row">${DEV.link ? '' : DEV.prog !== 'std' ? '<button class="btn" data-act="dv-save">Сохранить в точку…</button>' : ''}${DEV.link && devNextSec() ? `<button class="btn" data-act="dv-next">Точка ${esc(devNextSec().no || '')} →</button>` : ''}<button class="btn" data-act="dv-new">Новый</button></div>` : '';
-  return `<button class="btn primary dv-go" data-act="dv-start">Запустить${cur}</button>${extra}`;
+  return `${cur}<button class="btn primary dv-go" data-act="dv-start">Запустить</button>${extra}`;
+}
+/* стенка + изоляция: прибавляется к глубине — получается отметка на шкале зонда */
+const devWall = () => { const w = N(DEV.cfg && DEV.cfg.wall); return OK(w) && w > 0 ? w : 0; };
+/* куда ставить зонд: отверстие, точка, глубина (над кнопкой) */
+function devWhereHTML() {
+  const r = DEV.run, G = r && r.cur && devGrid(DEV.prog, DEV.cfg), q = G && devPt(G, r.cur); if (!q) return '';
+  const ix = q.h.pts.indexOf(q.p) + 1, w = devWall(), d = q.p.depth;
+  return `<div class="dv-where">Отверстие ${q.h.n} · точка ${ix} из ${q.h.pts.length} · ${w ? `отметка на зонде <b>${F(d + w, 0)} мм</b> <small>(${F(d, 0)} + ${F(w, 0)} стенка)</small>` : `зонд на <b>${F(d, 0)} мм</b> от внутренней стенки`}</div>`;
 }
 function devValsHTML() {
   const r = DEV.run; if (!r || devProg(DEV.prog).grid || !r.vals.length) return '';
